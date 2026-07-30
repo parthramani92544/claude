@@ -1,0 +1,443 @@
+{
+  "project": "Gyan Vatika Pathshala — Student Screens",
+  "viewport": {
+    "width": 390,
+    "height": 810
+  },
+  "generatedFrom": "live app render (actual React components + compiled CSS)",
+  "count": 33,
+  "screens": [
+    {
+      "id": "01-splash",
+      "title": "Splash Screen",
+      "group": "Onboarding & Auth",
+      "screen": "Splash",
+      "state": null,
+      "states": [],
+      "previewUrl": "/?screen=Splash",
+      "card": "cards/01-splash.html",
+      "shot": "shots/01-splash.png",
+      "description": "Branded launch screen with logo, tagline and Start Learning CTA."
+    },
+    {
+      "id": "02-language",
+      "title": "Language Selection",
+      "group": "Onboarding & Auth",
+      "screen": "Language",
+      "state": null,
+      "states": [
+        "selected"
+      ],
+      "previewUrl": "/?screen=Language",
+      "card": "cards/02-language.html",
+      "shot": "shots/02-language.png",
+      "description": "Choose the app language (English / Hindi / Gujarati) with selected state."
+    },
+    {
+      "id": "03-welcome",
+      "title": "Welcome",
+      "group": "Onboarding & Auth",
+      "screen": "Welcome",
+      "state": null,
+      "states": [],
+      "previewUrl": "/?screen=Welcome",
+      "card": "cards/03-welcome.html",
+      "shot": "shots/03-welcome.png",
+      "description": "Student vs Teacher entry choice on the welcome screen."
+    },
+    {
+      "id": "04-register",
+      "title": "Registration",
+      "group": "Onboarding & Auth",
+      "screen": "Register",
+      "state": null,
+      "states": [],
+      "previewUrl": "/?screen=Register",
+      "card": "cards/04-register.html",
+      "shot": "shots/04-register.png",
+      "description": "Multi-step student registration form (step 1 pre-filled)."
+    },
+    {
+      "id": "05-login",
+      "title": "Login",
+      "group": "Onboarding & Auth",
+      "screen": "Login",
+      "state": null,
+      "states": [],
+      "previewUrl": "/?screen=Login",
+      "card": "cards/05-login.html",
+      "shot": "shots/05-login.png",
+      "description": "Phone + OTP student login (and teacher login toggle)."
+    },
+    {
+      "id": "06-payment",
+      "title": "Registration Fee",
+      "group": "Onboarding & Auth",
+      "screen": "Payment",
+      "state": null,
+      "states": [],
+      "previewUrl": "/?screen=Payment",
+      "card": "cards/06-payment.html",
+      "shot": "shots/06-payment.png",
+      "description": "₹100 registration fee payment screen with UPI / card options."
+    },
+    {
+      "id": "07-forgot-password",
+      "title": "Forgot Password",
+      "group": "Onboarding & Auth",
+      "screen": "ForgotPassword",
+      "state": null,
+      "states": [],
+      "previewUrl": "/?screen=ForgotPassword",
+      "card": "cards/07-forgot-password.html",
+      "shot": "shots/07-forgot-password.png",
+      "description": "Password reset request flow via email / phone."
+    },
+    {
+      "id": "08-home",
+      "title": "Home Dashboard",
+      "group": "Home & Learning",
+      "screen": "Home",
+      "state": null,
+      "states": [],
+      "previewUrl": "/?screen=Home",
+      "card": "cards/08-home.html",
+      "shot": "shots/08-home.png",
+      "description": "Student dashboard: greeting, live class card, quick access grid, quote."
+    },
+    {
+      "id": "09-syllabus",
+      "title": "Student Syllabus",
+      "group": "Home & Learning",
+      "screen": "Syllabus",
+      "state": null,
+      "states": [
+        "completed",
+        "locked"
+      ],
+      "previewUrl": "/?screen=Syllabus",
+      "card": "cards/09-syllabus.html",
+      "shot": "shots/09-syllabus.png",
+      "description": "Level syllabus with chapters, completed and locked lesson states."
+    },
+    {
+      "id": "10-live-class-list",
+      "title": "Live Class List",
+      "group": "Live Classes",
+      "screen": "LiveClassList",
+      "state": null,
+      "states": [
+        "live",
+        "upcoming",
+        "completed"
+      ],
+      "previewUrl": "/?screen=LiveClassList",
+      "card": "cards/10-live-class-list.html",
+      "shot": "shots/10-live-class-list.png",
+      "description": "List of live / upcoming / completed classes matched to the student."
+    },
+    {
+      "id": "11-live-class-details",
+      "title": "Live Class Details",
+      "group": "Live Classes",
+      "screen": "LiveClassDetails",
+      "state": null,
+      "states": [
+        "selected"
+      ],
+      "previewUrl": "/?screen=LiveClassDetails",
+      "card": "cards/11-live-class-details.html",
+      "shot": "shots/11-live-class-details.png",
+      "description": "Details of a selected Level 3 live class with join action."
+    },
+    {
+      "id": "12-live-class-room",
+      "title": "Live Classroom",
+      "group": "Live Classes",
+      "screen": "LiveClassRoom",
+      "state": null,
+      "states": [],
+      "previewUrl": "/?screen=LiveClassRoom",
+      "card": "cards/12-live-class-room.html",
+      "shot": "shots/12-live-class-room.png",
+      "description": "In-session classroom UI with video stage, chat and participants."
+    },
+    {
+      "id": "13-sutra-list",
+      "title": "Sutra List",
+      "group": "Sutras & Stavans",
+      "screen": "SutraList",
+      "state": null,
+      "states": [],
+      "previewUrl": "/?screen=SutraList",
+      "card": "cards/13-sutra-list.html",
+      "shot": "shots/13-sutra-list.png",
+      "description": "Browse sutras with categories, favourites and download states."
+    },
+    {
+      "id": "14-sutra-details",
+      "title": "Sutra Details",
+      "group": "Sutras & Stavans",
+      "screen": "SutraDetails",
+      "state": null,
+      "states": [
+        "selected"
+      ],
+      "previewUrl": "/?screen=SutraDetails",
+      "card": "cards/14-sutra-details.html",
+      "shot": "shots/14-sutra-details.png",
+      "description": "A single sutra with multi-language text, meaning and audio."
+    },
+    {
+      "id": "15-audio-lyrics",
+      "title": "Audio & Lyrics",
+      "group": "Sutras & Stavans",
+      "screen": "AudioLyrics",
+      "state": null,
+      "states": [],
+      "previewUrl": "/?screen=AudioLyrics",
+      "card": "cards/15-audio-lyrics.html",
+      "shot": "shots/15-audio-lyrics.png",
+      "description": "Full-screen audio player with synced lyrics."
+    },
+    {
+      "id": "16-stavan-list",
+      "title": "Stavan & Stuti",
+      "group": "Sutras & Stavans",
+      "screen": "StavanList",
+      "state": null,
+      "states": [],
+      "previewUrl": "/?screen=StavanList",
+      "card": "cards/16-stavan-list.html",
+      "shot": "shots/16-stavan-list.png",
+      "description": "Devotional stavan library with browse / filter modes."
+    },
+    {
+      "id": "17-stavan-details",
+      "title": "Stavan Details",
+      "group": "Sutras & Stavans",
+      "screen": "StavanDetails",
+      "state": null,
+      "states": [
+        "selected"
+      ],
+      "previewUrl": "/?screen=StavanDetails",
+      "card": "cards/17-stavan-details.html",
+      "shot": "shots/17-stavan-details.png",
+      "description": "A selected stavan with singer, lyrics and playback."
+    },
+    {
+      "id": "18-niyam",
+      "title": "Daily Niyam",
+      "group": "Practice & Games",
+      "screen": "Niyam",
+      "state": null,
+      "states": [
+        "open",
+        "locked",
+        "completed"
+      ],
+      "previewUrl": "/?screen=Niyam",
+      "card": "cards/18-niyam.html",
+      "shot": "shots/18-niyam.png",
+      "description": "Daily vows tracker showing Open (today), Locked (older) and Submitted/Completed days together."
+    },
+    {
+      "id": "19-bonus-event",
+      "title": "Bonus Event",
+      "group": "Practice & Games",
+      "screen": "BonusEvent",
+      "state": null,
+      "states": [
+        "selected",
+        "draft"
+      ],
+      "previewUrl": "/?screen=BonusEvent",
+      "card": "cards/19-bonus-event.html",
+      "shot": "shots/19-bonus-event.png",
+      "description": "Paryushan bonus activities with selectable / draft submission state."
+    },
+    {
+      "id": "20-games-home",
+      "title": "Games Home",
+      "group": "Practice & Games",
+      "screen": "GamesHome",
+      "state": null,
+      "states": [],
+      "previewUrl": "/?screen=GamesHome",
+      "card": "cards/20-games-home.html",
+      "shot": "shots/20-games-home.png",
+      "description": "Games & trivia hub landing."
+    },
+    {
+      "id": "21-games-quiz-hub",
+      "title": "Quiz Hub",
+      "group": "Practice & Games",
+      "screen": "GamesQuizHub",
+      "state": null,
+      "states": [],
+      "previewUrl": "/?screen=GamesQuizHub",
+      "card": "cards/21-games-quiz-hub.html",
+      "shot": "shots/21-games-quiz-hub.png",
+      "description": "AI quiz hub with category filters and difficulty badges."
+    },
+    {
+      "id": "22-quiz",
+      "title": "Quiz Screen",
+      "group": "Practice & Games",
+      "screen": "Quiz",
+      "state": null,
+      "states": [
+        "selected"
+      ],
+      "previewUrl": "/?screen=Quiz",
+      "card": "cards/22-quiz.html",
+      "shot": "shots/22-quiz.png",
+      "description": "An active quiz question with options and progress."
+    },
+    {
+      "id": "23-profile",
+      "title": "Profile",
+      "group": "Profile & Progress",
+      "screen": "Profile",
+      "state": null,
+      "states": [],
+      "previewUrl": "/?screen=Profile",
+      "card": "cards/23-profile.html",
+      "shot": "shots/23-profile.png",
+      "description": "Student profile with level, scores and menu."
+    },
+    {
+      "id": "24-profile-attendance",
+      "title": "Attendance",
+      "group": "Profile & Progress",
+      "screen": "ProfileAttendance",
+      "state": null,
+      "states": [],
+      "previewUrl": "/?screen=ProfileAttendance",
+      "card": "cards/24-profile-attendance.html",
+      "shot": "shots/24-profile-attendance.png",
+      "description": "Attendance history and percentage breakdown."
+    },
+    {
+      "id": "25-profile-guruji-approval",
+      "title": "Guruji Approval",
+      "group": "Profile & Progress",
+      "screen": "ProfileGurujiApproval",
+      "state": null,
+      "states": [
+        "approved",
+        "pending"
+      ],
+      "previewUrl": "/?screen=ProfileGurujiApproval",
+      "card": "cards/25-profile-guruji-approval.html",
+      "shot": "shots/25-profile-guruji-approval.png",
+      "description": "Gatha / sutra submissions and their approval states."
+    },
+    {
+      "id": "26-profile-bonus-points",
+      "title": "Bonus Points",
+      "group": "Profile & Progress",
+      "screen": "ProfileBonusPoints",
+      "state": null,
+      "states": [],
+      "previewUrl": "/?screen=ProfileBonusPoints",
+      "card": "cards/26-profile-bonus-points.html",
+      "shot": "shots/26-profile-bonus-points.png",
+      "description": "Bonus points ledger of earned events."
+    },
+    {
+      "id": "27-profile-report-card",
+      "title": "Learning Progress",
+      "group": "Profile & Progress",
+      "screen": "ProfileReportCard",
+      "state": null,
+      "states": [
+        "completed"
+      ],
+      "previewUrl": "/?screen=ProfileReportCard",
+      "card": "cards/27-profile-report-card.html",
+      "shot": "shots/27-profile-report-card.png",
+      "description": "Report card with completed levels and performance score."
+    },
+    {
+      "id": "28-profile-batch-change",
+      "title": "Batch Change",
+      "group": "Profile & Progress",
+      "screen": "ProfileBatchChange",
+      "state": null,
+      "states": [],
+      "previewUrl": "/?screen=ProfileBatchChange",
+      "card": "cards/28-profile-batch-change.html",
+      "shot": "shots/28-profile-batch-change.png",
+      "description": "Request a batch change with remaining-changes allowance."
+    },
+    {
+      "id": "29-downloads",
+      "title": "Downloads",
+      "group": "Utility",
+      "screen": "Downloads",
+      "state": null,
+      "states": [],
+      "previewUrl": "/?screen=Downloads",
+      "card": "cards/29-downloads.html",
+      "shot": "shots/29-downloads.png",
+      "description": "Offline downloaded content library."
+    },
+    {
+      "id": "30-notifications",
+      "title": "Notifications",
+      "group": "Utility",
+      "screen": "Notifications",
+      "state": null,
+      "states": [
+        "unread",
+        "read"
+      ],
+      "previewUrl": "/?screen=Notifications",
+      "card": "cards/30-notifications.html",
+      "shot": "shots/30-notifications.png",
+      "description": "Notification feed with read / unread states."
+    },
+    {
+      "id": "31-settings",
+      "title": "Settings",
+      "group": "Utility",
+      "screen": "Settings",
+      "state": null,
+      "states": [],
+      "previewUrl": "/?screen=Settings",
+      "card": "cards/31-settings.html",
+      "shot": "shots/31-settings.png",
+      "description": "App settings and preferences."
+    },
+    {
+      "id": "32-search-empty",
+      "title": "Search — Empty",
+      "group": "Utility",
+      "screen": "Search",
+      "state": null,
+      "states": [
+        "empty"
+      ],
+      "previewUrl": "/?screen=Search",
+      "card": "cards/32-search-empty.html",
+      "shot": "shots/32-search-empty.png",
+      "description": "Global search in its empty state with popular terms."
+    },
+    {
+      "id": "33-search-results",
+      "title": "Search — Results",
+      "group": "Utility",
+      "screen": "Search",
+      "state": "results",
+      "states": [
+        "results"
+      ],
+      "previewUrl": "/?screen=Search&state=results",
+      "card": "cards/33-search-results.html",
+      "shot": "shots/33-search-results.png",
+      "description": "Global search showing filtered results for a query."
+    }
+  ]
+}

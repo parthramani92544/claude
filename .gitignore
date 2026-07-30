@@ -1,0 +1,12 @@
+node_modules/
+build/
+dist/
+coverage/
+.DS_Store
+*.log
+.env*
+!.env.example
+
+# Verification screenshots for the screen export are regenerable via
+# `npm run screens:capture`; keep the heavy binaries out of git history.
+design-export/shots/

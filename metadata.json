@@ -1,0 +1,8 @@
+{
+  "name": "Gyan Vatika",
+  "description": "A premium high-fidelity educational app prototype for Gyan Vatika students, parents, and teachers.",
+  "requestFramePermissions": [],
+  "majorCapabilities": [
+    "MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"
+  ]
+}

@@ -1,0 +1,124 @@
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500&display=swap');
+@import "tailwindcss";
+
+@theme {
+  --font-sans: "Plus Jakarta Sans", "Inter", ui-sans-serif, system-ui, sans-serif;
+  --font-serif: "Plus Jakarta Sans", "Inter", ui-sans-serif, system-ui, sans-serif;
+  --font-mono: "JetBrains Mono", monospace;
+
+  /* Premium Warm Ivory & Soft Neutral Palette */
+  --color-slate-50: #FAF8F5;
+  --color-slate-100: #F3EFE6;
+  --color-slate-200: #E6DFD1;
+  --color-slate-300: #D4CBBA;
+  --color-slate-400: #B2A692;
+  --color-slate-500: #8C806D;
+  --color-slate-600: #6B6050;
+  --color-slate-700: #4D4438;
+  --color-slate-800: #332B22;
+  --color-slate-900: #1D1812;
+  --color-slate-950: #120F0B;
+
+  /* Deep Forest Green Palette (Primary Brand Color) */
+  --color-emerald-50: #F0F7F2;
+  --color-emerald-100: #DCEDE1;
+  --color-emerald-200: #BCDBC4;
+  --color-emerald-300: #93C29E;
+  --color-emerald-400: #65A374;
+  --color-emerald-500: #3A6B4C;
+  --color-emerald-600: #2D5A38;
+  --color-emerald-700: #1C482C;
+  --color-emerald-800: #163E2B;
+  --color-emerald-900: #0F2D1F;
+  --color-emerald-950: #081C13;
+
+  /* Muted Gold Palette (Secondary Brand Color) */
+  --color-amber-50: #FAF6ED;
+  --color-amber-100: #F3EAD3;
+  --color-amber-200: #E6D4AA;
+  --color-amber-300: #D8BD7D;
+  --color-amber-400: #C5A059;
+  --color-amber-500: #B48E44;
+  --color-amber-600: #997330;
+  --color-amber-700: #7A5922;
+  --color-amber-800: #5D4219;
+  --color-amber-900: #422E11;
+  --color-amber-950: #281B09;
+
+  /* Legacy utility mapping for blue/indigo/maroon/rose to Deep Forest Green & Muted Gold */
+  --color-blue-50: #F0F7F2;
+  --color-blue-100: #DCEDE1;
+  --color-blue-200: #BCDBC4;
+  --color-blue-300: #93C29E;
+  --color-blue-400: #65A374;
+  --color-blue-500: #3A6B4C;
+  --color-blue-600: #2D5A38;
+  --color-blue-700: #1C482C;
+  --color-blue-800: #163E2B;
+  --color-blue-900: #0F2D1F;
+  --color-blue-950: #081C13;
+
+  --color-indigo-50: #F0F7F2;
+  --color-indigo-100: #DCEDE1;
+  --color-indigo-200: #BCDBC4;
+  --color-indigo-300: #93C29E;
+  --color-indigo-400: #65A374;
+  --color-indigo-500: #3A6B4C;
+  --color-indigo-600: #2D5A38;
+  --color-indigo-700: #1C482C;
+  --color-indigo-800: #163E2B;
+  --color-indigo-900: #0F2D1F;
+  --color-indigo-950: #081C13;
+
+  --color-rose-50: #FAF6ED;
+  --color-rose-100: #F3EAD3;
+  --color-rose-200: #E6D4AA;
+  --color-rose-300: #D8BD7D;
+  --color-rose-400: #C5A059;
+  --color-rose-500: #3A6B4C;
+  --color-rose-600: #2D5A38;
+  --color-rose-700: #1C482C;
+  --color-rose-800: #163E2B;
+  --color-rose-900: #0F2D1F;
+  --color-rose-950: #081C13;
+
+  --color-maroon-50: #F0F7F2;
+  --color-maroon-100: #DCEDE1;
+  --color-maroon-200: #BCDBC4;
+  --color-maroon-300: #93C29E;
+  --color-maroon-400: #65A374;
+  --color-maroon-500: #3A6B4C;
+  --color-maroon-600: #2D5A38;
+  --color-maroon-700: #1C482C;
+  --color-maroon-800: #163E2B;
+  --color-maroon-900: #0F2D1F;
+
+  /* Shadows for elegant cards */
+  --shadow-sm: 0 2px 8px rgba(22, 62, 43, 0.04);
+  --shadow-md: 0 6px 20px rgba(22, 62, 43, 0.06);
+  --shadow-lg: 0 12px 32px rgba(22, 62, 43, 0.08);
+  --shadow-xl: 0 20px 40px rgba(22, 62, 43, 0.10);
+  --shadow-xs: 0 1px 3px rgba(22, 62, 43, 0.03);
+
+  /* Soft rounded corners */
+  --radius-xl: 16px;
+  --radius-2xl: 20px;
+  --radius-3xl: 24px;
+}
+
+/* Base resets */
+body {
+  font-family: var(--font-sans);
+  background-color: #FAF8F5;
+  color: #332B22;
+  overflow-x: hidden;
+}
+
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+

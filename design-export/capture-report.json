@@ -1,0 +1,18 @@
+{
+  "viewport": {
+    "width": 390,
+    "height": 810
+  },
+  "count": 1,
+  "results": [
+    {
+      "id": "01-splash",
+      "screen": "Splash",
+      "state": null,
+      "renderedScreen": "Splash",
+      "ok": true,
+      "htmlBytes": 3557,
+      "imgCount": 0
+    }
+  ]
+}

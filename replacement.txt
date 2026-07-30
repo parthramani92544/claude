@@ -1,0 +1,173 @@
+{/* 22. TEACHER DASHBOARD - HOME */}
+                {activeScreen === 'TeacherDashboard' && (() => {
+                  const teacherName = currentLoggedInTeacher?.name || "Teacher";
+                  const levels = currentLoggedInTeacher?.level?.join(', ') || "All Levels";
+                  const todayDate = new Date().toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
+
+                  return (
+                    <motion.div
+                      initial={{ opacity: 0 }}
+                      animate={{ opacity: 1 }}
+                      className="h-full bg-slate-50 overflow-y-auto pb-24"
+                    >
+                      {/* HEADER */}
+                      <div className="bg-white px-6 pt-12 pb-6 border-b border-slate-200">
+                        <h1 className="text-2xl font-black text-slate-900 tracking-tight">Welcome, {teacherName}</h1>
+                        <p className="text-sm font-medium text-slate-500 mt-1">Assigned: {levels}</p>
+                        <p className="text-[11px] font-bold text-slate-400 mt-3 font-mono uppercase tracking-wider">{todayDate}</p>
+                      </div>
+
+                      <div className="p-6 space-y-8">
+                        
+                        {/* TODAY'S SUMMARY */}
+                        <div>
+                          <h2 className="text-xs font-black text-slate-400 uppercase tracking-wider mb-4">Today's Summary</h2>
+                          <div className="grid grid-cols-2 gap-3">
+                            <div className="bg-white border border-slate-200 p-4 rounded-2xl shadow-sm">
+                              <div className="text-2xl font-black text-slate-800">3</div>
+                              <div className="text-[10px] font-bold text-slate-500 uppercase mt-1">Classes Today</div>
+                            </div>
+                            <div className="bg-white border border-slate-200 p-4 rounded-2xl shadow-sm">
+                              <div className="text-2xl font-black text-amber-600">12</div>
+                              <div className="text-[10px] font-bold text-amber-700 uppercase mt-1">Pending Approvals</div>
+                            </div>
+                            <div className="bg-white border border-slate-200 p-4 rounded-2xl shadow-sm">
+                              <div className="text-2xl font-black text-slate-800">45</div>
+                              <div className="text-[10px] font-bold text-slate-500 uppercase mt-1">My Students</div>
+                            </div>
+                            <div className="bg-white border border-slate-200 p-4 rounded-2xl shadow-sm">
+                              <div className="text-2xl font-black text-rose-600">2</div>
+                              <div className="text-[10px] font-bold text-rose-700 uppercase mt-1">Attendance Pending</div>
+                            </div>
+                          </div>
+                        </div>
+
+                        {/* TODAY'S CLASSES */}
+                        <div>
+                          <h2 className="text-xs font-black text-slate-400 uppercase tracking-wider mb-4">Today's Classes</h2>
+                          <div className="space-y-3">
+                            <div className="bg-white border border-slate-200 rounded-2xl p-4 shadow-sm border-l-4 border-l-emerald-500">
+                              <div className="flex justify-between items-start">
+                                <div>
+                                  <span className="text-[10px] font-bold text-slate-600 bg-slate-100 px-2 py-0.5 rounded uppercase tracking-wider">Level 1</span>
+                                  <h3 className="text-sm font-bold text-slate-800 mt-1.5">Batch A - Morning</h3>
+                                  <p className="text-xs text-slate-500 mt-1">09:00 AM • 15 Students</p>
+                                </div>
+                                <span className="text-[10px] font-bold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded border border-emerald-100">Completed</span>
+                              </div>
+                              <button className="w-full mt-4 py-2 bg-white border border-slate-200 text-slate-600 font-bold text-xs rounded-xl hover:bg-slate-50 transition-colors">
+                                View Details
+                              </button>
+                            </div>
+                            <div className="bg-white border border-slate-200 rounded-2xl p-4 shadow-sm border-l-4 border-l-blue-500">
+                              <div className="flex justify-between items-start">
+                                <div>
+                                  <span className="text-[10px] font-bold text-slate-600 bg-slate-100 px-2 py-0.5 rounded uppercase tracking-wider">Level 2</span>
+                                  <h3 className="text-sm font-bold text-slate-800 mt-1.5">Batch B - Afternoon</h3>
+                                  <p className="text-xs text-slate-500 mt-1">04:00 PM • 20 Students</p>
+                                </div>
+                                <span className="text-[10px] font-bold text-blue-700 bg-blue-50 px-2 py-0.5 rounded border border-blue-100">Upcoming</span>
+                              </div>
+                              <button className="w-full mt-4 py-2 bg-blue-600 text-white font-bold text-xs rounded-xl hover:bg-blue-700 transition-colors shadow-sm">
+                                View Details
+                              </button>
+                            </div>
+                          </div>
+                        </div>
+
+                        {/* PENDING TASKS */}
+                        <div>
+                          <h2 className="text-xs font-black text-slate-400 uppercase tracking-wider mb-4">Pending Tasks</h2>
+                          <div className="bg-white border border-slate-200 rounded-2xl shadow-sm overflow-hidden flex flex-col divide-y divide-slate-100">
+                            <div className="p-4 flex justify-between items-center hover:bg-slate-50">
+                              <div>
+                                <h4 className="text-sm font-bold text-slate-800">Pending Gatha Approvals</h4>
+                                <p className="text-xs text-slate-500 mt-0.5">12 submissions waiting</p>
+                              </div>
+                              <button className="px-4 py-1.5 bg-slate-100 text-slate-700 font-bold text-xs rounded-lg hover:bg-slate-200">View</button>
+                            </div>
+                            <div className="p-4 flex justify-between items-center hover:bg-slate-50">
+                              <div>
+                                <h4 className="text-sm font-bold text-slate-800">Attendance Yet to be Marked</h4>
+                                <p className="text-xs text-slate-500 mt-0.5">2 classes pending</p>
+                              </div>
+                              <button className="px-4 py-1.5 bg-slate-100 text-slate-700 font-bold text-xs rounded-lg hover:bg-slate-200">View</button>
+                            </div>
+                            <div className="p-4 flex justify-between items-center hover:bg-slate-50">
+                              <div>
+                                <h4 className="text-sm font-bold text-slate-800">Upcoming Class</h4>
+                                <p className="text-xs text-slate-500 mt-0.5">Batch B starts in 30 mins</p>
+                              </div>
+                              <button className="px-4 py-1.5 bg-slate-100 text-slate-700 font-bold text-xs rounded-lg hover:bg-slate-200">View</button>
+                            </div>
+                          </div>
+                        </div>
+
+                        {/* QUICK ACTIONS */}
+                        <div>
+                          <h2 className="text-xs font-black text-slate-400 uppercase tracking-wider mb-4">Quick Actions</h2>
+                          <div className="grid grid-cols-2 gap-3">
+                            {[
+                              { label: 'Live Classes', icon: Video },
+                              { label: 'Students', icon: Users },
+                              { label: 'Gatha Approvals', icon: CheckCircle2 },
+                              { label: 'Attendance', icon: FileText },
+                              { label: 'Reports', icon: TrendingUp }
+                            ].map((action, i) => (
+                              <button key={i} className={`flex items-center gap-3 bg-white border border-slate-200 p-3.5 rounded-2xl shadow-sm hover:border-slate-300 transition-colors ${i === 4 ? 'col-span-2' : ''}`}>
+                                <div className="w-8 h-8 rounded-full bg-slate-100 flex items-center justify-center shrink-0">
+                                  <action.icon className="w-4 h-4 text-slate-700" />
+                                </div>
+                                <span className="text-xs font-bold text-slate-700">{action.label}</span>
+                              </button>
+                            ))}
+                          </div>
+                        </div>
+
+                        {/* RECENT ACTIVITY */}
+                        <div>
+                          <h2 className="text-xs font-black text-slate-400 uppercase tracking-wider mb-4">Recent Activity</h2>
+                          <div className="bg-white border border-slate-200 rounded-2xl shadow-sm p-5 space-y-5">
+                            <div className="flex gap-4">
+                              <div className="w-2.5 h-2.5 rounded-full bg-emerald-500 mt-1 shrink-0" />
+                              <div>
+                                <p className="text-sm font-medium text-slate-700">Dhairya Kothari submitted <strong>Navkar Mantra</strong></p>
+                                <p className="text-xs text-slate-400 mt-1">10 mins ago</p>
+                              </div>
+                            </div>
+                            <div className="flex gap-4">
+                              <div className="w-2.5 h-2.5 rounded-full bg-blue-500 mt-1 shrink-0" />
+                              <div>
+                                <p className="text-sm font-medium text-slate-700">Attendance marked for <strong>Level 2 - Batch B</strong></p>
+                                <p className="text-xs text-slate-400 mt-1">2 hours ago</p>
+                              </div>
+                            </div>
+                            <div className="flex gap-4">
+                              <div className="w-2.5 h-2.5 rounded-full bg-amber-500 mt-1 shrink-0" />
+                              <div>
+                                <p className="text-sm font-medium text-slate-700">New student <strong>Aanya Shah</strong> assigned to your batch</p>
+                                <p className="text-xs text-slate-400 mt-1">Yesterday</p>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+
+                        {/* SIGN OUT */}
+                        <div className="pt-2">
+                          <button
+                            onClick={() => {
+                              setCurrentLoggedInTeacher(null);
+                              localStorage.removeItem('shalaSession');
+                              setActiveScreen('Login');
+                            }}
+                            className="w-full py-3.5 bg-white border border-slate-200 text-slate-700 font-bold text-xs rounded-xl hover:bg-slate-50 transition-colors shadow-sm flex items-center justify-center gap-2"
+                          >
+                            <LogOut className="w-4 h-4 text-slate-500" />
+                            <span>Sign Out & Return to Login</span>
+                          </button>
+                        </div>
+
+                      </div>
+                    </motion.div>
+                  );
+                })()}
