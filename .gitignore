@@ -10,3 +10,8 @@ coverage/
 # Verification screenshots for the screen export are regenerable via
 # `npm run screens:capture`; keep the heavy binaries out of git history.
 design-export/shots/
+
+# Visual-review captures of every screen, produced from the dev-only
+# `?screen=` preview system. Same rationale as above: regenerable, and heavy
+# (49 PNGs / ~6.8 MB), so they stay out of git history.
+visual-review/
