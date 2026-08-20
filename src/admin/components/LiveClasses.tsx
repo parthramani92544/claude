@@ -39,13 +39,45 @@ export const LiveClasses: React.FC<LiveClassesProps> = ({
 
   const isAuditor = currentRole === 'Auditor';
 
+  const formatToDisplayDateTime = (dateStr: string, timeStr: string) => {
+    if (!dateStr) return '';
+    if (!timeStr) return dateStr;
+    const [hStr, mStr] = timeStr.split(':');
+    let h = parseInt(hStr, 10);
+    const m = mStr || '00';
+    const ampm = h >= 12 ? 'PM' : 'AM';
+    h = h % 12;
+    if (h === 0) h = 12;
+    const formattedH = h < 10 ? `0${h}` : `${h}`;
+    return `${dateStr} ${formattedH}:${m} ${ampm}`;
+  };
+
+  const parseDateTimeString = (dtStr: string) => {
+    if (!dtStr) return { date: '2026-07-26', time: '10:00' };
+    const parts = dtStr.trim().split(' ');
+    const datePart = parts[0] || '2026-07-26';
+    if (parts.length >= 2) {
+      const timePart = parts[1];
+      const ampm = parts[2]?.toUpperCase();
+      const [hStr, mStr] = timePart.split(':');
+      let h = parseInt(hStr, 10);
+      const m = mStr || '00';
+      if (ampm === 'PM' && h < 12) h += 12;
+      if (ampm === 'AM' && h === 12) h = 0;
+      const hh = h < 10 ? `0${h}` : `${h}`;
+      return { date: datePart, time: `${hh}:${m}` };
+    }
+    return { date: datePart, time: '10:00' };
+  };
+
   const [formData, setFormData] = useState({
     title: '',
     level: 'Level 1 - Prarambhik',
     batch: 'Batch A - Weekend Morning',
     teacherId: teachers[0]?.id || 'TCH-01',
     classType: 'Regular' as 'Regular' | 'General',
-    dateTime: '2026-07-26 10:00 AM',
+    date: '2026-07-26',
+    time: '10:00',
     durationMinutes: 60,
     meetingLink: 'https://zoom.us/j/98234123415',
     status: 'Scheduled' as 'LIVE NOW' | 'Scheduled' | 'Completed' | 'Cancelled',
@@ -64,7 +96,8 @@ export const LiveClasses: React.FC<LiveClassesProps> = ({
       batch: 'Batch A - Weekend Morning',
       teacherId: teachers[0]?.id || 'TCH-01',
       classType: 'Regular',
-      dateTime: '2026-07-26 10:00 AM',
+      date: '2026-07-26',
+      time: '10:00',
       durationMinutes: 60,
       meetingLink: 'https://zoom.us/j/98234123415',
       status: 'Scheduled',
@@ -75,13 +108,15 @@ export const LiveClasses: React.FC<LiveClassesProps> = ({
   const openEditModal = (cls: ScheduledClass) => {
     if (isAuditor) return;
     setEditingClass(cls);
+    const { date, time } = parseDateTimeString(cls.dateTime);
     setFormData({
       title: cls.title,
       level: cls.level,
       batch: cls.batch,
       teacherId: cls.teacherId,
       classType: cls.classType,
-      dateTime: cls.dateTime,
+      date,
+      time,
       durationMinutes: cls.durationMinutes,
       meetingLink: cls.meetingLink,
       status: cls.status,
@@ -95,19 +130,36 @@ export const LiveClasses: React.FC<LiveClassesProps> = ({
 
     const matchedTeacher = teachers.find((t) => t.id === formData.teacherId);
     const teacherName = matchedTeacher ? matchedTeacher.name : 'Assigned Instructor';
+    const formattedDateTime = formatToDisplayDateTime(formData.date, formData.time);
 
     if (editingClass) {
       onUpdateClass({
         ...editingClass,
-        ...formData,
+        title: formData.title,
+        level: formData.level,
+        batch: formData.batch,
+        teacherId: formData.teacherId,
         teacherName,
+        classType: formData.classType,
+        dateTime: formattedDateTime,
+        durationMinutes: formData.durationMinutes,
+        meetingLink: formData.meetingLink,
+        status: editingClass.status || 'Scheduled',
       });
       addToast('success', 'Class Schedule Updated', `Updated live class details for ${formData.title}`);
     } else {
       const newCls: ScheduledClass = {
         id: `CLS-${Math.floor(500 + Math.random() * 500)}`,
-        ...formData,
+        title: formData.title,
+        level: formData.level,
+        batch: formData.batch,
+        teacherId: formData.teacherId,
         teacherName,
+        classType: formData.classType,
+        dateTime: formattedDateTime,
+        durationMinutes: formData.durationMinutes,
+        meetingLink: formData.meetingLink,
+        status: 'Scheduled',
         registeredCount: 30,
       };
       onAddClass(newCls);
@@ -273,28 +325,48 @@ export const LiveClasses: React.FC<LiveClassesProps> = ({
 
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="block text-[10px] font-bold text-slate-500 uppercase font-mono mb-1">Level Allocation</label>
-                  <select
-                    value={formData.level}
-                    onChange={(e) => setFormData({ ...formData, level: e.target.value })}
-                    className="w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 text-slate-900 focus:outline-none focus:border-[#163E2B] focus:bg-white"
-                  >
-                    <option value="All Levels">All Levels (Assembly)</option>
-                    <option value="Level 1 - Prarambhik">Level 1 - Prarambhik</option>
-                    <option value="Level 2 - Madhyamik">Level 2 - Madhyamik</option>
-                    <option value="Level 3 - Shravak Junior">Level 3 - Shravak Junior</option>
-                  </select>
-                </div>
-                <div>
-                  <label className="block text-[10px] font-bold text-slate-500 uppercase font-mono mb-1">Batch Slot</label>
+                  <label className="block text-[10px] font-bold text-slate-500 uppercase font-mono mb-1">
+                    Super Category: Batch Slot
+                  </label>
                   <select
                     value={formData.batch}
-                    onChange={(e) => setFormData({ ...formData, batch: e.target.value })}
-                    className="w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 text-slate-900 focus:outline-none focus:border-[#163E2B] focus:bg-white"
+                    onChange={(e) => {
+                      const newBatch = e.target.value;
+                      let defaultLvl = formData.level;
+                      if (newBatch === 'Batch B - Weekend Evening') {
+                        defaultLvl = 'Level 2 - Madhyamik';
+                      } else if (newBatch === 'Batch A - Weekend Morning' && formData.level === 'Level 2 - Madhyamik') {
+                        defaultLvl = 'Level 1 - Prarambhik';
+                      }
+                      setFormData({ ...formData, batch: newBatch, level: defaultLvl });
+                    }}
+                    className="w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 text-slate-900 font-bold focus:outline-none focus:border-[#163E2B] focus:bg-white cursor-pointer"
                   >
                     <option value="Batch A & B Combined">Batch A & B Combined</option>
                     <option value="Batch A - Weekend Morning">Batch A - Weekend Morning</option>
                     <option value="Batch B - Weekend Evening">Batch B - Weekend Evening</option>
+                  </select>
+                </div>
+
+                <div>
+                  <label className="block text-[10px] font-bold text-slate-500 uppercase font-mono mb-1">
+                    Subcategory: Level Allocation
+                  </label>
+                  <select
+                    value={formData.level}
+                    onChange={(e) => setFormData({ ...formData, level: e.target.value })}
+                    className="w-full bg-emerald-50/60 border border-emerald-200 rounded-lg px-3 py-2 text-[#163E2B] font-bold focus:outline-none focus:border-[#163E2B] focus:bg-white cursor-pointer"
+                  >
+                    <option value="All Levels">All Levels (Assembly)</option>
+                    {(formData.batch === 'Batch A & B Combined' || formData.batch === 'Batch A - Weekend Morning') && (
+                      <>
+                        <option value="Level 1 - Prarambhik">Level 1 - Prarambhik</option>
+                        <option value="Level 3 - Shravak Junior">Level 3 - Shravak Junior</option>
+                      </>
+                    )}
+                    {(formData.batch === 'Batch A & B Combined' || formData.batch === 'Batch B - Weekend Evening') && (
+                      <option value="Level 2 - Madhyamik">Level 2 - Madhyamik</option>
+                    )}
                   </select>
                 </div>
               </div>
@@ -327,28 +399,24 @@ export const LiveClasses: React.FC<LiveClassesProps> = ({
 
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="block text-[10px] font-bold text-slate-500 uppercase font-mono mb-1">Date & Time String</label>
+                  <label className="block text-[10px] font-bold text-slate-500 uppercase font-mono mb-1">Date</label>
                   <input
-                    type="text"
+                    type="date"
                     required
-                    value={formData.dateTime}
-                    onChange={(e) => setFormData({ ...formData, dateTime: e.target.value })}
-                    placeholder="2026-07-26 10:00 AM"
-                    className="w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 text-slate-900 focus:outline-none focus:border-[#163E2B] focus:bg-white font-mono"
+                    value={formData.date}
+                    onChange={(e) => setFormData({ ...formData, date: e.target.value })}
+                    className="w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 text-slate-900 focus:outline-none focus:border-[#163E2B] focus:bg-white font-mono cursor-pointer"
                   />
                 </div>
                 <div>
-                  <label className="block text-[10px] font-bold text-slate-500 uppercase font-mono mb-1">Session Status</label>
-                  <select
-                    value={formData.status}
-                    onChange={(e) => setFormData({ ...formData, status: e.target.value as any })}
-                    className="w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 text-slate-900 focus:outline-none focus:border-[#163E2B] focus:bg-white"
-                  >
-                    <option value="Scheduled">Scheduled</option>
-                    <option value="LIVE NOW">LIVE NOW</option>
-                    <option value="Completed">Completed</option>
-                    <option value="Cancelled">Cancelled</option>
-                  </select>
+                  <label className="block text-[10px] font-bold text-slate-500 uppercase font-mono mb-1">Time</label>
+                  <input
+                    type="time"
+                    required
+                    value={formData.time}
+                    onChange={(e) => setFormData({ ...formData, time: e.target.value })}
+                    className="w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 text-slate-900 focus:outline-none focus:border-[#163E2B] focus:bg-white font-mono cursor-pointer"
+                  />
                 </div>
               </div>
 

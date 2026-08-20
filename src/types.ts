@@ -93,12 +93,29 @@ export interface AIQuiz {
   publishedAt: string;
 }
 
+export interface QuizAnswerRecord {
+  question: string;
+  type: 'mcq' | 'boolean' | 'fill';
+  options: string[];
+  userAnswer: number | string | null;
+  correctAnswer: number | string;
+  isCorrect: boolean;
+  explanation: string;
+}
+
 export interface QuizHistoryRecord {
   quizId: string;
   quizTitle: string;
+  category?: string;
+  difficulty?: string;
+  level?: number;
   score: number;
   totalQuestions: number;
   percentage: number;
+  pointsEarned?: number;
+  timeSpentSeconds?: number;
   completedAt: string;
+  userAnswers?: (number | string | null)[];
+  answersSummary?: QuizAnswerRecord[];
 }
 

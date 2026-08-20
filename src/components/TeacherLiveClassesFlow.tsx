@@ -20,6 +20,7 @@ export function TeacherLiveClassesFlow({
   const [activeTab, setActiveTab] = useState<'today' | 'upcoming' | 'previous'>('today');
   const [showEndClassModal, setShowEndClassModal] = useState(false);
   const [classStatus, setClassStatus] = useState<'scheduled' | 'in-progress' | 'ended'>('scheduled');
+  const [selectedStudentFilter, setSelectedStudentFilter] = useState<'total' | 'present' | 'absent'>('total');
 
   React.useEffect(() => {
     if (teacherSelectedLiveClass) {
@@ -54,6 +55,12 @@ export function TeacherLiveClassesFlow({
     const presentCount = mockStudents.filter(s => s.attendance === 'Present').length;
     const absentCount = mockStudents.filter(s => s.attendance === 'Absent').length;
 
+    const filteredStudents = mockStudents.filter(s => {
+      if (selectedStudentFilter === 'present') return s.attendance === 'Present';
+      if (selectedStudentFilter === 'absent') return s.attendance === 'Absent';
+      return true;
+    });
+
     const handleEndClass = () => {
       setClassStatus('ended');
       setShowEndClassModal(true);
@@ -76,7 +83,7 @@ export function TeacherLiveClassesFlow({
               setActiveScreen('TeacherLiveClasses'); 
               setTeacherSelectedLiveClass(null); 
             }} 
-            className="p-2 hover:bg-slate-100 rounded-full transition-colors active:scale-95"
+            className="p-2 hover:bg-slate-100 rounded-full transition-colors active:scale-95 cursor-pointer"
           >
             <ArrowRight className="w-5 h-5 text-slate-700 rotate-180" />
           </button>
@@ -174,62 +181,108 @@ export function TeacherLiveClassesFlow({
           </div>
 
           <div className="bg-white border border-slate-200 rounded-2xl p-5 shadow-sm">
-            <h3 className="text-sm font-bold text-slate-800 flex items-center gap-2 mb-4">
+            <h3 className="text-sm font-bold text-slate-800 flex items-center gap-2 mb-3">
               <Users className="w-4 h-4 text-emerald-500" />
-              Attendance Preview
+              Attendance & Student Filter
             </h3>
-            <div className="flex gap-4 mb-4">
-              <div className="flex-1 bg-slate-50 p-3 rounded-xl border border-slate-100">
+            <p className="text-xs text-slate-500 mb-4">Click any card below to filter the student list below:</p>
+            <div className="grid grid-cols-3 gap-3">
+              <button
+                onClick={() => setSelectedStudentFilter('total')}
+                className={`p-3 rounded-xl border transition-all text-left cursor-pointer ${
+                  selectedStudentFilter === 'total'
+                    ? 'bg-blue-50/80 border-blue-500 ring-2 ring-blue-500/20 shadow-xs'
+                    : 'bg-slate-50 border-slate-200 hover:bg-slate-100'
+                }`}
+              >
                 <p className="text-[10px] font-bold text-slate-500 uppercase tracking-wider">Total</p>
-                <p className="text-lg font-black text-slate-800">{teacherSelectedLiveClass.students}</p>
-              </div>
-              <div className="flex-1 bg-emerald-50 p-3 rounded-xl border border-emerald-100">
+                <p className="text-lg font-black text-slate-800 mt-0.5">{teacherSelectedLiveClass.students}</p>
+                <p className="text-[9px] font-bold text-blue-600 mt-1 uppercase tracking-wider">All Students</p>
+              </button>
+
+              <button
+                onClick={() => setSelectedStudentFilter('present')}
+                className={`p-3 rounded-xl border transition-all text-left cursor-pointer ${
+                  selectedStudentFilter === 'present'
+                    ? 'bg-emerald-50 border-emerald-500 ring-2 ring-emerald-500/20 shadow-xs'
+                    : 'bg-slate-50 border-slate-200 hover:bg-slate-100'
+                }`}
+              >
                 <p className="text-[10px] font-bold text-emerald-600 uppercase tracking-wider">Present</p>
-                <p className="text-lg font-black text-emerald-700">{classStatus === 'ended' ? presentCount : '--'}</p>
-              </div>
-              <div className="flex-1 bg-rose-50 p-3 rounded-xl border border-rose-100">
+                <p className="text-lg font-black text-emerald-700 mt-0.5">{presentCount}</p>
+                <p className="text-[9px] font-bold text-emerald-600 mt-1 uppercase tracking-wider">Present Only</p>
+              </button>
+
+              <button
+                onClick={() => setSelectedStudentFilter('absent')}
+                className={`p-3 rounded-xl border transition-all text-left cursor-pointer ${
+                  selectedStudentFilter === 'absent'
+                    ? 'bg-rose-50 border-rose-500 ring-2 ring-rose-500/20 shadow-xs'
+                    : 'bg-slate-50 border-slate-200 hover:bg-slate-100'
+                }`}
+              >
                 <p className="text-[10px] font-bold text-rose-600 uppercase tracking-wider">Absent</p>
-                <p className="text-lg font-black text-rose-700">{classStatus === 'ended' ? absentCount : '--'}</p>
-              </div>
+                <p className="text-lg font-black text-rose-700 mt-0.5">{absentCount}</p>
+                <p className="text-[9px] font-bold text-rose-600 mt-1 uppercase tracking-wider">Absent Only</p>
+              </button>
             </div>
-            <p className="text-xs text-slate-400 italic text-center">Read-only. Attendance marking will be implemented later.</p>
           </div>
 
           <div className="bg-white border border-slate-200 rounded-2xl shadow-sm overflow-hidden">
-            <div className="p-4 border-b border-slate-100 bg-slate-50">
-              <h3 className="text-sm font-bold text-slate-800">Students ({teacherSelectedLiveClass.students})</h3>
+            <div className="p-4 border-b border-slate-100 bg-slate-50 flex items-center justify-between">
+              <h3 className="text-sm font-bold text-slate-800">
+                {selectedStudentFilter === 'total' && `Total Students (${filteredStudents.length})`}
+                {selectedStudentFilter === 'present' && `Present Students (${filteredStudents.length})`}
+                {selectedStudentFilter === 'absent' && `Absent Students (${filteredStudents.length})`}
+              </h3>
+              <span className={`text-[10px] font-bold px-2.5 py-0.5 rounded-full font-mono uppercase tracking-wider border ${
+                selectedStudentFilter === 'present' ? 'bg-emerald-50 text-emerald-700 border-emerald-200' :
+                selectedStudentFilter === 'absent' ? 'bg-rose-50 text-rose-700 border-rose-200' :
+                'bg-blue-50 text-blue-700 border-blue-200'
+              }`}>
+                Showing: {selectedStudentFilter}
+              </span>
             </div>
-            <div className="divide-y divide-slate-100 max-h-[300px] overflow-y-auto">
-              {mockStudents.map((student) => (
-                <div key={student.id} className="p-4 flex items-center justify-between">
-                  <div className="flex items-center gap-3">
-                    <div className="w-8 h-8 rounded-full bg-slate-100 text-slate-600 font-bold text-xs flex items-center justify-center shrink-0 border border-slate-200">
-                      {student.initials}
+            
+            {filteredStudents.length === 0 ? (
+              <div className="p-8 text-center text-slate-400 text-xs font-medium">
+                No {selectedStudentFilter} students found for this class.
+              </div>
+            ) : (
+              <div className="divide-y divide-slate-100 max-h-[350px] overflow-y-auto">
+                {filteredStudents.map((student) => (
+                  <div key={student.id} className="p-4 flex items-center justify-between hover:bg-slate-50/50 transition-colors">
+                    <div className="flex items-center gap-3">
+                      <div className="w-8 h-8 rounded-full bg-slate-100 text-slate-600 font-bold text-xs flex items-center justify-center shrink-0 border border-slate-200">
+                        {student.initials}
+                      </div>
+                      <div>
+                        <span className="text-sm font-bold text-slate-800 block">{student.name}</span>
+                        <span className="text-[10px] text-slate-400 font-mono">ID: STU-{100 + student.id}</span>
+                      </div>
                     </div>
-                    <span className="text-sm font-bold text-slate-700">{student.name}</span>
-                  </div>
-                  <div className="text-right">
-                    <p className="text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1">Status</p>
-                    <div className="flex items-center gap-2">
-                      <span className={`text-[9px] font-bold px-1.5 py-0.5 rounded \${
-                        classStatus === 'ended' 
-                          ? (student.attendance === 'Present' ? 'bg-emerald-50 text-emerald-600' : 'bg-rose-50 text-rose-600')
-                          : 'bg-slate-100 text-slate-500'
-                      }`}>
-                        {classStatus === 'ended' ? student.attendance : 'Pending'}
-                      </span>
-                      <span className={`text-[9px] font-bold px-1.5 py-0.5 rounded \${
-                        student.gathaStatus === 'Submitted' ? 'bg-blue-50 text-blue-600' :
-                        student.gathaStatus === 'Pending' ? 'bg-amber-50 text-amber-600' :
-                        'bg-slate-100 text-slate-500'
-                      }`}>
-                        {student.gathaStatus === 'Not Started' ? 'Gatha Pending' : student.gathaStatus}
-                      </span>
+                    <div className="text-right">
+                      <div className="flex items-center gap-2">
+                        <span className={`text-[9px] font-bold px-2 py-0.5 rounded-full border ${
+                          student.attendance === 'Present'
+                            ? 'bg-emerald-50 text-emerald-700 border-emerald-200'
+                            : 'bg-rose-50 text-rose-700 border-rose-200'
+                        }`}>
+                          {student.attendance}
+                        </span>
+                        <span className={`text-[9px] font-bold px-2 py-0.5 rounded-full ${
+                          student.gathaStatus === 'Submitted' ? 'bg-blue-50 text-blue-600' :
+                          student.gathaStatus === 'Pending' ? 'bg-amber-50 text-amber-600' :
+                          'bg-slate-100 text-slate-500'
+                        }`}>
+                          {student.gathaStatus === 'Not Started' ? 'Gatha Pending' : student.gathaStatus}
+                        </span>
+                      </div>
                     </div>
                   </div>
-                </div>
-              ))}
-            </div>
+                ))}
+              </div>
+            )}
           </div>
 
           <div className="bg-amber-50 border border-amber-200 rounded-xl p-4 flex gap-3">
@@ -316,10 +369,17 @@ export function TeacherLiveClassesFlow({
             </div>
           ) : (
             currentClasses.map((cls) => (
-              <div key={cls.id} className="bg-white border border-slate-200 rounded-2xl p-5 shadow-sm">
+              <div
+                key={cls.id}
+                onClick={() => {
+                  setTeacherSelectedLiveClass(cls);
+                  setActiveScreen('TeacherLiveClassDetails');
+                }}
+                className="bg-white border border-slate-200 hover:border-blue-400 hover:shadow-md rounded-2xl p-5 shadow-sm transition-all cursor-pointer group"
+              >
                 <div className="flex justify-between items-start mb-3">
                   <span className="text-[10px] font-bold text-slate-600 bg-slate-100 px-2 py-0.5 rounded uppercase tracking-wider">{cls.level.split(':')[0]}</span>
-                  <span className={`text-[10px] font-bold px-2 py-0.5 rounded border \${
+                  <span className={`text-[10px] font-bold px-2 py-0.5 rounded border ${
                     cls.status === 'Completed' ? 'bg-emerald-50 text-emerald-700 border-emerald-100' :
                     cls.status === 'Scheduled' ? 'bg-blue-50 text-blue-700 border-blue-100' :
                     'bg-amber-50 text-amber-700 border-amber-100'
@@ -327,7 +387,7 @@ export function TeacherLiveClassesFlow({
                     {cls.status}
                   </span>
                 </div>
-                <h3 className="text-sm font-bold text-slate-800">{cls.name}</h3>
+                <h3 className="text-sm font-bold text-slate-800 group-hover:text-blue-600 transition-colors">{cls.name}</h3>
                 <p className="text-xs font-medium text-slate-500 mt-1">{cls.batch}</p>
                 
                 <div className="grid grid-cols-2 gap-2 mt-4 pt-4 border-t border-slate-100">
@@ -342,13 +402,14 @@ export function TeacherLiveClassesFlow({
                 </div>
 
                 <button 
-                  onClick={() => {
+                  onClick={(e) => {
+                    e.stopPropagation();
                     setTeacherSelectedLiveClass(cls);
                     setActiveScreen('TeacherLiveClassDetails');
                   }}
-                  className="w-full mt-4 py-2.5 bg-blue-50 text-blue-700 hover:bg-blue-100 border border-blue-200 font-bold text-xs rounded-xl transition-colors cursor-pointer active:scale-95"
+                  className="w-full mt-4 py-2.5 bg-blue-50 text-blue-700 group-hover:bg-blue-600 group-hover:text-white border border-blue-200 font-bold text-xs rounded-xl transition-all cursor-pointer active:scale-95"
                 >
-                  Manage Class
+                  Manage Class Details
                 </button>
               </div>
             ))

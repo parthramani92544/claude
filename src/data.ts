@@ -544,6 +544,60 @@ export const INITIAL_AI_QUIZZES: AIQuiz[] = [
         explanation: "True. It is a fundamental devotional prayer recited daily to purify consciousness by thinking about the pure qualities of the 24 Tirthankaras."
       }
     ]
+  },
+  {
+    id: "uvasaggaharam_quiz",
+    title: "Uvasaggaharam Stotra Protection",
+    relatedContentName: "Uvasaggaharam Stotra",
+    type: "Stavan",
+    category: "Devotional",
+    estimatedTime: "5 mins",
+    difficulty: "Advanced",
+    level: 3,
+    publishedAt: "Published 2 days ago",
+    questions: [
+      {
+        question: "To which Tirthankara is the Uvasaggaharam Stotra dedicated?",
+        type: "mcq",
+        options: ["Lord Mahavira", "Lord Parshvanath", "Lord Rishabhdev", "Lord Neminath"],
+        correctAnswer: 1,
+        explanation: "The Uvasaggaharam Stotra, composed by Acharya Bhadrabahu Swami, is dedicated to Lord Parshvanath."
+      },
+      {
+        question: "Reciting Uvasaggaharam is believed to remove obstacles and negative energies.",
+        type: "boolean",
+        options: ["True", "False"],
+        correctAnswer: 0,
+        explanation: "True. Uvasagga means 'obstacles/troubles' and Haram means 'remover'."
+      }
+    ]
+  },
+  {
+    id: "bhaktamar_quiz",
+    title: "Bhaktamar Stotra Divine Hymn",
+    relatedContentName: "Bhaktamar Stotra",
+    type: "Stavan",
+    category: "Devotional",
+    estimatedTime: "6 mins",
+    difficulty: "Advanced",
+    level: 3,
+    publishedAt: "Published 3 days ago",
+    questions: [
+      {
+        question: "Who composed the world-famous Bhaktamar Stotra?",
+        type: "mcq",
+        options: ["Acharya Manatunga Suri", "Acharya Hemachandra", "Acharya Haribhadra", "Acharya Kundkund"],
+        correctAnswer: 0,
+        explanation: "Acharya Manatunga Suri composed the Bhaktamar Stotra praising the first Tirthankara, Lord Adinath (Rishabhdev)."
+      },
+      {
+        question: "The Bhaktamar Stotra was composed in praise of Lord Parshvanath.",
+        type: "boolean",
+        options: ["True", "False"],
+        correctAnswer: 1,
+        explanation: "False. It is dedicated to the first Tirthankara, Lord Rishabhdev (Adinath)."
+      }
+    ]
   }
 ];
 

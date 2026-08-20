@@ -15,10 +15,17 @@ import {
   Calendar,
   Award,
   ChevronRight,
+  ChevronDown,
+  ChevronUp,
   TrendingUp,
   UserCheck,
   ShieldCheck,
   RotateCcw,
+  List,
+  Layers,
+  UserPlus,
+  Plus,
+  Minus,
 } from 'lucide-react';
 import { AdminStudent, AdminTeacher, AcademicLevel } from '../types';
 
@@ -39,8 +46,60 @@ export const StudentProgress: React.FC<StudentProgressProps> = ({
   const [levelFilter, setLevelFilter] = useState('ALL');
   const [statusFilter, setStatusFilter] = useState('ALL');
   const [teacherFilter, setTeacherFilter] = useState('ALL');
+  const [parentFilter, setParentFilter] = useState('ALL');
+  const [viewMode, setViewMode] = useState<'students' | 'parents'>('students');
 
   const [selectedStudent, setSelectedStudent] = useState<AdminStudent | null>(null);
+
+  // Group all students by parentMobile for Parent-Child verification
+  const parentGroups = useMemo(() => {
+    const groupsMap: Record<
+      string,
+      {
+        parentMobile: string;
+        familyName: string;
+        email: string;
+        address: string;
+        children: AdminStudent[];
+      }
+    > = {};
+
+    students.forEach((s) => {
+      const key = s.parentMobile;
+      if (!groupsMap[key]) {
+        groupsMap[key] = {
+          parentMobile: s.parentMobile,
+          familyName: `${s.surname} Family`,
+          email: s.email,
+          address: s.address,
+          children: [],
+        };
+      }
+      groupsMap[key].children.push(s);
+    });
+
+    return Object.values(groupsMap);
+  }, [students]);
+
+  // Track expanded parent dropdown cards in parent-child view
+  const [expandedParents, setExpandedParents] = useState<string[]>(
+    parentGroups.map((pg) => pg.parentMobile)
+  );
+
+  const toggleParentExpand = (parentMobile: string) => {
+    setExpandedParents((prev) =>
+      prev.includes(parentMobile) ? prev.filter((p) => p !== parentMobile) : [...prev, parentMobile]
+    );
+  };
+
+  // Track expanded rows in Monitored Students table
+  const [expandedRowMobiles, setExpandedRowMobiles] = useState<string[]>([]);
+
+  const toggleRowExpand = (parentMobile: string) => {
+    setExpandedRowMobiles((prev) =>
+      prev.includes(parentMobile) ? prev.filter((m) => m !== parentMobile) : [...prev, parentMobile]
+    );
+  };
 
   // Helper map to assign mock rich progress details consistently based on student ID
   const getStudentProgressData = (student: AdminStudent) => {
@@ -141,10 +200,35 @@ export const StudentProgress: React.FC<StudentProgressProps> = ({
       const matchesLevel = levelFilter === 'ALL' || st.level.includes(levelFilter);
       const matchesStatus = statusFilter === 'ALL' || progress.currentStatus === statusFilter;
       const matchesTeacher = teacherFilter === 'ALL' || progress.assignedTeacherName.includes(teacherFilter);
+      const matchesParent = parentFilter === 'ALL' || st.parentMobile === parentFilter;
 
-      return matchesSearch && matchesLevel && matchesStatus && matchesTeacher;
+      return matchesSearch && matchesLevel && matchesStatus && matchesTeacher && matchesParent;
     });
-  }, [students, searchQuery, levelFilter, statusFilter, teacherFilter]);
+  }, [students, searchQuery, levelFilter, statusFilter, teacherFilter, parentFilter]);
+
+  // Filtered Parent Groups for Parent-Child View
+  const filteredParentGroups = useMemo(() => {
+    return parentGroups.filter((pg) => {
+      const matchesParentFilter = parentFilter === 'ALL' || pg.parentMobile === parentFilter;
+      const q = searchQuery.toLowerCase();
+      const matchesSearch =
+        !q ||
+        pg.familyName.toLowerCase().includes(q) ||
+        pg.parentMobile.includes(q) ||
+        pg.email.toLowerCase().includes(q) ||
+        pg.children.some((c) => {
+          const fullName = `${c.firstName} ${c.surname}`.toLowerCase();
+          return (
+            fullName.includes(q) ||
+            c.mobile.includes(q) ||
+            c.id.toLowerCase().includes(q) ||
+            c.level.toLowerCase().includes(q)
+          );
+        });
+
+      return matchesParentFilter && matchesSearch;
+    });
+  }, [parentGroups, parentFilter, searchQuery]);
 
   // Overall Statistics for KPI Row
   const stats = useMemo(() => {
@@ -164,8 +248,9 @@ export const StudentProgress: React.FC<StudentProgressProps> = ({
       learning,
       review,
       approved,
+      parentsCount: parentGroups.length,
     };
-  }, [students]);
+  }, [students, parentGroups]);
 
   const getStatusBadgeStyle = (status: string) => {
     switch (status) {
@@ -266,6 +351,29 @@ export const StudentProgress: React.FC<StudentProgressProps> = ({
               <span>Filters:</span>
             </div>
 
+            {/* Parent / Family Dropdown Filter */}
+            <select
+              value={parentFilter}
+              onChange={(e) => {
+                const val = e.target.value;
+                setParentFilter(val);
+                if (val !== 'ALL') {
+                  setViewMode('parents');
+                  if (!expandedParents.includes(val)) {
+                    setExpandedParents((prev) => [...prev, val]);
+                  }
+                }
+              }}
+              className="bg-emerald-50/80 border border-emerald-200 text-xs font-bold rounded-xl px-3 py-2 text-[#163E2B] focus:outline-none focus:border-[#163E2B] focus:bg-white cursor-pointer shrink-0"
+            >
+              <option value="ALL">👨‍👩‍👧‍👦 All Parents / Families ({parentGroups.length})</option>
+              {parentGroups.map((pg) => (
+                <option key={pg.parentMobile} value={pg.parentMobile}>
+                  {pg.familyName} ({pg.parentMobile}) — {pg.children.length} {pg.children.length === 1 ? 'Child' : 'Children'}
+                </option>
+              ))}
+            </select>
+
             {/* Level Filter */}
             <select
               value={levelFilter}
@@ -308,13 +416,14 @@ export const StudentProgress: React.FC<StudentProgressProps> = ({
               ))}
             </select>
 
-            {(searchQuery || levelFilter !== 'ALL' || statusFilter !== 'ALL' || teacherFilter !== 'ALL') && (
+            {(searchQuery || levelFilter !== 'ALL' || statusFilter !== 'ALL' || teacherFilter !== 'ALL' || parentFilter !== 'ALL') && (
               <button
                 onClick={() => {
                   setSearchQuery('');
                   setLevelFilter('ALL');
                   setStatusFilter('ALL');
                   setTeacherFilter('ALL');
+                  setParentFilter('ALL');
                 }}
                 className="px-3 py-2 text-xs font-semibold text-[#163E2B] hover:bg-[#163E2B]/10 rounded-xl cursor-pointer transition-colors shrink-0 flex items-center gap-1"
               >
@@ -326,135 +435,532 @@ export const StudentProgress: React.FC<StudentProgressProps> = ({
         </div>
       </div>
 
-      {/* Main Student Progress Table */}
-      <div className="bg-white border border-stone-200/90 rounded-2xl shadow-xs overflow-hidden">
-        <div className="p-4 border-b border-stone-100 flex items-center justify-between bg-stone-50/50">
-          <span className="text-xs font-bold text-slate-800 font-mono uppercase tracking-wider">
-            Monitored Students ({filteredStudents.length})
-          </span>
-          <span className="text-[11px] text-slate-500 font-medium">
-            Showing overall syllabus progress and teacher review states
-          </span>
+      {/* View Mode Toggle Bar (Monitored Students List vs Parent & Children View) */}
+      <div className="flex items-center justify-between bg-stone-100/70 p-1.5 rounded-2xl border border-stone-200/80">
+        <div className="flex items-center gap-2">
+          <button
+            onClick={() => setViewMode('students')}
+            className={`px-4 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-2 cursor-pointer ${
+              viewMode === 'students'
+                ? 'bg-[#163E2B] text-white shadow-xs'
+                : 'bg-white text-slate-700 hover:bg-stone-200 border border-stone-200'
+            }`}
+          >
+            <List className="w-4 h-4" />
+            <span>Monitored Students List ({filteredStudents.length})</span>
+          </button>
+
+          <button
+            onClick={() => setViewMode('parents')}
+            className={`px-4 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-2 cursor-pointer ${
+              viewMode === 'parents'
+                ? 'bg-[#163E2B] text-white shadow-xs'
+                : 'bg-white text-slate-700 hover:bg-stone-200 border border-stone-200'
+            }`}
+          >
+            <Users className="w-4 h-4 text-emerald-500" />
+            <span>Parent & Children Dropdown View ({filteredParentGroups.length} Families)</span>
+          </button>
         </div>
 
-        {filteredStudents.length === 0 ? (
-          <div className="text-center py-16 bg-stone-50/30 space-y-3">
-            <GraduationCap className="w-10 h-10 text-slate-300 mx-auto" />
-            <p className="text-sm font-bold text-slate-700">No student records found</p>
-            <p className="text-xs text-slate-500">Try adjusting your search or category filters above.</p>
-          </div>
-        ) : (
-          <div className="overflow-x-auto">
-            <table className="w-full text-left border-collapse text-xs">
-              <thead className="bg-stone-100/80 text-slate-600 font-mono text-[10px] uppercase tracking-wider border-b border-stone-200">
-                <tr>
-                  <th className="py-3 px-4 font-bold">Student Name</th>
-                  <th className="py-3 px-4 font-bold">Mobile Number</th>
-                  <th className="py-3 px-4 font-bold">Assigned Teacher</th>
-                  <th className="py-3 px-4 font-bold">Current Level</th>
-                  <th className="py-3 px-4 font-bold">Syllabus Progress</th>
-                  <th className="py-3 px-4 font-bold">Current Status</th>
-                  <th className="py-3 px-4 font-bold">Last Activity</th>
-                  <th className="py-3 px-4 font-bold text-right">Action</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-stone-100 font-medium text-slate-800 bg-white">
-                {filteredStudents.map((st) => {
-                  const progress = getStudentProgressData(st);
-
-                  return (
-                    <tr key={st.id} className="hover:bg-stone-50/80 transition-colors">
-                      {/* Student Name */}
-                      <td className="py-3.5 px-4">
-                        <div className="flex items-center gap-3">
-                          <img
-                            src={st.photoUrl}
-                            alt={`${st.firstName} ${st.surname}`}
-                            className="w-9 h-9 rounded-full object-cover border border-stone-200 shrink-0"
-                          />
-                          <div>
-                            <div className="font-bold text-slate-900 text-xs">
-                              {st.firstName} {st.surname}
-                            </div>
-                            <span className="text-[10px] font-mono text-slate-500">{st.id}</span>
-                          </div>
-                        </div>
-                      </td>
-
-                      {/* Mobile Number */}
-                      <td className="py-3.5 px-4 font-mono text-slate-700">
-                        <div className="text-xs font-semibold">{st.mobile}</div>
-                        <span className="text-[10px] text-slate-500 block">Parent: {st.parentMobile}</span>
-                      </td>
-
-                      {/* Assigned Teacher */}
-                      <td className="py-3.5 px-4">
-                        <div className="font-bold text-slate-800 flex items-center gap-1.5">
-                          <UserCheck className="w-3.5 h-3.5 text-[#163E2B]" />
-                          <span>{progress.assignedTeacherName}</span>
-                        </div>
-                      </td>
-
-                      {/* Current Level */}
-                      <td className="py-3.5 px-4">
-                        <span className="px-2.5 py-1 rounded-lg text-[11px] font-bold bg-stone-100 text-slate-800 border border-stone-200 inline-block">
-                          {st.level}
-                        </span>
-                      </td>
-
-                      {/* Current Syllabus Progress */}
-                      <td className="py-3.5 px-4 min-w-[160px]">
-                        <div className="space-y-1">
-                          <div className="flex justify-between text-[11px] font-mono">
-                            <span className="font-bold text-slate-800">
-                              {progress.completedTopicsCount}/{progress.totalTopicsCount} Topics
-                            </span>
-                            <span className="font-extrabold text-[#163E2B]">{progress.progressPct}%</span>
-                          </div>
-                          <div className="w-full bg-stone-200 h-2 rounded-full overflow-hidden">
-                            <div
-                              className="bg-[#163E2B] h-full rounded-full transition-all"
-                              style={{ width: `${progress.progressPct}%` }}
-                            />
-                          </div>
-                        </div>
-                      </td>
-
-                      {/* Current Status */}
-                      <td className="py-3.5 px-4">
-                        <span
-                          className={`px-2.5 py-1 rounded-full text-[10px] font-mono font-bold border inline-flex items-center gap-1 ${getStatusBadgeStyle(
-                            progress.currentStatus
-                          )}`}
-                        >
-                          <span className="w-1.5 h-1.5 rounded-full bg-current" />
-                          {progress.currentStatus}
-                        </span>
-                      </td>
-
-                      {/* Last Activity Date */}
-                      <td className="py-3.5 px-4 text-slate-600 font-mono text-[11px]">
-                        {progress.lastActivity}
-                      </td>
-
-                      {/* Actions */}
-                      <td className="py-3.5 px-4 text-right">
-                        <button
-                          onClick={() => setSelectedStudent(st)}
-                          className="px-3.5 py-1.5 bg-[#163E2B] hover:bg-[#0F2D1F] text-white font-bold text-xs rounded-xl shadow-xs cursor-pointer inline-flex items-center gap-1.5 transition-all"
-                        >
-                          <Eye className="w-3.5 h-3.5" />
-                          <span>View Details</span>
-                        </button>
-                      </td>
-                    </tr>
-                  );
-                })}
-              </tbody>
-            </table>
+        {parentFilter !== 'ALL' && (
+          <div className="hidden sm:flex items-center gap-2 px-3 py-1 bg-emerald-50 border border-emerald-200 rounded-xl text-xs font-bold text-[#163E2B]">
+            <span>Filtered Parent: {parentFilter}</span>
+            <button
+              onClick={() => setParentFilter('ALL')}
+              className="hover:text-red-700 cursor-pointer ml-1"
+              title="Clear parent filter"
+            >
+              <X className="w-3.5 h-3.5" />
+            </button>
           </div>
         )}
       </div>
+
+      {/* PARENT & REGISTERED CHILDREN DROPDOWN VIEW */}
+      {viewMode === 'parents' ? (
+        <div className="space-y-4">
+          <div className="bg-white border border-stone-200/90 rounded-2xl p-4 shadow-xs flex items-center justify-between">
+            <div>
+              <h2 className="text-sm font-bold text-slate-900 flex items-center gap-2">
+                <Users className="w-4 h-4 text-[#163E2B]" />
+                <span>Parent - Child Registration Verification</span>
+              </h2>
+              <p className="text-xs text-slate-500 mt-0.5">
+                Inspect registered children grouped under each parent account to verify family registrations and level placement.
+              </p>
+            </div>
+            <div className="text-right">
+              <span className="text-[10px] font-mono text-slate-500 uppercase font-bold block">Families Listed</span>
+              <span className="text-sm font-extrabold text-[#163E2B]">{filteredParentGroups.length} Parent Accounts</span>
+            </div>
+          </div>
+
+          {filteredParentGroups.length === 0 ? (
+            <div className="text-center py-12 bg-white rounded-2xl border border-stone-200/90 p-6 space-y-2">
+              <Users className="w-10 h-10 text-slate-300 mx-auto" />
+              <p className="text-sm font-bold text-slate-700">No parent records found</p>
+              <p className="text-xs text-slate-500">Try clearing the search or parent dropdown filters above.</p>
+            </div>
+          ) : (
+            filteredParentGroups.map((pg) => {
+              const isExpanded = expandedParents.includes(pg.parentMobile);
+
+              return (
+                <div
+                  key={pg.parentMobile}
+                  className="bg-white border border-stone-200/90 rounded-2xl shadow-xs overflow-hidden transition-all"
+                >
+                  {/* Parent Header Row / Card */}
+                  <div
+                    onClick={() => toggleParentExpand(pg.parentMobile)}
+                    className="p-4 bg-stone-50 hover:bg-stone-100/80 cursor-pointer flex flex-col md:flex-row md:items-center justify-between gap-3 border-b border-stone-200/80 transition-colors"
+                  >
+                    <div className="flex items-center gap-3.5">
+                      <div className="w-10 h-10 rounded-2xl bg-[#163E2B] text-white flex items-center justify-center font-bold text-sm shrink-0 shadow-xs">
+                        {pg.familyName.charAt(0)}
+                      </div>
+                      <div>
+                        <div className="flex items-center gap-2">
+                          <h3 className="font-bold text-slate-900 text-sm">{pg.familyName}</h3>
+                          <span className="px-2.5 py-0.5 rounded-full text-[10px] font-mono font-bold bg-emerald-50 text-emerald-800 border border-emerald-200">
+                            {pg.children.length} Registered {pg.children.length === 1 ? 'Child' : 'Children'}
+                          </span>
+                        </div>
+                        <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-slate-600 mt-1 font-mono">
+                          <span className="flex items-center gap-1 font-semibold text-slate-800">
+                            <Phone className="w-3.5 h-3.5 text-[#163E2B]" />
+                            {pg.parentMobile}
+                          </span>
+                          <span className="flex items-center gap-1 text-slate-500">
+                            <Mail className="w-3 h-3 text-slate-400" />
+                            {pg.email}
+                          </span>
+                          <span className="flex items-center gap-1 text-slate-500 truncate max-w-xs">
+                            <MapPin className="w-3 h-3 text-slate-400" />
+                            {pg.address}
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="flex items-center gap-3 shrink-0 self-end md:self-center">
+                      <span className="px-2.5 py-1 rounded-xl text-[10px] font-mono font-bold bg-blue-50 text-blue-800 border border-blue-200 flex items-center gap-1">
+                        <ShieldCheck className="w-3.5 h-3.5 text-blue-600" />
+                        <span>Parent Identity Verified</span>
+                      </span>
+
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          toggleParentExpand(pg.parentMobile);
+                        }}
+                        className={`p-2 rounded-xl cursor-pointer transition-all flex items-center justify-center font-bold text-xs ${
+                          isExpanded
+                            ? 'bg-[#163E2B] text-white shadow-xs'
+                            : 'bg-emerald-50 text-[#163E2B] border border-emerald-300 hover:bg-emerald-100'
+                        }`}
+                        title={isExpanded ? 'Collapse children list' : 'Expand children list'}
+                      >
+                        {isExpanded ? (
+                          <Minus className="w-4 h-4" />
+                        ) : (
+                          <Plus className="w-4 h-4" />
+                        )}
+                      </button>
+                    </div>
+                  </div>
+
+                  {/* Collapsible Registered Children Table */}
+                  {isExpanded && (
+                    <div className="p-4 bg-white space-y-3">
+                      <div className="text-[11px] font-bold text-slate-600 font-mono uppercase tracking-wider flex items-center gap-1.5 pb-1 border-b border-stone-100">
+                        <GraduationCap className="w-3.5 h-3.5 text-[#163E2B]" />
+                        <span>Registered Children under {pg.familyName} ({pg.children.length})</span>
+                      </div>
+
+                      <div className="overflow-x-auto">
+                        <table className="w-full text-left border-collapse text-xs">
+                          <thead className="bg-stone-50 text-slate-600 font-mono text-[10px] uppercase tracking-wider border-b border-stone-200">
+                            <tr>
+                              <th className="py-2.5 px-3 font-bold">Child / Student</th>
+                              <th className="py-2.5 px-3 font-bold">Child Mobile</th>
+                              <th className="py-2.5 px-3 font-bold">Level & Batch</th>
+                              <th className="py-2.5 px-3 font-bold">Syllabus Progress</th>
+                              <th className="py-2.5 px-3 font-bold">Parent Verification</th>
+                              <th className="py-2.5 px-3 font-bold">Status</th>
+                              <th className="py-2.5 px-3 font-bold text-right">Action</th>
+                            </tr>
+                          </thead>
+                          <tbody className="divide-y divide-stone-100 font-medium text-slate-800">
+                            {pg.children.map((child) => {
+                              const progress = getStudentProgressData(child);
+
+                              return (
+                                <tr key={child.id} className="hover:bg-stone-50/80 transition-colors">
+                                  {/* Student Name */}
+                                  <td className="py-3 px-3">
+                                    <div className="flex items-center gap-2.5">
+                                      <img
+                                        src={child.photoUrl}
+                                        alt={child.firstName}
+                                        className="w-8 h-8 rounded-full object-cover border border-stone-200 shrink-0"
+                                      />
+                                      <div>
+                                        <div className="font-bold text-slate-900 text-xs">
+                                          {child.firstName} {child.surname}
+                                        </div>
+                                        <span className="text-[10px] font-mono text-slate-500">{child.id}</span>
+                                      </div>
+                                    </div>
+                                  </td>
+
+                                  {/* Child Mobile */}
+                                  <td className="py-3 px-3 font-mono text-slate-700 text-xs">
+                                    {child.mobile}
+                                  </td>
+
+                                  {/* Level & Batch */}
+                                  <td className="py-3 px-3">
+                                    <div className="font-bold text-slate-900 text-xs">{child.level}</div>
+                                    <span className="text-[10px] text-slate-500 block">{child.batch}</span>
+                                  </td>
+
+                                  {/* Progress */}
+                                  <td className="py-3 px-3 min-w-[140px]">
+                                    <div className="space-y-1">
+                                      <div className="flex justify-between text-[10px] font-mono">
+                                        <span>{progress.completedTopicsCount}/{progress.totalTopicsCount} Topics</span>
+                                        <span className="font-bold text-[#163E2B]">{progress.progressPct}%</span>
+                                      </div>
+                                      <div className="w-full bg-stone-200 h-1.5 rounded-full overflow-hidden">
+                                        <div
+                                          className="bg-[#163E2B] h-full rounded-full"
+                                          style={{ width: `${progress.progressPct}%` }}
+                                        />
+                                      </div>
+                                    </div>
+                                  </td>
+
+                                  {/* Verification Details */}
+                                  <td className="py-3 px-3">
+                                    <div className="space-y-0.5 text-[10px]">
+                                      <span className="px-2 py-0.5 rounded-md font-mono font-bold bg-emerald-50 text-emerald-800 border border-emerald-200 inline-block">
+                                        ✓ Mobile Matched
+                                      </span>
+                                      <span className="text-slate-500 block font-mono">Fee Status: Paid</span>
+                                    </div>
+                                  </td>
+
+                                  {/* Status */}
+                                  <td className="py-3 px-3">
+                                    <span
+                                      className={`px-2 py-0.5 rounded-full text-[10px] font-mono font-bold border inline-flex items-center gap-1 ${getStatusBadgeStyle(
+                                        progress.currentStatus
+                                      )}`}
+                                    >
+                                      {progress.currentStatus}
+                                    </span>
+                                  </td>
+
+                                  {/* Actions */}
+                                  <td className="py-3 px-3 text-right">
+                                    <button
+                                      onClick={() => setSelectedStudent(child)}
+                                      className="px-3 py-1.5 bg-[#163E2B] hover:bg-[#0F2D1F] text-white font-bold text-xs rounded-xl cursor-pointer inline-flex items-center gap-1 transition-all shadow-2xs"
+                                    >
+                                      <Eye className="w-3.5 h-3.5" />
+                                      <span>View Details</span>
+                                    </button>
+                                  </td>
+                                </tr>
+                              );
+                            })}
+                          </tbody>
+                        </table>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              );
+            })
+          )}
+        </div>
+      ) : (
+        /* MAIN MONITORED STUDENTS TABLE (FLAT LIST VIEW) */
+        <div className="bg-white border border-stone-200/90 rounded-2xl shadow-xs overflow-hidden">
+          <div className="p-4 border-b border-stone-100 flex items-center justify-between bg-stone-50/50">
+            <span className="text-xs font-bold text-slate-800 font-mono uppercase tracking-wider">
+              Monitored Students ({filteredStudents.length})
+            </span>
+            <span className="text-[11px] text-slate-500 font-medium">
+              Showing overall syllabus progress and teacher review states
+            </span>
+          </div>
+
+          {filteredStudents.length === 0 ? (
+            <div className="text-center py-16 bg-stone-50/30 space-y-3">
+              <GraduationCap className="w-10 h-10 text-slate-300 mx-auto" />
+              <p className="text-sm font-bold text-slate-700">No student records found</p>
+              <p className="text-xs text-slate-500">Try adjusting your search or category filters above.</p>
+            </div>
+          ) : (
+            <div className="overflow-x-auto">
+              <table className="w-full text-left border-collapse text-xs">
+                <thead className="bg-stone-100/80 text-slate-600 font-mono text-[10px] uppercase tracking-wider border-b border-stone-200">
+                  <tr>
+                    <th className="py-3 px-3 text-center w-12 font-bold">Expand</th>
+                    <th className="py-3 px-4 font-bold">Student Name</th>
+                    <th className="py-3 px-4 font-bold">Mobile Number</th>
+                    <th className="py-3 px-4 font-bold">Assigned Teacher</th>
+                    <th className="py-3 px-4 font-bold">Current Level</th>
+                    <th className="py-3 px-4 font-bold">Syllabus Progress</th>
+                    <th className="py-3 px-4 font-bold">Current Status</th>
+                    <th className="py-3 px-4 font-bold text-right">Action</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-stone-100 font-medium text-slate-800 bg-white">
+                  {filteredStudents.map((st) => {
+                    const progress = getStudentProgressData(st);
+                    const siblings = students.filter((s) => s.parentMobile === st.parentMobile);
+                    const isRowExpanded = expandedRowMobiles.includes(st.parentMobile);
+
+                    return (
+                      <React.Fragment key={st.id}>
+                        <tr className={`transition-colors ${isRowExpanded ? 'bg-emerald-50/50' : 'hover:bg-stone-50/80'}`}>
+                          {/* Plus / Minus Expand Column */}
+                          <td className="py-3.5 px-3 text-center">
+                            <button
+                              onClick={() => toggleRowExpand(st.parentMobile)}
+                              className={`w-7 h-7 rounded-lg font-bold text-xs flex items-center justify-center transition-all cursor-pointer ${
+                                isRowExpanded
+                                  ? 'bg-[#163E2B] text-white shadow-xs'
+                                  : 'bg-emerald-50 hover:bg-emerald-100 text-[#163E2B] border border-emerald-300'
+                              }`}
+                              title={isRowExpanded ? 'Collapse children list' : 'Expand list of registered children under this family'}
+                            >
+                              {isRowExpanded ? <Minus className="w-4 h-4 text-white" /> : <Plus className="w-4 h-4 text-[#163E2B]" />}
+                            </button>
+                          </td>
+
+                          {/* Student Name */}
+                          <td className="py-3.5 px-4">
+                            <div className="flex items-center gap-3">
+                              <img
+                                src={st.photoUrl}
+                                alt={`${st.firstName} ${st.surname}`}
+                                className="w-9 h-9 rounded-full object-cover border border-stone-200 shrink-0"
+                              />
+                              <div>
+                                <div className="font-bold text-slate-900 text-xs">
+                                  {st.firstName} {st.surname}
+                                </div>
+                                <span className="text-[10px] font-mono text-slate-500">{st.id}</span>
+                              </div>
+                            </div>
+                          </td>
+
+                          {/* Mobile Number & Parent Verification link with Plus button */}
+                          <td className="py-3.5 px-4 font-mono text-slate-700">
+                            <div className="text-xs font-semibold">{st.mobile}</div>
+                            <div className="flex items-center gap-1.5 mt-0.5">
+                              <span className="text-[10px] text-slate-500">Parent: {st.parentMobile}</span>
+                              <button
+                                onClick={() => toggleRowExpand(st.parentMobile)}
+                                className={`px-2 py-0.5 rounded-lg text-[10px] font-bold font-mono border flex items-center gap-1 cursor-pointer transition-all ${
+                                  isRowExpanded
+                                    ? 'bg-[#163E2B] text-white border-[#163E2B] shadow-2xs'
+                                    : 'bg-emerald-50 hover:bg-emerald-100 text-[#163E2B] border-emerald-300'
+                                }`}
+                                title="Click to toggle accordion list of children"
+                              >
+                                {isRowExpanded ? <Minus className="w-3 h-3 text-white" /> : <Plus className="w-3 h-3 text-[#163E2B]" />}
+                                <span>{siblings.length} {siblings.length === 1 ? 'Child' : 'Children'}</span>
+                              </button>
+                            </div>
+                          </td>
+
+                          {/* Assigned Teacher */}
+                          <td className="py-3.5 px-4">
+                            <div className="font-bold text-slate-800 flex items-center gap-1.5">
+                              <UserCheck className="w-3.5 h-3.5 text-[#163E2B]" />
+                              <span>{progress.assignedTeacherName}</span>
+                            </div>
+                          </td>
+
+                          {/* Current Level */}
+                          <td className="py-3.5 px-4">
+                            <span className="px-2.5 py-1 rounded-lg text-[11px] font-bold bg-stone-100 text-slate-800 border border-stone-200 inline-block">
+                              {st.level}
+                            </span>
+                          </td>
+
+                          {/* Current Syllabus Progress */}
+                          <td className="py-3.5 px-4 min-w-[160px]">
+                            <div className="space-y-1">
+                              <div className="flex justify-between text-[11px] font-mono">
+                                <span className="font-bold text-slate-800">
+                                  {progress.completedTopicsCount}/{progress.totalTopicsCount} Topics
+                                </span>
+                                <span className="font-extrabold text-[#163E2B]">{progress.progressPct}%</span>
+                              </div>
+                              <div className="w-full bg-stone-200 h-2 rounded-full overflow-hidden">
+                                <div
+                                  className="bg-[#163E2B] h-full rounded-full transition-all"
+                                  style={{ width: `${progress.progressPct}%` }}
+                                />
+                              </div>
+                            </div>
+                          </td>
+
+                          {/* Current Status */}
+                          <td className="py-3.5 px-4">
+                            <span
+                              className={`px-2.5 py-1 rounded-full text-[10px] font-mono font-bold border inline-flex items-center gap-1 ${getStatusBadgeStyle(
+                                progress.currentStatus
+                              )}`}
+                            >
+                              <span className="w-1.5 h-1.5 rounded-full bg-current" />
+                              {progress.currentStatus}
+                            </span>
+                          </td>
+
+                          {/* Actions */}
+                          <td className="py-3.5 px-4 text-right">
+                            <button
+                              onClick={() => setSelectedStudent(st)}
+                              className="px-3.5 py-1.5 bg-[#163E2B] hover:bg-[#0F2D1F] text-white font-bold text-xs rounded-xl shadow-xs cursor-pointer inline-flex items-center gap-1.5 transition-all"
+                            >
+                              <Eye className="w-3.5 h-3.5" />
+                              <span>View Details</span>
+                            </button>
+                          </td>
+                        </tr>
+
+                        {/* ACCORDION ROW FOR REGISTERED CHILDREN */}
+                        {isRowExpanded && (
+                          <tr className="bg-emerald-50/60 border-b-2 border-emerald-200">
+                            <td colSpan={8} className="p-4">
+                              <div className="bg-white border border-emerald-300 rounded-2xl p-4 shadow-sm space-y-3">
+                                {/* Accordion Title & Close */}
+                                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-stone-100 pb-2.5">
+                                  <div className="flex items-center gap-2">
+                                    <div className="w-6 h-6 rounded-md bg-[#163E2B] text-white flex items-center justify-center font-bold text-xs">
+                                      <Users className="w-3.5 h-3.5" />
+                                    </div>
+                                    <h4 className="font-bold text-xs text-slate-900">
+                                      Registered Children under Parent ({st.parentMobile}) — {st.surname} Family
+                                    </h4>
+                                    <span className="px-2 py-0.5 rounded-full text-[10px] font-mono font-bold bg-emerald-100 text-emerald-800 border border-emerald-200">
+                                      {siblings.length} {siblings.length === 1 ? 'Child Enrolled' : 'Children Enrolled'}
+                                    </span>
+                                  </div>
+                                  <button
+                                    onClick={() => toggleRowExpand(st.parentMobile)}
+                                    className="text-[11px] font-bold text-slate-500 hover:text-red-600 flex items-center gap-1 self-end sm:self-auto cursor-pointer"
+                                  >
+                                    <Minus className="w-3.5 h-3.5" />
+                                    <span>Close Accordion</span>
+                                  </button>
+                                </div>
+
+                                {/* List of Children Cards */}
+                                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
+                                  {siblings.map((child) => {
+                                    const childProgress = getStudentProgressData(child);
+                                    const isCurrentRowStudent = child.id === st.id;
+
+                                    return (
+                                      <div
+                                        key={child.id}
+                                        className={`p-3.5 rounded-xl border transition-all flex flex-col justify-between ${
+                                          isCurrentRowStudent
+                                            ? 'bg-emerald-50/90 border-emerald-400 ring-2 ring-emerald-400/40'
+                                            : 'bg-stone-50/80 border-stone-200 hover:bg-stone-100/80'
+                                        }`}
+                                      >
+                                        <div>
+                                          <div className="flex items-center justify-between gap-2 mb-2">
+                                            <div className="flex items-center gap-2.5">
+                                              <img
+                                                src={child.photoUrl}
+                                                alt={child.firstName}
+                                                className="w-8 h-8 rounded-full object-cover border border-stone-200 shrink-0"
+                                              />
+                                              <div>
+                                                <div className="font-bold text-slate-900 text-xs flex items-center gap-1.5">
+                                                  <span>{child.firstName} {child.surname}</span>
+                                                  {isCurrentRowStudent && (
+                                                    <span className="px-1.5 py-0.2 bg-[#163E2B] text-white rounded text-[9px] font-extrabold font-mono">
+                                                      Selected Row
+                                                    </span>
+                                                  )}
+                                                </div>
+                                                <span className="text-[10px] font-mono text-slate-500">{child.id}</span>
+                                              </div>
+                                            </div>
+                                          </div>
+
+                                          <div className="space-y-1.5 text-[11px] mt-2">
+                                            <div className="flex justify-between text-slate-600">
+                                              <span className="text-slate-500 font-mono">Level & Batch:</span>
+                                              <span className="font-bold text-slate-800 text-right">{child.level}</span>
+                                            </div>
+
+                                            <div className="flex justify-between text-slate-600">
+                                              <span className="text-slate-500 font-mono">Child Mobile:</span>
+                                              <span className="font-mono text-slate-800 font-bold">{child.mobile}</span>
+                                            </div>
+
+                                            <div className="space-y-1 pt-1">
+                                              <div className="flex justify-between text-[10px] font-mono">
+                                                <span className="text-slate-500">Syllabus Progress</span>
+                                                <span className="font-extrabold text-[#163E2B]">{childProgress.progressPct}%</span>
+                                              </div>
+                                              <div className="w-full bg-stone-200 h-1.5 rounded-full overflow-hidden">
+                                                <div
+                                                  className="bg-[#163E2B] h-full rounded-full"
+                                                  style={{ width: `${childProgress.progressPct}%` }}
+                                                />
+                                              </div>
+                                            </div>
+                                          </div>
+                                        </div>
+
+                                        <div className="mt-3 pt-2.5 border-t border-stone-200/60 flex items-center justify-between gap-2">
+                                          <span
+                                            className={`px-2 py-0.5 rounded-full text-[10px] font-mono font-bold border ${getStatusBadgeStyle(
+                                              childProgress.currentStatus
+                                            )}`}
+                                          >
+                                            {childProgress.currentStatus}
+                                          </span>
+
+                                          <button
+                                            onClick={() => setSelectedStudent(child)}
+                                            className="px-2.5 py-1 bg-[#163E2B] hover:bg-[#0F2D1F] text-white text-[11px] font-bold rounded-lg cursor-pointer flex items-center gap-1 transition-all"
+                                          >
+                                            <Eye className="w-3 h-3" />
+                                            <span>View Profile</span>
+                                          </button>
+                                        </div>
+                                      </div>
+                                    );
+                                  })}
+                                </div>
+                              </div>
+                            </td>
+                          </tr>
+                        )}
+                      </React.Fragment>
+                    );
+                  })}
+                </tbody>
+              </table>
+            </div>
+          )}
+        </div>
+      )}
 
       {/* READ-ONLY STUDENT PROGRESS DETAILS MODAL */}
       {selectedStudent && (
