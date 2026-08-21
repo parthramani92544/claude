@@ -15,6 +15,7 @@ import {
   Search,
 } from 'lucide-react';
 import { AcademicLevel, AcademicBatch, MasterEntry, AdminRole, LevelSyllabusItem, SyllabusLearningType } from '../types';
+import { SyllabusManagementView } from './SyllabusManagementView';
 
 interface AcademicStructureProps {
   levels: AcademicLevel[];
@@ -41,7 +42,7 @@ export const AcademicStructure: React.FC<AcademicStructureProps> = ({
   onAddMaster,
   addToast,
 }) => {
-  const [subTab, setSubTab] = useState<'levels' | 'batches' | 'masters'>('levels');
+  const [subTab, setSubTab] = useState<'batches' | 'syllabus'>('batches');
 
   const isAuditor = currentRole === 'Auditor';
 
@@ -62,7 +63,9 @@ export const AcademicStructure: React.FC<AcademicStructureProps> = ({
   const [editingBatch, setEditingBatch] = useState<AcademicBatch | null>(null);
   const [batchForm, setBatchForm] = useState({
     code: '',
-    timeSlot: '',
+    timeSlot: '', // Batch name
+    description: '',
+    level: levels[0]?.name || 'Level 1 - Prarambhik',
     startTime: '09:00 AM',
     endTime: '10:30 AM',
     maxCapacity: 50,
@@ -88,8 +91,9 @@ export const AcademicStructure: React.FC<AcademicStructureProps> = ({
   const [isSyllabusItemModalOpen, setIsSyllabusItemModalOpen] = useState(false);
   const [editingSyllabusItem, setEditingSyllabusItem] = useState<LevelSyllabusItem | null>(null);
   const [syllabusItemForm, setSyllabusItemForm] = useState({
-    chapterName: '',
+    chapterName: '', // Syllabus name
     description: '',
+    batch: batches[0]?.timeSlot || 'Batch A - Weekend Morning',
     learningType: 'Sutra' as SyllabusLearningType,
     displayOrder: 1,
     status: 'Active' as 'Active' | 'Inactive',
@@ -164,6 +168,8 @@ export const AcademicStructure: React.FC<AcademicStructureProps> = ({
     setBatchForm({
       code: `BATCH-${String.fromCharCode(65 + batches.length)}`,
       timeSlot: '',
+      description: '',
+      level: levels[0]?.name || 'Level 1 - Prarambhik',
       startTime: '09:00 AM',
       endTime: '10:30 AM',
       maxCapacity: 50,
@@ -178,6 +184,8 @@ export const AcademicStructure: React.FC<AcademicStructureProps> = ({
     setBatchForm({
       code: bat.code,
       timeSlot: bat.timeSlot,
+      description: bat.description || '',
+      level: bat.level || levels[0]?.name || 'Level 1 - Prarambhik',
       startTime: bat.startTime,
       endTime: bat.endTime,
       maxCapacity: bat.maxCapacity,
@@ -194,13 +202,21 @@ export const AcademicStructure: React.FC<AcademicStructureProps> = ({
       onUpdateBatch({
         ...editingBatch,
         ...batchForm,
+        timeSlot: batchForm.timeSlot || editingBatch.timeSlot,
       });
       addToast('success', 'Batch Updated', `Updated slot ${batchForm.timeSlot}`);
     } else {
       const newBat: AcademicBatch = {
-        id: `BAT-${Math.floor(10 + Math.random() * 90)}`,
-        ...batchForm,
+        id: `BAT-${Math.floor(100 + Math.random() * 900)}`,
+        code: batchForm.code || `BATCH-${String.fromCharCode(65 + batches.length)}`,
+        timeSlot: batchForm.timeSlot || 'Batch Slot',
+        description: batchForm.description,
+        level: batchForm.level,
+        startTime: batchForm.startTime,
+        endTime: batchForm.endTime,
+        maxCapacity: batchForm.maxCapacity || 50,
         enrolledCount: 0,
+        operatingDays: batchForm.operatingDays || ['Saturday', 'Sunday'],
       };
       onAddBatch(newBat);
       addToast('success', 'Batch Created', `Created batch slot ${newBat.timeSlot}`);
@@ -373,21 +389,12 @@ export const AcademicStructure: React.FC<AcademicStructureProps> = ({
       {/* Header */}
       <div className="bg-white border border-slate-200/90 p-5 rounded-xl shadow-xs flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
-          <h1 className="text-xl font-bold text-slate-900 tracking-tight">Academic Structure & Masters</h1>
-          <p className="text-xs text-slate-500 mt-0.5">Configure curriculum levels, assigned syllabus topics, batch timing slots, and system master lookups.</p>
+          <h1 className="text-xl font-bold text-slate-900 tracking-tight">Batch and syllabus management</h1>
+          <p className="text-xs text-slate-500 mt-0.5">Manage batch timing slots and assigned syllabus curriculum items.</p>
         </div>
 
         {/* Sub-tab Navigation */}
         <div className="flex items-center bg-slate-100 p-1 rounded-lg border border-slate-200">
-          <button
-            onClick={() => setSubTab('levels')}
-            className={`px-3.5 py-1.5 text-xs font-semibold rounded-md transition-all flex items-center gap-2 cursor-pointer ${
-              subTab === 'levels' ? 'bg-white text-[#163E2B] shadow-xs' : 'text-slate-600 hover:text-slate-900'
-            }`}
-          >
-            <Layers className="w-3.5 h-3.5" />
-            <span>Levels ({levels.length})</span>
-          </button>
           <button
             onClick={() => setSubTab('batches')}
             className={`px-3.5 py-1.5 text-xs font-semibold rounded-md transition-all flex items-center gap-2 cursor-pointer ${
@@ -398,105 +405,29 @@ export const AcademicStructure: React.FC<AcademicStructureProps> = ({
             <span>Batches ({batches.length})</span>
           </button>
           <button
-            onClick={() => setSubTab('masters')}
+            onClick={() => setSubTab('syllabus')}
             className={`px-3.5 py-1.5 text-xs font-semibold rounded-md transition-all flex items-center gap-2 cursor-pointer ${
-              subTab === 'masters' ? 'bg-white text-[#163E2B] shadow-xs' : 'text-slate-600 hover:text-slate-900'
+              subTab === 'syllabus' ? 'bg-white text-[#163E2B] shadow-xs' : 'text-slate-600 hover:text-slate-900'
             }`}
           >
-            <Database className="w-3.5 h-3.5" />
-            <span>Masters ({masters.length})</span>
+            <BookOpen className="w-3.5 h-3.5" />
+            <span>Syllabus Management</span>
           </button>
         </div>
       </div>
-
-      {/* Levels View */}
-      {subTab === 'levels' && (
-        <div className="space-y-4">
-          <div className="flex justify-between items-center">
-            <h2 className="text-sm font-bold text-slate-900">Curriculum Levels Config</h2>
-            {!isAuditor && (
-              <button
-                onClick={openAddLevel}
-                className="px-3.5 py-1.5 bg-[#163E2B] hover:bg-[#0F2D1F] text-white font-semibold text-xs rounded-lg shadow-xs flex items-center gap-1.5 cursor-pointer"
-              >
-                <Plus className="w-4 h-4" />
-                <span>Create Level</span>
-              </button>
-            )}
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
-            {levels.map((lvl) => (
-              <div
-                key={lvl.id}
-                className="bg-white border border-slate-200/90 rounded-xl p-5 shadow-xs space-y-4 hover:border-slate-300 transition-all flex flex-col justify-between"
-              >
-                <div className="space-y-2">
-                  <div className="flex items-center justify-between">
-                    <span className="text-[10px] font-mono font-bold text-[#163E2B]">{lvl.code}</span>
-                    <span className="px-2 py-0.5 rounded-full text-[10px] font-mono font-bold bg-amber-50 text-[#163E2B] border border-amber-200">
-                      {lvl.enrolledCount} Enrolled
-                    </span>
-                  </div>
-                  <h3 className="text-base font-bold text-slate-900">{lvl.name}</h3>
-                  <p className="text-xs text-slate-600 leading-relaxed font-normal">{lvl.description}</p>
-                </div>
-
-                <div className="bg-slate-50 p-3 rounded-lg border border-slate-200/80 space-y-1.5 text-xs">
-                  <div className="flex items-center justify-between font-mono">
-                    <span className="text-slate-500">Age Bracket:</span>
-                    <span className="font-bold text-slate-800">{lvl.minAge} - {lvl.maxAge} Yrs</span>
-                  </div>
-                  <div className="flex items-center justify-between font-mono">
-                    <span className="text-slate-500">Prerequisite:</span>
-                    <span className="font-bold text-slate-800">{lvl.prerequisite}</span>
-                  </div>
-                  <div className="flex items-center justify-between font-mono pt-1.5 border-t border-slate-200/80">
-                    <span className="text-slate-500">Assigned Syllabus:</span>
-                    <span className="font-bold text-[#163E2B] flex items-center gap-1">
-                      <BookOpen className="w-3.5 h-3.5 text-[#163E2B]" />
-                      {lvl.syllabus?.length || 0} Topics
-                    </span>
-                  </div>
-                </div>
-
-                <div className="pt-2 border-t border-slate-100 flex items-center justify-between gap-2">
-                  <button
-                    onClick={() => openLevelSyllabus(lvl)}
-                    className="flex-1 px-3 py-1.5 bg-[#163E2B] hover:bg-[#0F2D1F] text-white text-xs font-semibold rounded-lg cursor-pointer flex items-center justify-center gap-1.5 transition-colors shadow-2xs"
-                  >
-                    <BookOpen className="w-3.5 h-3.5" />
-                    <span>Assigned Syllabus ({lvl.syllabus?.length || 0})</span>
-                  </button>
-
-                  {!isAuditor && (
-                    <button
-                      onClick={() => openEditLevel(lvl)}
-                      className="px-3 py-1.5 bg-slate-50 hover:bg-slate-100 text-slate-700 border border-slate-200 text-xs font-semibold rounded-lg cursor-pointer flex items-center gap-1 transition-colors"
-                    >
-                      <Edit2 className="w-3.5 h-3.5" />
-                      <span>Edit</span>
-                    </button>
-                  )}
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-      )}
 
       {/* Batches View */}
       {subTab === 'batches' && (
         <div className="space-y-4">
           <div className="flex justify-between items-center">
-            <h2 className="text-sm font-bold text-slate-900">Batch Slot Schedules</h2>
+            <h2 className="text-sm font-bold text-slate-900">Batch Slot Schedules & Configuration</h2>
             {!isAuditor && (
               <button
                 onClick={openAddBatch}
                 className="px-3.5 py-1.5 bg-[#163E2B] hover:bg-[#0F2D1F] text-white font-semibold text-xs rounded-lg shadow-xs flex items-center gap-1.5 cursor-pointer"
               >
                 <Plus className="w-4 h-4" />
-                <span>Create Batch Slot</span>
+                <span>Add Batch</span>
               </button>
             )}
           </div>
@@ -513,14 +444,22 @@ export const AcademicStructure: React.FC<AcademicStructureProps> = ({
                   <div className="space-y-2">
                     <div className="flex items-center justify-between">
                       <span className="text-[10px] font-mono font-bold text-[#163E2B]">{bat.code}</span>
-                      <span className="text-xs font-mono font-bold text-emerald-700">
+                      <span className="text-xs font-mono font-bold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-full border border-emerald-200">
                         {bat.enrolledCount} / {bat.maxCapacity} Seats ({utilizationPct}%)
                       </span>
                     </div>
                     <h3 className="text-base font-bold text-slate-900">{bat.timeSlot}</h3>
-                    <p className="text-xs text-slate-600 font-mono font-semibold">
-                      ⏰ {bat.startTime} - {bat.endTime}
-                    </p>
+                    {bat.description && (
+                      <p className="text-xs text-slate-600">{bat.description}</p>
+                    )}
+                    <div className="flex items-center gap-4 text-xs font-mono text-slate-700 pt-1">
+                      <span>⏰ <strong>{bat.startTime}</strong> - <strong>{bat.endTime}</strong></span>
+                      {bat.level && (
+                        <span className="bg-amber-50 text-amber-900 px-2 py-0.5 rounded border border-amber-200 font-bold text-[11px]">
+                          Level: {bat.level}
+                        </span>
+                      )}
+                    </div>
                   </div>
 
                   <div className="bg-slate-50 p-3 rounded-lg border border-slate-200/80 space-y-2">
@@ -543,7 +482,7 @@ export const AcademicStructure: React.FC<AcademicStructureProps> = ({
                         className="px-3 py-1 bg-slate-50 hover:bg-slate-100 text-[#163E2B] border border-slate-200 text-xs font-semibold rounded-md cursor-pointer flex items-center gap-1 transition-colors"
                       >
                         <Edit2 className="w-3.5 h-3.5" />
-                        <span>Edit Slot</span>
+                        <span>Edit Batch</span>
                       </button>
                     </div>
                   )}
@@ -554,49 +493,15 @@ export const AcademicStructure: React.FC<AcademicStructureProps> = ({
         </div>
       )}
 
-      {/* Masters View */}
-      {subTab === 'masters' && (
-        <div className="space-y-4">
-          <div className="flex justify-between items-center">
-            <h2 className="text-sm font-bold text-slate-900">System Lookup Master Tables</h2>
-            {!isAuditor && (
-              <button
-                onClick={() => setIsMasterModalOpen(true)}
-                className="px-3.5 py-1.5 bg-[#163E2B] hover:bg-[#0F2D1F] text-white font-semibold text-xs rounded-lg shadow-xs flex items-center gap-1.5 cursor-pointer"
-              >
-                <Plus className="w-4 h-4" />
-                <span>Add Master Entry</span>
-              </button>
-            )}
-          </div>
-
-          <div className="bg-white border border-slate-200/90 rounded-xl shadow-xs overflow-hidden">
-            <table className="w-full text-left text-xs text-slate-700">
-              <thead className="bg-slate-50 text-slate-600 font-mono text-[10px] uppercase tracking-wider border-b border-slate-200">
-                <tr>
-                  <th className="py-2.5 px-4 font-bold">Master ID</th>
-                  <th className="py-2.5 px-4 font-bold">Category</th>
-                  <th className="py-2.5 px-4 font-bold">Value</th>
-                  <th className="py-2.5 px-4 font-bold">Status</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-slate-100 font-medium bg-white">
-                {masters.map((m) => (
-                  <tr key={m.id} className="hover:bg-slate-50/80 transition-colors">
-                    <td className="py-3 px-4 font-mono font-bold text-[#163E2B]">{m.id}</td>
-                    <td className="py-3 px-4 text-slate-600 font-semibold">{m.category}</td>
-                    <td className="py-3 px-4 font-bold text-slate-900">{m.value}</td>
-                    <td className="py-3 px-4">
-                      <span className="px-2 py-0.5 rounded-full text-[10px] font-mono font-bold bg-emerald-50 text-emerald-700 border border-emerald-200">
-                        {m.status}
-                      </span>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        </div>
+      {/* Syllabus View */}
+      {subTab === 'syllabus' && (
+        <SyllabusManagementView
+          levels={levels}
+          batches={batches}
+          currentRole={currentRole}
+          onUpdateLevel={onUpdateLevel}
+          addToast={addToast}
+        />
       )}
 
       {/* LEVEL DETAILS & ASSIGNED SYLLABUS MODAL */}
@@ -884,16 +789,54 @@ export const AcademicStructure: React.FC<AcademicStructureProps> = ({
             <form onSubmit={handleSyllabusItemSubmit} className="space-y-3.5 text-xs">
               <div>
                 <label className="block text-[10px] font-bold text-slate-500 uppercase font-mono mb-1">
-                  Chapter / Topic Name <span className="text-rose-500">*</span>
+                  Syllabus Name <span className="text-rose-500">*</span>
                 </label>
                 <input
                   type="text"
                   required
                   value={syllabusItemForm.chapterName}
                   onChange={(e) => setSyllabusItemForm({ ...syllabusItemForm, chapterName: e.target.value })}
-                  placeholder="e.g., Navkar Mantra - Part 1: Pronunciation"
-                  className="w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 text-slate-900 focus:outline-none focus:border-[#163E2B] focus:bg-white"
+                  placeholder="e.g. Navkar Mantra - Part 1: Pronunciation"
+                  className="w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 text-slate-900 focus:outline-none focus:border-[#163E2B] focus:bg-white font-bold"
                 />
+              </div>
+
+              <div>
+                <label className="block text-[10px] font-bold text-slate-500 uppercase font-mono mb-1">
+                  Description
+                </label>
+                <textarea
+                  rows={2}
+                  value={syllabusItemForm.description}
+                  onChange={(e) => setSyllabusItemForm({ ...syllabusItemForm, description: e.target.value })}
+                  placeholder="Brief overview of learning objectives or topic contents..."
+                  className="w-full bg-slate-50 border border-slate-200 rounded-lg p-3 text-slate-900 focus:outline-none focus:border-[#163E2B] focus:bg-white"
+                />
+              </div>
+
+              <div>
+                <label className="block text-[10px] font-bold text-slate-500 uppercase font-mono mb-1">
+                  Batch Selection (Dropdown) <span className="text-rose-500">*</span>
+                </label>
+                <select
+                  required
+                  value={syllabusItemForm.batch}
+                  onChange={(e) => setSyllabusItemForm({ ...syllabusItemForm, batch: e.target.value })}
+                  className="w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 text-slate-900 focus:outline-none focus:border-[#163E2B] focus:bg-white font-bold cursor-pointer"
+                >
+                  {batches.length > 0 ? (
+                    batches.map((b) => (
+                      <option key={b.id} value={b.timeSlot}>
+                        {b.timeSlot}
+                      </option>
+                    ))
+                  ) : (
+                    <>
+                      <option value="Batch A - Weekend Morning">Batch A - Weekend Morning</option>
+                      <option value="Batch B - Weekend Evening">Batch B - Weekend Evening</option>
+                    </>
+                  )}
+                </select>
               </div>
 
               <div className="grid grid-cols-2 gap-3">
@@ -941,32 +884,6 @@ export const AcademicStructure: React.FC<AcademicStructureProps> = ({
                   <option value="Active">Active</option>
                   <option value="Inactive">Inactive</option>
                 </select>
-              </div>
-
-              <div>
-                <label className="block text-[10px] font-bold text-slate-500 uppercase font-mono mb-1">
-                  Description (Optional)
-                </label>
-                <textarea
-                  rows={3}
-                  value={syllabusItemForm.description}
-                  onChange={(e) => setSyllabusItemForm({ ...syllabusItemForm, description: e.target.value })}
-                  placeholder="Brief overview of learning objectives, verses, or key concepts..."
-                  className="w-full bg-slate-50 border border-slate-200 rounded-lg p-3 text-slate-900 focus:outline-none focus:border-[#163E2B] focus:bg-white"
-                />
-              </div>
-
-              <div>
-                <label className="block text-[10px] font-bold text-slate-500 uppercase font-mono mb-1">
-                  Reference / Topic Tag (Optional)
-                </label>
-                <input
-                  type="text"
-                  value={syllabusItemForm.referenceTopic}
-                  onChange={(e) => setSyllabusItemForm({ ...syllabusItemForm, referenceTopic: e.target.value })}
-                  placeholder="e.g., Kalpa Sutra Chapter 2 / Gatha 1-5"
-                  className="w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 text-slate-900 focus:outline-none focus:border-[#163E2B] focus:bg-white"
-                />
               </div>
 
               <div className="pt-3 flex justify-end gap-2 border-t border-slate-100">
@@ -1120,6 +1037,119 @@ export const AcademicStructure: React.FC<AcademicStructureProps> = ({
                   className="px-5 py-2 bg-[#163E2B] hover:bg-[#0F2D1F] text-white font-semibold rounded-lg shadow-xs cursor-pointer"
                 >
                   Save Entry
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* CREATE / EDIT BATCH MODAL */}
+      {isBatchModalOpen && (
+        <div className="fixed inset-0 z-[9990] bg-slate-900/50 backdrop-blur-xs flex items-center justify-center p-4">
+          <div className="bg-white border border-slate-200 rounded-2xl max-w-md w-full p-6 shadow-2xl space-y-4 text-slate-800">
+            <div className="flex items-center justify-between pb-3 border-b border-slate-200">
+              <h3 className="text-base font-bold text-slate-900">
+                {editingBatch ? `Edit Batch: ${editingBatch.code}` : 'Add New Batch'}
+              </h3>
+              <button onClick={() => setIsBatchModalOpen(false)} className="text-slate-400 hover:text-slate-700 cursor-pointer">
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            <form onSubmit={handleBatchSubmit} className="space-y-3.5 text-xs">
+              <div>
+                <label className="block text-[10px] font-bold text-slate-500 uppercase font-mono mb-1">
+                  Batch Name <span className="text-rose-500">*</span>
+                </label>
+                <input
+                  type="text"
+                  required
+                  value={batchForm.timeSlot}
+                  onChange={(e) => setBatchForm({ ...batchForm, timeSlot: e.target.value })}
+                  placeholder="e.g. Batch A - Weekend Morning"
+                  className="w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 text-slate-900 font-bold focus:outline-none focus:border-[#163E2B] focus:bg-white"
+                />
+              </div>
+
+              <div>
+                <label className="block text-[10px] font-bold text-slate-500 uppercase font-mono mb-1">
+                  Description
+                </label>
+                <textarea
+                  rows={2}
+                  value={batchForm.description}
+                  onChange={(e) => setBatchForm({ ...batchForm, description: e.target.value })}
+                  placeholder="Overview of batch timing slot or group..."
+                  className="w-full bg-slate-50 border border-slate-200 rounded-lg p-3 text-slate-900 font-medium focus:outline-none focus:border-[#163E2B] focus:bg-white"
+                />
+              </div>
+
+              <div>
+                <label className="block text-[10px] font-bold text-slate-500 uppercase font-mono mb-1">
+                  Level Selection (Dropdown) <span className="text-rose-500">*</span>
+                </label>
+                <select
+                  required
+                  value={batchForm.level}
+                  onChange={(e) => setBatchForm({ ...batchForm, level: e.target.value })}
+                  className="w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 text-slate-900 font-bold focus:outline-none focus:border-[#163E2B] focus:bg-white cursor-pointer"
+                >
+                  {levels.length > 0 ? (
+                    levels.map((lvl) => (
+                      <option key={lvl.id} value={lvl.name}>
+                        {lvl.name} ({lvl.code})
+                      </option>
+                    ))
+                  ) : (
+                    <option value="Level 1 - Prarambhik">Level 1 - Prarambhik</option>
+                  )}
+                </select>
+              </div>
+
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="block text-[10px] font-bold text-slate-500 uppercase font-mono mb-1">
+                    Start Time <span className="text-rose-500">*</span>
+                  </label>
+                  <input
+                    type="text"
+                    required
+                    value={batchForm.startTime}
+                    onChange={(e) => setBatchForm({ ...batchForm, startTime: e.target.value })}
+                    placeholder="e.g. 09:00 AM"
+                    className="w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 text-slate-900 font-mono font-bold focus:outline-none focus:border-[#163E2B] focus:bg-white"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-[10px] font-bold text-slate-500 uppercase font-mono mb-1">
+                    End Time <span className="text-rose-500">*</span>
+                  </label>
+                  <input
+                    type="text"
+                    required
+                    value={batchForm.endTime}
+                    onChange={(e) => setBatchForm({ ...batchForm, endTime: e.target.value })}
+                    placeholder="e.g. 10:30 AM"
+                    className="w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 text-slate-900 font-mono font-bold focus:outline-none focus:border-[#163E2B] focus:bg-white"
+                  />
+                </div>
+              </div>
+
+              <div className="pt-3 flex justify-end gap-2 border-t border-slate-100">
+                <button
+                  type="button"
+                  onClick={() => setIsBatchModalOpen(false)}
+                  className="px-4 py-2 bg-slate-100 text-slate-700 font-semibold rounded-lg hover:bg-slate-200 cursor-pointer"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  className="px-5 py-2 bg-[#163E2B] hover:bg-[#0F2D1F] text-white font-semibold rounded-lg shadow-xs cursor-pointer"
+                >
+                  Save Batch
                 </button>
               </div>
             </form>

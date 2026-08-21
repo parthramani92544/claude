@@ -248,30 +248,47 @@ export const StudentManagement: React.FC<StudentManagementProps> = ({
             />
           </div>
 
-          {/* Level Filter */}
+          {/* Super Category: Batch Filter */}
           <div>
+            <label className="block text-[10px] font-bold text-slate-500 uppercase font-mono mb-1">
+              Super Category: Batch
+            </label>
             <select
-              value={levelFilter}
-              onChange={(e) => setLevelFilter(e.target.value)}
-              className="w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 text-xs text-slate-800 font-medium focus:outline-none focus:border-[#163E2B] focus:bg-white"
+              value={batchFilter}
+              onChange={(e) => {
+                setBatchFilter(e.target.value);
+                setLevelFilter('ALL');
+              }}
+              className="w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 text-xs text-slate-800 font-bold focus:outline-none focus:border-[#163E2B] focus:bg-white cursor-pointer"
             >
-              <option value="ALL">All Academic Levels</option>
-              <option value="Level 1 - Prarambhik">Level 1 - Prarambhik</option>
-              <option value="Level 2 - Madhyamik">Level 2 - Madhyamik</option>
-              <option value="Level 3 - Shravak Junior">Level 3 - Shravak Junior</option>
+              <option value="ALL">All Batches (Super Category)</option>
+              <option value="Batch A - Weekend Morning">Batch A - Weekend Morning</option>
+              <option value="Batch B - Weekend Evening">Batch B - Weekend Evening</option>
             </select>
           </div>
 
-          {/* Batch Filter */}
+          {/* Subcategory: Level Filter */}
           <div>
+            <label className="block text-[10px] font-bold text-slate-500 uppercase font-mono mb-1">
+              Subcategory: Level
+            </label>
             <select
-              value={batchFilter}
-              onChange={(e) => setBatchFilter(e.target.value)}
-              className="w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 text-xs text-slate-800 font-medium focus:outline-none focus:border-[#163E2B] focus:bg-white"
+              value={levelFilter}
+              onChange={(e) => setLevelFilter(e.target.value)}
+              className="w-full bg-emerald-50/60 border border-emerald-200 rounded-lg px-3 py-2 text-xs text-[#163E2B] font-bold focus:outline-none focus:border-[#163E2B] focus:bg-white cursor-pointer"
             >
-              <option value="ALL">All Batches</option>
-              <option value="Batch A - Weekend Morning">Batch A - Weekend Morning</option>
-              <option value="Batch B - Weekend Evening">Batch B - Weekend Evening</option>
+              <option value="ALL">
+                {batchFilter === 'ALL' ? 'All Levels' : `Levels in ${batchFilter}`}
+              </option>
+              {(batchFilter === 'ALL' || batchFilter === 'Batch A - Weekend Morning') && (
+                <>
+                  <option value="Level 1 - Prarambhik">Level 1 - Prarambhik</option>
+                  <option value="Level 3 - Shravak Junior">Level 3 - Shravak Junior</option>
+                </>
+              )}
+              {(batchFilter === 'ALL' || batchFilter === 'Batch B - Weekend Evening') && (
+                <option value="Level 2 - Madhyamik">Level 2 - Madhyamik</option>
+              )}
             </select>
           </div>
 
@@ -532,26 +549,46 @@ export const StudentManagement: React.FC<StudentManagementProps> = ({
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-[10px] font-bold text-slate-500 uppercase font-mono mb-1">Academic Level Allocation</label>
-                  <select
-                    value={formData.level}
-                    onChange={(e) => setFormData({ ...formData, level: e.target.value })}
-                    className="w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 text-slate-900 focus:outline-none focus:border-[#163E2B] focus:bg-white"
-                  >
-                    <option value="Level 1 - Prarambhik">Level 1 - Prarambhik</option>
-                    <option value="Level 2 - Madhyamik">Level 2 - Madhyamik</option>
-                    <option value="Level 3 - Shravak Junior">Level 3 - Shravak Junior</option>
-                  </select>
-                </div>
-                <div>
-                  <label className="block text-[10px] font-bold text-slate-500 uppercase font-mono mb-1">Batch Slot Allocation</label>
+                  <label className="block text-[10px] font-bold text-slate-500 uppercase font-mono mb-1">
+                    Super Category: Batch Slot Allocation
+                  </label>
                   <select
                     value={formData.batch}
-                    onChange={(e) => setFormData({ ...formData, batch: e.target.value })}
-                    className="w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 text-slate-900 focus:outline-none focus:border-[#163E2B] focus:bg-white"
+                    onChange={(e) => {
+                      const newBatch = e.target.value;
+                      let defaultLvl = formData.level;
+                      if (newBatch === 'Batch B - Weekend Evening') {
+                        defaultLvl = 'Level 2 - Madhyamik';
+                      } else if (newBatch === 'Batch A - Weekend Morning' && formData.level === 'Level 2 - Madhyamik') {
+                        defaultLvl = 'Level 1 - Prarambhik';
+                      }
+                      setFormData({ ...formData, batch: newBatch, level: defaultLvl });
+                    }}
+                    className="w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 text-slate-900 font-bold focus:outline-none focus:border-[#163E2B] focus:bg-white cursor-pointer"
                   >
                     <option value="Batch A - Weekend Morning">Batch A - Weekend Morning</option>
                     <option value="Batch B - Weekend Evening">Batch B - Weekend Evening</option>
+                  </select>
+                </div>
+
+                <div>
+                  <label className="block text-[10px] font-bold text-slate-500 uppercase font-mono mb-1">
+                    Subcategory: Level Allocation
+                  </label>
+                  <select
+                    value={formData.level}
+                    onChange={(e) => setFormData({ ...formData, level: e.target.value })}
+                    className="w-full bg-emerald-50/60 border border-emerald-200 rounded-lg px-3 py-2 text-[#163E2B] font-bold focus:outline-none focus:border-[#163E2B] focus:bg-white cursor-pointer"
+                  >
+                    {formData.batch === 'Batch A - Weekend Morning' && (
+                      <>
+                        <option value="Level 1 - Prarambhik">Level 1 - Prarambhik</option>
+                        <option value="Level 3 - Shravak Junior">Level 3 - Shravak Junior</option>
+                      </>
+                    )}
+                    {formData.batch === 'Batch B - Weekend Evening' && (
+                      <option value="Level 2 - Madhyamik">Level 2 - Madhyamik</option>
+                    )}
                   </select>
                 </div>
               </div>

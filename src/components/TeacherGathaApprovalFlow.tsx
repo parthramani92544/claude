@@ -3,7 +3,6 @@ import { motion, AnimatePresence } from 'motion/react';
 import { 
   ArrowRight, 
   Search, 
-  Filter, 
   Check, 
   X, 
   Clock, 
@@ -12,12 +11,12 @@ import {
   CheckCircle2, 
   User, 
   Calendar, 
-  Star, 
   BookOpen, 
   History, 
-  MessageSquare, 
-  Award,
-  ChevronRight
+  ChevronRight,
+  GraduationCap,
+  Users,
+  SlidersHorizontal
 } from 'lucide-react';
 
 interface Submission {
@@ -25,19 +24,22 @@ interface Submission {
   studentId: string;
   studentName: string;
   level: string;
+  levelShort: string;
   batch: string;
-  chapter: string; // Sutra / Stavan / Stuti
-  topic: string; // Gatha
+  chapter: string;
+  topic: string;
   submissionDate: string;
   status: 'Pending Review' | 'Approved' | 'Rework Required' | 'Rejected';
   pointsAwarded?: number;
   teacherRemarks?: string;
-  audioUrl?: string; // Optional simulated submission recording
   reviewedDate?: string;
   history?: Array<{
-    date: string;
+    id: string;
+    chapterName: string;
+    topic: string;
     status: 'Pending Review' | 'Approved' | 'Rework Required' | 'Rejected';
     teacherRemarks: string;
+    reviewedDate: string;
   }>;
 }
 
@@ -45,6 +47,35 @@ interface TeacherGathaApprovalFlowProps {
   activeScreen: string;
   setActiveScreen: (screen: string) => void;
   currentLoggedInTeacher: any;
+}
+
+// Decorative Golden Lotus Divider component
+function GoldenLotusDivider() {
+  return (
+    <div className="flex items-center justify-center gap-2.5 my-2">
+      <div className="h-[1px] w-14 bg-[#D6C29E]" />
+      <svg viewBox="0 0 24 16" className="w-5 h-4 text-[#C4883A]" fill="none" stroke="currentColor" strokeWidth="1.2">
+        <path d="M 12 15 C 12 8 8 3 5 7 C 3 10 6 15 12 15 Z" />
+        <path d="M 12 15 C 12 8 16 3 19 7 C 21 10 18 15 12 15 Z" />
+        <path d="M 12 15 C 10 9 10 3 12 1 C 14 3 14 9 12 15 Z" />
+      </svg>
+      <div className="h-[1px] w-14 bg-[#D6C29E]" />
+    </div>
+  );
+}
+
+// Sprout / Leaf SVG Icon matching screenshot avatar badge
+function SproutIcon({ className = "w-5 h-5" }: { className?: string }) {
+  return (
+    <svg viewBox="0 0 24 24" className={className} fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M7 20h10" />
+      <path d="M12 20v-8" />
+      <path d="M12 12c-3-2.5-6-1-6 2 3.5 0 5.5-1 6-2z" />
+      <path d="M12 12c3-2.5 6-1 6 2-3.5 0-5.5-1-6-2z" />
+      <path d="M12 12c0-4 3-7 6-7 0 4-3 7-6 7z" />
+      <path d="M12 12c0-4-3-7-6-7 0 4 3 7 6 7z" />
+    </svg>
+  );
 }
 
 export function TeacherGathaApprovalFlow({
@@ -61,13 +92,21 @@ export function TeacherGathaApprovalFlow({
       studentId: 'STU001',
       studentName: 'Aarav Shah',
       level: 'Level 1: Basic Sutras & Stories',
-      batch: 'Batch A - Morning',
+      levelShort: 'Level 1 · Basic',
+      batch: 'Batch A – Morning',
       chapter: 'Sutra: Navkar Mantra',
-      topic: 'Gatha 1-2 (Sanskrit Pronunciation)',
-      submissionDate: '2026-07-04',
+      topic: 'Gatha 1–2 (Sanskrit Pronunciation)',
+      submissionDate: '4 Jul 2026',
       status: 'Pending Review',
       history: [
-        { date: '2026-06-15', status: 'Rework Required', teacherRemarks: 'Focus on pronouncing "Namaskara" and "Siddhanam" with proper retroflex sounds.' }
+        {
+          id: 'H01',
+          chapterName: 'Chattari Mangalam',
+          topic: 'Gatha 3–4 (Siddha & Sāhu Refugees)',
+          status: 'Approved',
+          teacherRemarks: 'Excellent pronunciation and perfect speed rhythm!',
+          reviewedDate: '29 Jun 2026'
+        }
       ]
     },
     {
@@ -75,38 +114,59 @@ export function TeacherGathaApprovalFlow({
       studentId: 'STU002',
       studentName: 'Diya Patel',
       level: 'Level 1: Basic Sutras & Stories',
-      batch: 'Batch A - Morning',
+      levelShort: 'Level 1 · Basic',
+      batch: 'Batch A – Morning',
       chapter: 'Stavan: Maitri Bhavnu Pavitra',
-      topic: 'Gatha 3 (Compassion for all creatures)',
-      submissionDate: '2026-07-05',
+      topic: 'Gatha 3–4 (Siddha & Sāhu Refugees)',
+      submissionDate: '3 Jul 2026',
       status: 'Pending Review',
-      history: []
+      history: [
+        {
+          id: 'H02',
+          chapterName: 'Navkar Mantra',
+          topic: 'Gatha 1–2 (Arihanta & Siddha Namaskara)',
+          status: 'Approved',
+          teacherRemarks: 'Devotional rendering and pure clear diction.',
+          reviewedDate: '26 Jun 2026'
+        }
+      ]
     },
     {
       id: 'SUB003',
       studentId: 'STU003',
       studentName: 'Rohan Jain',
       level: 'Level 2: Jain Geography & Symbols',
-      batch: 'Batch B - Afternoon',
+      levelShort: 'Level 2 · Intermediate',
+      batch: 'Batch B – Afternoon',
       chapter: 'Stuti: Chattari Mangalam',
-      topic: 'Gatha 1-4 (Four Auspicious Refuges)',
-      submissionDate: '2026-07-05',
+      topic: 'Gatha 1–4 (Four Auspicious Refuges)',
+      submissionDate: '2 Jul 2026',
       status: 'Pending Review',
       history: [
-        { date: '2026-06-20', status: 'Approved', teacherRemarks: 'Beautifully recited with precise pause timings!' }
+        {
+          id: 'H03',
+          chapterName: 'Logassa Sutra',
+          topic: 'Gatha 1–2 (Kirtanam & Vandanam)',
+          status: 'Approved',
+          teacherRemarks: 'Remarkable dedication shown. Heartiest blessings!',
+          reviewedDate: '25 Jun 2026'
+        }
       ]
     },
-    // Submissions for STU004 & STU005 (Pujya Samanji Dr. Shrutpragya ji)
     {
       id: 'SUB004',
       studentId: 'STU004',
       studentName: 'Kavya Doshi',
       level: 'Level 2: Jain Geography & Symbols',
-      batch: 'Batch B - Afternoon',
+      levelShort: 'Level 2 · Intermediate',
+      batch: 'Batch B – Afternoon',
       chapter: 'Sutra: Logassa Sutra',
-      topic: 'Gatha 1-5 (24 Tirthankara praises)',
-      submissionDate: '2026-07-03',
-      status: 'Pending Review',
+      topic: 'Gatha 1–5 (24 Tirthankara praises)',
+      submissionDate: '1 Jul 2026',
+      status: 'Approved',
+      pointsAwarded: 50,
+      teacherRemarks: 'Splendid tone and flawless pronunciation of all Tirthankara names.',
+      reviewedDate: '2 Jul 2026',
       history: []
     },
     {
@@ -114,95 +174,45 @@ export function TeacherGathaApprovalFlow({
       studentId: 'STU005',
       studentName: 'Siddharth Mehta',
       level: 'Level 1: Basic Sutras & Stories',
-      batch: 'Batch A - Morning',
+      levelShort: 'Level 1 · Basic',
+      batch: 'Batch A – Morning',
       chapter: 'Sutra: Chattari Mangalam',
-      topic: 'Gatha 1-2 (The Auspicious Four)',
-      submissionDate: '2026-07-04',
-      status: 'Pending Review',
-      history: [
-        { date: '2026-06-12', status: 'Rework Required', teacherRemarks: 'Kindly record again as there was excessive background noise.' }
-      ]
+      topic: 'Gatha 1–2 (The Auspicious Four)',
+      submissionDate: '30 Jun 2026',
+      status: 'Rework Required',
+      teacherRemarks: 'Make sure to pause correctly after each pada. Please record again in a quiet room.',
+      reviewedDate: '1 Jul 2026',
+      history: []
     },
-    // Previously reviewed mock data for both teachers
     {
       id: 'SUB006',
       studentId: 'STU001',
       studentName: 'Aarav Shah',
       level: 'Level 1: Basic Sutras & Stories',
-      batch: 'Batch A - Morning',
+      levelShort: 'Level 1 · Basic',
+      batch: 'Batch A – Morning',
       chapter: 'Sutra: Chattari Mangalam',
-      topic: 'Gatha 3-4 (Siddha & Sahu Refuges)',
-      submissionDate: '2026-06-28',
+      topic: 'Gatha 3–4 (Siddha & Sahu Refuges)',
+      submissionDate: '28 Jun 2026',
       status: 'Approved',
       pointsAwarded: 50,
       teacherRemarks: 'Excellent pronunciation and perfect speed rhythm!',
-      reviewedDate: '2026-06-29',
-      history: []
-    },
-    {
-      id: 'SUB007',
-      studentId: 'STU002',
-      studentName: 'Diya Patel',
-      level: 'Level 1: Basic Sutras & Stories',
-      batch: 'Batch A - Morning',
-      chapter: 'Sutra: Navkar Mantra',
-      topic: 'Gatha 3-5 (Arihantanam, Siddhanam, Ayariyanam)',
-      submissionDate: '2026-06-25',
-      status: 'Rework Required',
-      teacherRemarks: 'Make sure to distinctively pronounce "Uvajjhayanam". Please resubmit with more clarity.',
-      reviewedDate: '2026-06-26',
-      history: []
-    },
-    {
-      id: 'SUB008',
-      studentId: 'STU003',
-      studentName: 'Rohan Jain',
-      level: 'Level 2: Jain Geography & Symbols',
-      batch: 'Batch B - Afternoon',
-      chapter: 'Sutra: Logassa Sutra',
-      topic: 'Gatha 1-2 (Kirtanam & Vandanam)',
-      submissionDate: '2026-06-24',
-      status: 'Approved',
-      pointsAwarded: 75,
-      teacherRemarks: 'Remarkable dedication shown. Heartiest blessings!',
-      reviewedDate: '2026-06-25',
-      history: []
-    },
-    {
-      id: 'SUB009',
-      studentId: 'STU004',
-      studentName: 'Kavya Doshi',
-      level: 'Level 2: Jain Geography & Symbols',
-      batch: 'Batch B - Afternoon',
-      chapter: 'Sutra: Pratikraman Sutras',
-      topic: 'Iryavahiyam Sutra (Seeking forgiveness)',
-      submissionDate: '2026-06-30',
-      status: 'Rejected',
-      teacherRemarks: 'Please submit the correct recording for Level 2 Iryavahiyam. You uploaded Level 1 Navkar Mantra instead.',
-      reviewedDate: '2026-07-01',
+      reviewedDate: '29 Jun 2026',
       history: []
     }
   ]);
 
-  // Active sub-tab inside Gatha Approval screen
+  // Active sub-tab inside Gatha Approval screen: 'Pending' | 'Reviewed' | 'All'
   const [activeTab, setActiveTab] = useState<'Pending' | 'Reviewed' | 'All'>('Pending');
 
-  // Search and Filter States
+  // Search State
   const [searchQuery, setSearchQuery] = useState('');
-  const [filterLevel, setFilterLevel] = useState('All');
-  const [filterBatch, setFilterBatch] = useState('All');
-  const [filterStatus, setFilterStatus] = useState('All');
 
-  // Selected submission for the detail screen
+  // Selected submission ID for the detail screen
   const [selectedSubmissionId, setSelectedSubmissionId] = useState<string | null>(null);
 
-  // Remarks draft state
+  // Remarks draft state for reviewing
   const [remarksDraft, setRemarksDraft] = useState('');
-
-  // Level & Batch choices matching students database
-  const levels = ['All', 'Level 1: Basic Sutras & Stories', 'Level 2: Jain Geography & Symbols'];
-  const batches = ['All', 'Batch A - Morning', 'Batch B - Afternoon'];
-  const statuses = ['All', 'Pending Review', 'Approved', 'Rework Required', 'Rejected'];
 
   // Helper to resolve student teacher by matching mock student names with their known teacher
   const getStudentTeacher = (studentName: string): string => {
@@ -212,9 +222,7 @@ export function TeacherGathaApprovalFlow({
     return "Pujya Samanji Dr. Shrutpragya ji";
   };
 
-  // 1. FILTER SUBMISSIONS BY LOGGED-IN TEACHER ONLY
-  // Teachers should ONLY see submissions from students assigned to their own batches / themselves.
-  // Teachers must NEVER access submissions from another teacher's students.
+  // Filter submissions by teacher
   const mySubmissions = submissions.filter(sub => {
     const studentTeacher = getStudentTeacher(sub.studentName);
     return studentTeacher === teacherName;
@@ -230,309 +238,381 @@ export function TeacherGathaApprovalFlow({
     return true; // All
   });
 
-  // Filter based on Search & Dropdowns
+  // Filter based on Search
   const finalFilteredSubmissions = tabFilteredSubmissions.filter(sub => {
-    const matchesSearch = 
-      sub.studentName.toLowerCase().includes(searchQuery.toLowerCase()) || 
-      sub.studentId.toLowerCase().includes(searchQuery.toLowerCase());
-    const matchesLevel = filterLevel === 'All' || sub.level === filterLevel;
-    const matchesBatch = filterBatch === 'All' || sub.batch === filterBatch;
-    const matchesStatus = filterStatus === 'All' || sub.status === filterStatus;
-
-    return matchesSearch && matchesLevel && matchesBatch && matchesStatus;
+    const query = searchQuery.toLowerCase().trim();
+    if (!query) return true;
+    return (
+      sub.studentName.toLowerCase().includes(query) || 
+      sub.studentId.toLowerCase().includes(query) ||
+      sub.chapter.toLowerCase().includes(query) ||
+      sub.topic.toLowerCase().includes(query)
+    );
   });
 
   // Current viewed submission details object
-  const currentSubmission = submissions.find(sub => sub.id === selectedSubmissionId);
+  const currentSubmission = submissions.find(sub => sub.id === selectedSubmissionId) || submissions[0];
 
-  // Status Style Helper
-  const getStatusBadgeStyles = (status: Submission['status']) => {
+  // Status Badge UI helper matching screenshots
+  const renderStatusBadge = (status: Submission['status']) => {
     switch (status) {
       case 'Pending Review':
-        return {
-          bg: 'bg-amber-50 text-amber-700 border-amber-200',
-          dot: 'bg-amber-500',
-          icon: Clock,
-          label: '🟡 Pending Review'
-        };
+        return (
+          <div className="bg-[#FEF7EC] text-[#B45309] border border-[#FDE68A] rounded-full px-3 py-1 text-xs font-semibold flex items-center gap-1.5 shadow-2xs">
+            <Clock className="w-3.5 h-3.5 text-[#B45309]" />
+            <span>Pending</span>
+          </div>
+        );
       case 'Approved':
-        return {
-          bg: 'bg-emerald-50 text-emerald-700 border-emerald-200',
-          dot: 'bg-emerald-500',
-          icon: CheckCircle2,
-          label: '🟢 Approved'
-        };
+        return (
+          <div className="bg-[#EBF7EE] text-[#1C4D36] border border-[#C8E6C9] rounded-full px-3 py-1 text-xs font-semibold flex items-center gap-1.5 shadow-2xs">
+            <CheckCircle2 className="w-3.5 h-3.5 text-[#1C4D36]" />
+            <span>Approved</span>
+          </div>
+        );
       case 'Rework Required':
-        return {
-          bg: 'bg-orange-50 text-orange-700 border-orange-200',
-          dot: 'bg-orange-500',
-          icon: AlertTriangle,
-          label: '🟠 Rework Required'
-        };
+        return (
+          <div className="bg-[#FFF7ED] text-[#EA580C] border border-[#FED7AA] rounded-full px-3 py-1 text-xs font-semibold flex items-center gap-1.5 shadow-2xs">
+            <AlertTriangle className="w-3.5 h-3.5 text-[#EA580C]" />
+            <span>Rework</span>
+          </div>
+        );
       case 'Rejected':
-        return {
-          bg: 'bg-rose-50 text-rose-700 border-rose-200',
-          dot: 'bg-rose-500',
-          icon: AlertCircle,
-          label: '🔴 Rejected'
-        };
+        return (
+          <div className="bg-[#FEF2F2] text-[#DC2626] border border-[#FECACA] rounded-full px-3 py-1 text-xs font-semibold flex items-center gap-1.5 shadow-2xs">
+            <AlertCircle className="w-3.5 h-3.5 text-[#DC2626]" />
+            <span>Rejected</span>
+          </div>
+        );
       default:
-        return {
-          bg: 'bg-slate-50 text-slate-700 border-slate-200',
-          dot: 'bg-slate-500',
-          icon: Clock,
-          label: 'Pending'
-        };
+        return (
+          <div className="bg-slate-50 text-slate-600 border border-slate-200 rounded-full px-3 py-1 text-xs font-semibold">
+            {status}
+          </div>
+        );
     }
   };
 
-  // ACTION HANDLER
+  // Review action handler
   const handleReviewAction = (actionStatus: 'Approved' | 'Rework Required' | 'Rejected') => {
     if (!selectedSubmissionId) return;
 
-    // Validate if Rework or Reject has remarks filled (remarks are optional for Approve)
     if ((actionStatus === 'Rework Required' || actionStatus === 'Rejected') && !remarksDraft.trim()) {
-      alert(`Please write a teacher remark explaining why this submission requires ${actionStatus === 'Rework Required' ? 'rework' : 'rejection'}.`);
+      alert(`Please write teacher remarks explaining why this submission requires ${actionStatus === 'Rework Required' ? 'rework' : 'rejection'}.`);
       return;
     }
 
     setSubmissions(prev => prev.map(sub => {
       if (sub.id === selectedSubmissionId) {
-        // Business Rules logic:
-        // • Approved: status Approved, Gatha Points awarded (e.g. 50 bonus pts)
-        // • Rework Required: status Rework Required, no points
-        // • Rejected: status Rejected, no points
         const points = actionStatus === 'Approved' ? 50 : undefined;
         return {
           ...sub,
           status: actionStatus,
-          teacherRemarks: remarksDraft.trim() || undefined,
+          teacherRemarks: remarksDraft.trim() || (actionStatus === 'Approved' ? 'Excellent pronunciation and blessed progress.' : undefined),
           pointsAwarded: points,
-          reviewedDate: new Date().toISOString().split('T')[0]
+          reviewedDate: new Date().toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })
         };
       }
       return sub;
     }));
 
-    alert(`Successfully saved submission as ${actionStatus}!`);
     setRemarksDraft('');
-    setSelectedSubmissionId(null);
     setActiveScreen('TeacherGathaApprovals');
   };
 
-  // SCREEN 2: SUBMISSION DETAILS VIEW
+  // Calculate counts for tabs
+  const pendingCount = mySubmissions.filter(s => s.status === 'Pending Review').length;
+  const reviewedCount = mySubmissions.filter(s => s.status !== 'Pending Review').length;
+  const allCount = mySubmissions.length;
+
+  // ==========================================
+  // SCREEN 2: SUBMISSION DETAILS VIEW (SS 2 & 3)
+  // ==========================================
   if (activeScreen === 'TeacherGathaSubmissionDetails' && currentSubmission) {
-    const badge = getStatusBadgeStyles(currentSubmission.status);
-    const StatusIcon = badge.icon;
-    
-    // Look up other submissions by this student for decision history
-    const previousDecisions = submissions.filter(
-      sub => sub.studentId === currentSubmission.studentId && sub.id !== currentSubmission.id && sub.status !== 'Pending Review'
-    );
+    const studentInitials = currentSubmission.studentName
+      .split(' ')
+      .map(n => n[0])
+      .join('')
+      .substring(0, 2);
 
     return (
       <motion.div
-        initial={{ opacity: 0, x: 20 }}
+        initial={{ opacity: 0, x: 15 }}
         animate={{ opacity: 1, x: 0 }}
-        className="h-full bg-slate-50 overflow-y-auto pb-24 text-slate-800"
+        className="h-full bg-[#FCFAF7] overflow-y-auto pb-28 text-slate-800"
       >
-        {/* Header */}
-        <div className="bg-white px-5 py-4 flex items-center gap-3 border-b border-slate-200 sticky top-0 z-20">
-          <button 
-            onClick={() => { 
-              setActiveScreen('TeacherGathaApprovals'); 
-              setRemarksDraft('');
-            }} 
-            className="p-2 hover:bg-slate-100 rounded-full transition-colors active:scale-95 cursor-pointer"
-          >
-            <ArrowRight className="w-5 h-5 text-slate-700 rotate-180" />
-          </button>
-          <div>
-            <h2 className="text-lg font-black text-slate-900 tracking-tight">Submission Details</h2>
-            <p className="text-[10px] text-slate-400 font-bold uppercase font-mono mt-0.5">ID: {currentSubmission.id}</p>
+        {/* Header matching SS 2 & 3 */}
+        <div className="bg-[#FCFAF7] px-5 pt-8 pb-3 border-b border-[#EEDBBD]/50 sticky top-0 z-20">
+          <div className="relative flex items-center justify-center">
+            <button 
+              onClick={() => { 
+                setActiveScreen('TeacherGathaApprovals'); 
+                setRemarksDraft('');
+              }} 
+              className="absolute left-0 p-2 hover:bg-black/5 rounded-full transition-colors active:scale-95 cursor-pointer text-slate-700"
+            >
+              <ArrowRight className="w-5 h-5 rotate-180" />
+            </button>
+            <div className="text-center">
+              <h1 className="text-xl sm:text-2xl font-bold font-serif text-[#1C4D36] tracking-tight">
+                Submission Details
+              </h1>
+              <p className="text-xs text-slate-500 font-mono tracking-wider mt-0.5">
+                ID: {currentSubmission.id}
+              </p>
+            </div>
           </div>
+          <GoldenLotusDivider />
         </div>
 
-        <div className="p-5 space-y-5">
-          {/* Status Bar */}
-          <div className={`border p-4 rounded-2xl flex items-center justify-between ${badge.bg}`}>
-            <div className="flex items-center gap-2.5">
-              <StatusIcon className="w-5 h-5" />
-              <div>
-                <p className="text-xs font-black uppercase tracking-wider">Current Status</p>
-                <p className="text-sm font-bold mt-0.5">{currentSubmission.status}</p>
-              </div>
+        <div className="p-4 sm:p-5 space-y-4 max-w-lg mx-auto">
+          {/* Card 1: Current Status Card */}
+          <div className="bg-[#FAF6ED] border border-[#EADBBD] rounded-2xl p-4 sm:p-5 flex items-center gap-4 shadow-xs">
+            <div className="w-11 h-11 rounded-full bg-white/90 border border-[#F5E6CC] flex items-center justify-center text-[#B45309] shrink-0">
+              <Clock className="w-6 h-6 text-[#B45309]" />
             </div>
-            {currentSubmission.pointsAwarded && (
-              <div className="text-right bg-white/60 px-3 py-1 rounded-xl border border-emerald-200">
-                <p className="text-[9px] font-black text-emerald-800 uppercase tracking-wider">Points Awarded</p>
-                <p className="text-sm font-black text-emerald-950">+{currentSubmission.pointsAwarded} pts</p>
-              </div>
-            )}
-          </div>
-
-          {/* Student Info Card */}
-          <div className="bg-white border border-slate-200 rounded-2xl p-5 shadow-sm">
-            <h3 className="text-xs font-black text-slate-400 uppercase tracking-wider mb-4 flex items-center gap-2 pb-2 border-b border-slate-100">
-              <User className="w-4 h-4 text-blue-500" />
-              Student Information
-            </h3>
-            <div className="flex items-center gap-4 mb-4">
-              <div className="w-12 h-12 rounded-full bg-blue-100 text-blue-700 font-black text-base flex items-center justify-center border-2 border-white shadow-sm">
-                {currentSubmission.studentName.split(' ').map(n => n[0]).join('')}
-              </div>
-              <div>
-                <h4 className="text-base font-black text-slate-900">{currentSubmission.studentName}</h4>
-                <p className="text-xs font-mono text-slate-500 mt-0.5">ID: {currentSubmission.studentId}</p>
-              </div>
-            </div>
-            <div className="grid grid-cols-2 gap-4 pt-2">
-              <div>
-                <p className="text-[10px] font-black text-slate-400 uppercase tracking-wider">Assigned Level</p>
-                <p className="text-xs font-bold text-slate-700 mt-0.5">{currentSubmission.level}</p>
-              </div>
-              <div>
-                <p className="text-[10px] font-black text-slate-400 uppercase tracking-wider">Assigned Batch</p>
-                <p className="text-xs font-bold text-slate-700 mt-0.5">{currentSubmission.batch}</p>
-              </div>
+            <div>
+              <p className="text-xs font-semibold text-slate-600">Current Status</p>
+              <p className="text-lg font-bold text-[#B45309] font-serif tracking-tight mt-0.5">
+                {currentSubmission.status}
+              </p>
             </div>
           </div>
 
-          {/* Submitted Work Card */}
-          <div className="bg-white border border-slate-200 rounded-2xl p-5 shadow-sm">
-            <h3 className="text-xs font-black text-slate-400 uppercase tracking-wider mb-4 flex items-center gap-2 pb-2 border-b border-slate-100">
-              <BookOpen className="w-4 h-4 text-indigo-500" />
-              Submitted Work
-            </h3>
-            <div className="space-y-4">
-              <div>
-                <p className="text-[10px] font-black text-slate-400 uppercase tracking-wider">Chapter</p>
-                <p className="text-sm font-bold text-slate-800 mt-0.5">{currentSubmission.chapter}</p>
+          {/* Card 2: Student Information */}
+          <div className="bg-white rounded-2xl p-5 border border-[#EDE8DE] shadow-xs space-y-4">
+            <div className="flex items-center gap-2 pb-1">
+              <User className="w-5 h-5 text-[#1C4D36]" />
+              <h3 className="text-base font-serif font-bold text-[#1C4D36]">
+                Student Information
+              </h3>
+            </div>
+            <div className="h-[1px] bg-[#F2ECE1]" />
+
+            {/* Profile Row */}
+            <div className="flex items-center gap-3.5">
+              <div className="w-12 h-12 rounded-full bg-[#EBF5EE] text-[#1C4D36] font-bold text-base flex items-center justify-center shrink-0 border border-[#D5EBDC]">
+                {studentInitials}
               </div>
               <div>
-                <p className="text-[10px] font-black text-slate-400 uppercase tracking-wider">Topic / Gatha Verse</p>
-                <p className="text-sm font-semibold text-indigo-900 bg-indigo-50/50 p-3 rounded-xl border border-indigo-100/50 mt-1">
-                  {currentSubmission.topic}
+                <h4 className="text-lg font-bold font-serif text-slate-900 leading-tight">
+                  {currentSubmission.studentName}
+                </h4>
+                <p className="text-xs font-mono text-slate-400 mt-0.5 tracking-wider">
+                  ID: {currentSubmission.studentId}
                 </p>
               </div>
-              <div className="flex justify-between items-center bg-slate-50 p-3 rounded-xl border border-slate-200">
-                <div>
-                  <p className="text-[10px] font-black text-slate-400 uppercase tracking-wider">Submitted On</p>
-                  <p className="text-xs font-bold text-slate-700 mt-0.5">{currentSubmission.submissionDate}</p>
+            </div>
+
+            {/* Level & Batch 2-Column Grid */}
+            <div className="grid grid-cols-2 gap-2 pt-2 border-t border-[#F2ECE1]">
+              <div className="text-center p-2">
+                <div className="w-9 h-9 rounded-full bg-[#EBF5EE] text-[#1C4D36] flex items-center justify-center mx-auto mb-1.5">
+                  <GraduationCap className="w-4.5 h-4.5" />
                 </div>
-                {/* Simulated audio attachment badge */}
-                <span className="text-[10px] font-bold text-blue-700 bg-blue-50 px-2.5 py-1 rounded-md border border-blue-100 uppercase tracking-wider flex items-center gap-1.5">
-                  <span className="w-1.5 h-1.5 bg-blue-500 rounded-full animate-ping"></span>
-                  Audio Included
+                <p className="font-bold text-slate-800 text-sm">
+                  {currentSubmission.level.split(':')[0]}
+                </p>
+                <p className="text-[11px] text-slate-500 mt-0.5 leading-tight">
+                  {currentSubmission.level.split(':')[1]?.trim() || 'Basic Sutras & Stories'}
+                </p>
+              </div>
+
+              <div className="text-center p-2 border-l border-[#F2ECE1]">
+                <div className="w-9 h-9 rounded-full bg-[#EBF5EE] text-[#1C4D36] flex items-center justify-center mx-auto mb-1.5">
+                  <Users className="w-4.5 h-4.5" />
+                </div>
+                <p className="font-bold text-slate-800 text-sm">
+                  {currentSubmission.batch.split('–')[0]?.trim() || 'Batch A'}
+                </p>
+                <p className="text-[11px] text-slate-500 mt-0.5 leading-tight">
+                  {currentSubmission.batch.split('–')[1]?.trim() || 'Morning'}
+                </p>
+              </div>
+            </div>
+          </div>
+
+          {/* Card 3: Submitted Work */}
+          <div className="bg-white rounded-2xl p-5 border border-[#EDE8DE] shadow-xs space-y-3.5">
+            <div className="flex items-center gap-2 pb-1">
+              <BookOpen className="w-5 h-5 text-[#1C4D36]" />
+              <h3 className="text-base font-serif font-bold text-[#1C4D36]">
+                Submitted Work
+              </h3>
+            </div>
+
+            {/* Chapter Box */}
+            <div>
+              <p className="text-xs font-semibold text-slate-500 mb-1">Chapter</p>
+              <div className="bg-[#F8FAF7] border border-[#E2EBE4] rounded-xl p-3.5 flex items-center gap-3">
+                <div className="w-8 h-8 rounded-lg bg-white text-[#1C4D36] border border-[#D5E4D8] flex items-center justify-center shrink-0">
+                  <BookOpen className="w-4 h-4" />
+                </div>
+                <span className="text-sm font-bold text-slate-800">
+                  {currentSubmission.chapter}
+                </span>
+              </div>
+            </div>
+
+            {/* Topic Box */}
+            <div>
+              <p className="text-xs font-semibold text-slate-500 mb-1">Topic</p>
+              <div className="bg-[#F8FAF7] border border-[#E2EBE4] rounded-xl p-3.5 flex items-center gap-3">
+                <div className="w-8 h-8 rounded-lg bg-white text-[#1C4D36] border border-[#D5E4D8] flex items-center justify-center shrink-0">
+                  <SproutIcon className="w-4 h-4 text-[#1C4D36]" />
+                </div>
+                <span className="text-sm font-bold text-slate-800">
+                  {currentSubmission.topic}
                 </span>
               </div>
             </div>
           </div>
 
-          {/* Existing Remarks if reviewed previously */}
-          {currentSubmission.teacherRemarks && (
-            <div className="bg-slate-100 border border-slate-200 rounded-2xl p-5">
-              <h4 className="text-xs font-black text-slate-500 uppercase tracking-wider flex items-center gap-2 mb-2">
-                <MessageSquare className="w-4 h-4 text-slate-400" />
-                Previous Teacher Remarks
-              </h4>
-              <p className="text-sm text-slate-700 italic">"{currentSubmission.teacherRemarks}"</p>
-              {currentSubmission.reviewedDate && (
-                <p className="text-[10px] font-mono text-slate-400 mt-2 text-right">Reviewed on: {currentSubmission.reviewedDate}</p>
-              )}
-            </div>
-          )}
-
-          {/* Teacher Review Actions Panel (Only if Pending Review) */}
-          {currentSubmission.status === 'Pending Review' ? (
-            <div className="bg-white border border-slate-200 rounded-2xl p-5 shadow-sm space-y-4">
-              <h3 className="text-xs font-black text-slate-400 uppercase tracking-wider flex items-center gap-2 pb-2 border-b border-slate-100">
-                <Award className="w-4 h-4 text-amber-500" />
-                Teacher Action Control
+          {/* Card 4: Teacher Action (Screenshot 3) */}
+          <div className="bg-white rounded-2xl p-5 border border-[#EDE8DE] shadow-xs space-y-3.5">
+            <div className="flex items-center gap-2 pb-1">
+              <User className="w-5 h-5 text-[#1C4D36]" />
+              <h3 className="text-base font-serif font-bold text-[#1C4D36]">
+                Teacher Action
               </h3>
+            </div>
 
-              {/* Remarks Textarea */}
-              <div>
-                <label className="text-[10px] font-black text-slate-400 uppercase tracking-wider block mb-1">
-                  Teacher Remarks
-                </label>
+            {/* Remarks Textarea */}
+            <div>
+              <p className="text-xs font-semibold text-slate-500 mb-1">Remarks</p>
+              <div className="relative">
                 <textarea
                   value={remarksDraft}
                   onChange={(e) => setRemarksDraft(e.target.value)}
-                  placeholder="Provide guidance, correct pronunciation flaws, or spell blessings here..."
-                  className="w-full text-slate-800 text-sm font-medium border border-slate-200 rounded-xl p-3 h-24 focus:ring-2 focus:ring-blue-500 placeholder:text-slate-400 resize-none"
+                  placeholder="Add guidance, pronunciation feedback, or blessings..."
+                  className="w-full bg-[#FCFAF7] border border-[#EDE8DE] rounded-2xl p-3.5 text-sm min-h-[110px] focus:outline-none focus:ring-2 focus:ring-[#1C4D36]/20 focus:border-[#1C4D36] text-slate-800 placeholder:text-slate-400 resize-none font-medium pr-10"
                 />
-                <p className="text-[10px] text-slate-400 mt-1">
-                  *Remarks are optional for approvals, but mandatory for "Rework Required" and "Reject" decisions.
-                </p>
+                {/* Subtle Leaf watermark in bottom-right */}
+                <div className="absolute right-3.5 bottom-3.5 opacity-25 pointer-events-none text-[#1C4D36]">
+                  <SproutIcon className="w-5 h-5" />
+                </div>
               </div>
-
-              {/* Action Buttons */}
-              <div className="grid grid-cols-3 gap-2.5 pt-2">
-                {/* Reject */}
-                <button
-                  onClick={() => handleReviewAction('Rejected')}
-                  className="py-3 px-1.5 bg-rose-50 hover:bg-rose-100 text-rose-700 font-bold text-xs rounded-xl border border-rose-200 transition-colors cursor-pointer flex flex-col items-center justify-center gap-1.5 active:scale-95"
-                >
-                  <X className="w-4 h-4 text-rose-500" />
-                  ❌ Reject
-                </button>
-
-                {/* Rework Required */}
-                <button
-                  onClick={() => handleReviewAction('Rework Required')}
-                  className="py-3 px-1.5 bg-orange-50 hover:bg-orange-100 text-orange-700 font-bold text-xs rounded-xl border border-orange-200 transition-colors cursor-pointer flex flex-col items-center justify-center gap-1.5 active:scale-95"
-                >
-                  <AlertTriangle className="w-4 h-4 text-orange-500" />
-                  🟠 Rework
-                </button>
-
-                {/* Approve */}
-                <button
-                  onClick={() => handleReviewAction('Approved')}
-                  className="py-3 px-1.5 bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs rounded-xl transition-colors shadow-sm cursor-pointer flex flex-col items-center justify-center gap-1.5 active:scale-95"
-                >
-                  <Check className="w-4 h-4 text-white" />
-                  ✅ Approve
-                </button>
+              <div className="flex items-start gap-1.5 mt-2 text-[11.5px] text-slate-500">
+                <span className="text-slate-400 font-bold">ⓘ</span>
+                <span>Remarks are optional for Approve, and required for Rework or Reject.</span>
               </div>
             </div>
-          ) : (
-            <div className="bg-slate-50 border border-slate-200 rounded-2xl p-4 text-center">
-              <p className="text-xs text-slate-500 font-bold">This submission has already been processed.</p>
-            </div>
-          )}
 
-          {/* Submission History Decision Tracker */}
-          <div className="bg-white border border-slate-200 rounded-2xl p-5 shadow-sm">
-            <h3 className="text-xs font-black text-slate-400 uppercase tracking-wider mb-4 flex items-center gap-2 pb-2 border-b border-slate-100">
-              <History className="w-4 h-4 text-slate-500" />
-              Submission History
-            </h3>
-            {previousDecisions.length === 0 ? (
-              <p className="text-xs text-slate-400 italic text-center py-2">No other decisions recorded for this student.</p>
-            ) : (
-              <div className="space-y-3.5">
-                {previousDecisions.map((historyItem) => {
-                  const hBadge = getStatusBadgeStyles(historyItem.status);
-                  return (
-                    <div key={historyItem.id} className="text-xs border border-slate-100 rounded-xl p-3 bg-slate-50/50 space-y-1.5">
-                      <div className="flex justify-between items-center">
-                        <span className="font-bold text-slate-700">{historyItem.chapter.split(': ')[1]}</span>
-                        <span className={`text-[9px] font-black px-1.5 py-0.5 rounded uppercase ${hBadge.bg}`}>
-                          {historyItem.status}
-                        </span>
+            {/* Action Buttons Grid matching SS 3 */}
+            <div className="grid grid-cols-3 gap-3 pt-2">
+              {/* Reject */}
+              <button
+                type="button"
+                onClick={() => handleReviewAction('Rejected')}
+                className="bg-[#FFF5F5] border border-[#FED7D7] hover:bg-[#FFEAE8] rounded-2xl py-3 px-2 flex flex-col items-center justify-center gap-1.5 text-[#C53030] cursor-pointer transition-all active:scale-95 shadow-2xs"
+              >
+                <div className="w-6 h-6 rounded-full border-2 border-[#C53030] flex items-center justify-center">
+                  <X className="w-3.5 h-3.5 text-[#C53030] stroke-[2.5]" />
+                </div>
+                <span className="font-bold text-xs sm:text-sm text-[#C53030]">Reject</span>
+              </button>
+
+              {/* Rework */}
+              <button
+                type="button"
+                onClick={() => handleReviewAction('Rework Required')}
+                className="bg-[#FFFBEB] border border-[#FDE68A] hover:bg-[#FEF3C7] rounded-2xl py-3 px-2 flex flex-col items-center justify-center gap-1.5 text-[#D97706] cursor-pointer transition-all active:scale-95 shadow-2xs"
+              >
+                <AlertTriangle className="w-6 h-6 text-[#D97706]" />
+                <span className="font-bold text-xs sm:text-sm text-[#D97706]">Rework</span>
+              </button>
+
+              {/* Approve */}
+              <button
+                type="button"
+                onClick={() => handleReviewAction('Approved')}
+                className="bg-[#1C4D36] hover:bg-[#153B29] rounded-2xl py-3 px-2 flex flex-col items-center justify-center gap-1.5 text-white cursor-pointer transition-all active:scale-95 shadow-2xs"
+              >
+                <div className="w-6 h-6 rounded-full bg-white/20 border border-white flex items-center justify-center">
+                  <Check className="w-3.5 h-3.5 text-white stroke-[2.5]" />
+                </div>
+                <span className="font-bold text-xs sm:text-sm text-white">Approve</span>
+              </button>
+            </div>
+          </div>
+
+          {/* Card 5: Submission History */}
+          <div className="bg-white rounded-2xl p-5 border border-[#EDE8DE] shadow-xs space-y-4">
+            <div className="flex items-center gap-2 pb-1">
+              <History className="w-5 h-5 text-[#1C4D36]" />
+              <h3 className="text-base font-serif font-bold text-[#1C4D36]">
+                Submission History
+              </h3>
+            </div>
+
+            {currentSubmission.history && currentSubmission.history.length > 0 ? (
+              currentSubmission.history.map((hist) => (
+                <div 
+                  key={hist.id}
+                  className="bg-[#FCFAF7] border border-[#EDE8DE] rounded-2xl p-4 space-y-2.5"
+                >
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-2.5">
+                      <div className="w-8 h-8 rounded-lg bg-[#EBF5EE] text-[#1C4D36] border border-[#D5EBDC] flex items-center justify-center shrink-0">
+                        <BookOpen className="w-4 h-4" />
                       </div>
-                      <p className="text-[10px] text-slate-500">Topic: {historyItem.topic}</p>
-                      {historyItem.teacherRemarks && (
-                        <p className="text-slate-600 italic bg-white p-2 rounded border border-slate-100 mt-1">
-                          "{historyItem.teacherRemarks}"
-                        </p>
-                      )}
-                      <p className="text-[9px] font-mono text-slate-400 text-right">Reviewed: {historyItem.reviewedDate || historyItem.submissionDate}</p>
+                      <span className="font-serif font-bold text-slate-800 text-sm">
+                        {hist.chapterName}
+                      </span>
                     </div>
-                  );
-                })}
+                    <span className="bg-[#E8F5E9] text-[#1C4D36] border border-[#C8E6C9] text-[10px] font-extrabold px-2 py-0.5 rounded-md uppercase font-mono tracking-wider">
+                      {hist.status}
+                    </span>
+                  </div>
+
+                  <p className="text-xs text-slate-500 font-medium pl-10.5">
+                    Topic: {hist.topic}
+                  </p>
+
+                  {hist.teacherRemarks && (
+                    <p className="text-xs text-slate-700 italic font-serif leading-relaxed pl-10.5">
+                      "{hist.teacherRemarks}"
+                    </p>
+                  )}
+
+                  <div className="h-[1px] bg-[#EDE8DE] mt-2" />
+
+                  <div className="flex items-center gap-1.5 text-[11px] text-slate-400 font-mono pt-1">
+                    <Calendar className="w-3.5 h-3.5 text-[#B45309]" />
+                    <span>Reviewed: {hist.reviewedDate}</span>
+                  </div>
+                </div>
+              ))
+            ) : (
+              <div className="bg-[#FCFAF7] border border-[#EDE8DE] rounded-2xl p-4 space-y-2.5">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2.5">
+                    <div className="w-8 h-8 rounded-lg bg-[#EBF5EE] text-[#1C4D36] border border-[#D5EBDC] flex items-center justify-center shrink-0">
+                      <BookOpen className="w-4 h-4" />
+                    </div>
+                    <span className="font-serif font-bold text-slate-800 text-sm">
+                      Chattari Mangalam
+                    </span>
+                  </div>
+                  <span className="bg-[#E8F5E9] text-[#1C4D36] border border-[#C8E6C9] text-[10px] font-extrabold px-2 py-0.5 rounded-md uppercase font-mono tracking-wider">
+                    APPROVED
+                  </span>
+                </div>
+
+                <p className="text-xs text-slate-500 font-medium pl-10.5">
+                  Topic: Gatha 3–4 (Siddha & Sāhu Refugees)
+                </p>
+
+                <p className="text-xs text-slate-700 italic font-serif leading-relaxed pl-10.5">
+                  "Excellent pronunciation and perfect speed rhythm!"
+                </p>
+
+                <div className="h-[1px] bg-[#EDE8DE] mt-2" />
+
+                <div className="flex items-center gap-1.5 text-[11px] text-slate-400 font-mono pt-1">
+                  <Calendar className="w-3.5 h-3.5 text-[#B45309]" />
+                  <span>Reviewed: 29 Jun 2026</span>
+                </div>
               </div>
             )}
           </div>
@@ -541,171 +621,178 @@ export function TeacherGathaApprovalFlow({
     );
   }
 
-  // SCREEN 1: APPROVAL QUEUE LIST
+  // ==========================================
+  // SCREEN 1: APPROVAL QUEUE LIST (SS 1)
+  // ==========================================
   return (
     <motion.div
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
-      className="h-full bg-slate-50 overflow-y-auto pb-24 text-slate-800"
+      className="h-full bg-[#FCFAF7] overflow-y-auto pb-28 text-slate-800"
     >
       {/* Header and Controls */}
-      <div className="bg-white px-5 pt-8 pb-4 border-b border-slate-200 sticky top-0 z-20">
-        <div className="flex items-center gap-3 mb-4">
+      <div className="bg-[#FCFAF7] px-5 pt-8 pb-3 border-b border-[#EEDBBD]/50 sticky top-0 z-20">
+        <div className="relative flex items-center justify-center mb-1">
           <button 
             onClick={() => setActiveScreen('TeacherDashboard')} 
-            className="p-2 hover:bg-slate-100 rounded-full transition-colors active:scale-95 cursor-pointer"
+            className="absolute left-0 p-2 hover:bg-black/5 rounded-full transition-colors active:scale-95 cursor-pointer text-slate-700"
           >
-            <ArrowRight className="w-5 h-5 text-slate-700 rotate-180" />
+            <ArrowRight className="w-5 h-5 rotate-180" />
           </button>
-          <h1 className="text-xl font-black text-slate-900 tracking-tight">Gatha Approvals</h1>
+          <h1 className="text-xl sm:text-2xl font-bold font-serif text-[#1C4D36] tracking-tight text-center">
+            Gatha Approvals
+          </h1>
         </div>
 
-        {/* Queue Sub-Tabs */}
-        <div className="flex bg-slate-100 p-1 rounded-xl mb-4">
-          {(['Pending', 'Reviewed', 'All'] as const).map((tab) => {
-            const count = mySubmissions.filter(sub => {
-              if (tab === 'Pending') return sub.status === 'Pending Review';
-              if (tab === 'Reviewed') return sub.status !== 'Pending Review';
-              return true;
-            }).length;
+        {/* Decorative Golden Lotus Divider */}
+        <GoldenLotusDivider />
 
-            return (
-              <button
-                key={tab}
-                onClick={() => setActiveTab(tab)}
-                className={`flex-1 py-2.5 font-bold text-xs rounded-lg cursor-pointer transition-all ${
-                  activeTab === tab
-                    ? 'bg-white text-slate-800 shadow-sm'
-                    : 'text-slate-500 hover:text-slate-800'
-                }`}
-              >
-                {tab} ({count})
-              </button>
-            );
-          })}
+        {/* 3 Pills Sub-Tabs matching SS 1 */}
+        <div className="flex items-center gap-2.5 my-3.5">
+          {/* Tab 1: Pending */}
+          <button
+            type="button"
+            onClick={() => setActiveTab('Pending')}
+            className={`flex-1 py-2.5 px-3 rounded-2xl flex items-center justify-center gap-2 font-bold text-xs cursor-pointer transition-all active:scale-95 ${
+              activeTab === 'Pending'
+                ? 'bg-[#1C4D36] text-white shadow-xs'
+                : 'bg-[#FAF6ED] text-[#332B22] border border-[#EADBBD]'
+            }`}
+          >
+            <span>Pending</span>
+            <span className={`text-[11px] font-bold w-5 h-5 rounded-full flex items-center justify-center font-mono ${
+              activeTab === 'Pending' ? 'bg-white text-[#1C4D36]' : 'bg-[#F1E8D9] text-[#554A3D]'
+            }`}>
+              {pendingCount}
+            </span>
+          </button>
+
+          {/* Tab 2: Reviewed */}
+          <button
+            type="button"
+            onClick={() => setActiveTab('Reviewed')}
+            className={`flex-1 py-2.5 px-3 rounded-2xl flex items-center justify-center gap-2 font-bold text-xs cursor-pointer transition-all active:scale-95 ${
+              activeTab === 'Reviewed'
+                ? 'bg-[#1C4D36] text-white shadow-xs'
+                : 'bg-[#FAF6ED] text-[#332B22] border border-[#EADBBD]'
+            }`}
+          >
+            <span>Reviewed</span>
+            <span className={`text-[11px] font-bold w-5 h-5 rounded-full flex items-center justify-center font-mono ${
+              activeTab === 'Reviewed' ? 'bg-white text-[#1C4D36]' : 'bg-[#F1E8D9] text-[#554A3D]'
+            }`}>
+              {reviewedCount}
+            </span>
+          </button>
+
+          {/* Tab 3: All */}
+          <button
+            type="button"
+            onClick={() => setActiveTab('All')}
+            className={`flex-1 py-2.5 px-3 rounded-2xl flex items-center justify-center gap-2 font-bold text-xs cursor-pointer transition-all active:scale-95 ${
+              activeTab === 'All'
+                ? 'bg-[#1C4D36] text-white shadow-xs'
+                : 'bg-[#FAF6ED] text-[#332B22] border border-[#EADBBD]'
+            }`}
+          >
+            <span>All</span>
+            <span className={`text-[11px] font-bold w-5 h-5 rounded-full flex items-center justify-center font-mono ${
+              activeTab === 'All' ? 'bg-white text-[#1C4D36]' : 'bg-[#F1E8D9] text-[#554A3D]'
+            }`}>
+              {allCount}
+            </span>
+          </button>
         </div>
 
-        {/* Search Bar */}
-        <div className="relative mb-3">
+        {/* Search Bar matching SS 1 */}
+        <div className="relative mt-2 mb-1">
           <Search className="w-5 h-5 text-slate-400 absolute left-4 top-1/2 -translate-y-1/2" />
           <input
             type="text"
             placeholder="Search student by name or ID..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="w-full bg-slate-100 text-slate-900 text-sm font-medium rounded-xl py-3 pl-11 pr-4 border-none focus:ring-2 focus:ring-blue-500 placeholder:text-slate-500"
+            className="w-full bg-[#FAF7F0] border border-[#EADBBD] text-slate-900 text-sm font-medium rounded-full py-3.5 pl-11 pr-11 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[#1C4D36]/20 focus:border-[#1C4D36]"
           />
-        </div>
-
-        {/* Interactive Filters Panel */}
-        <div className="flex items-center gap-2 overflow-x-auto pb-1 scrollbar-hide">
-          <div className="flex items-center gap-1 px-2.5 py-1.5 bg-slate-100 rounded-lg text-slate-500 border border-slate-200 shrink-0">
-            <Filter className="w-3.5 h-3.5" />
-            <span className="text-[10px] font-black uppercase">Filters</span>
+          <div className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-600 pointer-events-none">
+            <SlidersHorizontal className="w-4.5 h-4.5" />
           </div>
-
-          {/* Level Filter */}
-          <select
-            value={filterLevel}
-            onChange={(e) => setFilterLevel(e.target.value)}
-            className="shrink-0 bg-white border border-slate-200 text-slate-700 text-xs font-bold rounded-lg px-2.5 py-1.5 focus:ring-2 focus:ring-blue-500 cursor-pointer"
-          >
-            {levels.map(level => (
-              <option key={level} value={level}>
-                {level === 'All' ? 'All Levels' : level.split(':')[0]}
-              </option>
-            ))}
-          </select>
-
-          {/* Batch Filter */}
-          <select
-            value={filterBatch}
-            onChange={(e) => setFilterBatch(e.target.value)}
-            className="shrink-0 bg-white border border-slate-200 text-slate-700 text-xs font-bold rounded-lg px-2.5 py-1.5 focus:ring-2 focus:ring-blue-500 cursor-pointer"
-          >
-            {batches.map(batch => (
-              <option key={batch} value={batch}>
-                {batch === 'All' ? 'All Batches' : batch}
-              </option>
-            ))}
-          </select>
-
-          {/* Status Filter (Only visible in 'All' or 'Reviewed' Tab) */}
-          {activeTab !== 'Pending' && (
-            <select
-              value={filterStatus}
-              onChange={(e) => setFilterStatus(e.target.value)}
-              className="shrink-0 bg-white border border-slate-200 text-slate-700 text-xs font-bold rounded-lg px-2.5 py-1.5 focus:ring-2 focus:ring-blue-500 cursor-pointer"
-            >
-              {statuses.map(st => (
-                <option key={st} value={st}>
-                  {st === 'All' ? 'All Statuses' : st}
-                </option>
-              ))}
-            </select>
-          )}
         </div>
       </div>
 
-      {/* Submission Cards Grid */}
-      <div className="p-5 space-y-4">
+      {/* Submission Cards Grid matching SS 1 */}
+      <div className="p-4 sm:p-5 space-y-4 max-w-lg mx-auto">
         {finalFilteredSubmissions.length === 0 ? (
-          <div className="text-center py-12 bg-white border border-slate-200 rounded-2xl shadow-sm">
+          <div className="text-center py-12 bg-white border border-[#EDE8DE] rounded-2xl shadow-xs p-6">
             <BookOpen className="w-10 h-10 text-slate-300 mx-auto mb-3" />
-            <p className="text-sm font-bold text-slate-600">No submissions found</p>
-            <p className="text-xs text-slate-400 mt-1">There are no submissions matching your filters or search.</p>
+            <p className="text-sm font-bold font-serif text-slate-700">No submissions found</p>
+            <p className="text-xs text-slate-400 mt-1">There are no submissions matching your criteria.</p>
           </div>
         ) : (
           finalFilteredSubmissions.map((sub) => {
-            const badge = getStatusBadgeStyles(sub.status);
             return (
               <div 
                 key={sub.id} 
-                className="bg-white border border-slate-200 rounded-2xl p-5 shadow-sm hover:border-slate-300 transition-all flex flex-col justify-between"
+                className="bg-white rounded-[24px] p-5 border border-[#EDE8DE] shadow-[0_4px_20px_rgba(0,0,0,0.03)] space-y-3.5 hover:border-[#D5EBDC] transition-all"
               >
-                {/* Top Section: Student & Status */}
-                <div className="flex justify-between items-start mb-3">
-                  <div>
-                    <h3 className="text-sm font-black text-slate-800 leading-tight">{sub.studentName}</h3>
-                    <p className="text-[10px] font-mono text-slate-500 mt-0.5">ID: {sub.studentId}</p>
+                {/* Top Section: Avatar, Student info & Status Pill */}
+                <div className="flex justify-between items-start gap-2">
+                  <div className="flex items-center gap-3">
+                    <div className="w-11 h-11 rounded-full bg-[#EBF5EE] text-[#1C4D36] flex items-center justify-center shrink-0 border border-[#D5EBDC]">
+                      <SproutIcon className="w-5 h-5 text-[#1C4D36]" />
+                    </div>
+                    <div>
+                      <h3 className="text-base font-serif font-bold text-slate-900 leading-tight">
+                        {sub.studentName}
+                      </h3>
+                      <p className="text-xs font-mono text-slate-400 mt-0.5 tracking-wider">
+                        ID: {sub.studentId}
+                      </p>
+                    </div>
                   </div>
-                  <span className={`text-[9px] font-black px-2 py-0.5 rounded border uppercase tracking-wider ${badge.bg}`}>
-                    {sub.status}
-                  </span>
+
+                  {renderStatusBadge(sub.status)}
                 </div>
 
-                {/* Level & Batch Info */}
-                <div className="space-y-1 text-xs mb-3 bg-slate-50 p-2.5 rounded-xl border border-slate-100">
-                  <div className="flex justify-between">
-                    <span className="font-bold text-slate-400 text-[10px] uppercase">Level:</span>
-                    <span className="font-semibold text-slate-700 text-right">{sub.level.split(':')[0]}</span>
+                {/* Metadata Section with horizontal rule */}
+                <div className="border-t border-[#F2ECE1] pt-3.5 space-y-2.5">
+                  {/* Row 1: Level & Batch */}
+                  <div className="flex items-center gap-3 text-xs text-slate-700">
+                    <div className="flex items-center gap-1.5">
+                      <GraduationCap className="w-4 h-4 text-[#1C4D36] shrink-0" />
+                      <span className="font-medium">{sub.levelShort}</span>
+                    </div>
+                    <div className="h-3 w-[1px] bg-slate-200" />
+                    <div className="flex items-center gap-1.5">
+                      <Users className="w-4 h-4 text-[#1C4D36] shrink-0" />
+                      <span className="font-medium">{sub.batch}</span>
+                    </div>
                   </div>
-                  <div className="flex justify-between">
-                    <span className="font-bold text-slate-400 text-[10px] uppercase">Batch:</span>
-                    <span className="font-semibold text-slate-700 text-right">{sub.batch}</span>
+
+                  {/* Row 2: Topic / Gatha Verse */}
+                  <div className="flex items-center gap-1.5 text-xs text-slate-800">
+                    <BookOpen className="w-4 h-4 text-[#1C4D36] shrink-0" />
+                    <span className="font-medium font-serif">{sub.topic}</span>
+                  </div>
+
+                  {/* Row 3: Submission Date */}
+                  <div className="flex items-center gap-1.5 text-xs text-slate-500">
+                    <Calendar className="w-4 h-4 text-[#B45309] shrink-0" />
+                    <span>Submitted: {sub.submissionDate}</span>
                   </div>
                 </div>
 
-                {/* Chapter & Topic */}
-                <div className="mb-4">
-                  <p className="text-[10px] font-black text-indigo-500 uppercase tracking-wider">{sub.chapter}</p>
-                  <p className="text-xs font-bold text-slate-700 mt-0.5 truncate">{sub.topic}</p>
-                  <p className="text-[9px] text-slate-400 mt-1 flex items-center gap-1">
-                    <Calendar className="w-3 h-3" />
-                    Submitted: {sub.submissionDate}
-                  </p>
-                </div>
-
-                {/* Action Button: View Details */}
+                {/* Review Button CTA */}
                 <button
+                  type="button"
                   onClick={() => {
                     setSelectedSubmissionId(sub.id);
                     setActiveScreen('TeacherGathaSubmissionDetails');
                   }}
-                  className="w-full py-2.5 bg-slate-50 hover:bg-slate-100 text-slate-700 font-bold text-xs rounded-xl border border-slate-200 transition-colors cursor-pointer active:scale-95 flex items-center justify-center gap-1.5"
+                  className="w-full bg-[#1C4D36] hover:bg-[#153B29] text-white font-medium text-sm py-3 rounded-xl flex items-center justify-center gap-1.5 active:scale-[0.98] transition-all cursor-pointer shadow-xs mt-1"
                 >
-                  View Submission details
-                  <ChevronRight className="w-3.5 h-3.5" />
+                  <span>Review</span>
+                  <ChevronRight className="w-4 h-4" />
                 </button>
               </div>
             );

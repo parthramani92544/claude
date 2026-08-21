@@ -6,18 +6,22 @@ interface TeacherStudentsFlowProps {
   activeScreen: string;
   setActiveScreen: (screen: string) => void;
   currentLoggedInTeacher: any;
+  teacherSelectedStudent?: any;
+  setTeacherSelectedStudent?: (student: any) => void;
 }
 
 export function TeacherStudentsFlow({
   activeScreen,
   setActiveScreen,
-  currentLoggedInTeacher
+  currentLoggedInTeacher,
+  teacherSelectedStudent,
+  setTeacherSelectedStudent
 }: TeacherStudentsFlowProps) {
   const [searchQuery, setSearchQuery] = useState('');
   const [filterLevel, setFilterLevel] = useState('All');
   const [filterBatch, setFilterBatch] = useState('All');
   
-  const [selectedStudent, setSelectedStudent] = useState<any>(null);
+  const [localSelectedStudent, setLocalSelectedStudent] = useState<any>(null);
 
   // Diverse mock database of students mapped to specific teachers
   const mockStudents = [
@@ -25,6 +29,7 @@ export function TeacherStudentsFlow({
       id: 'STU001',
       name: 'Aarav Shah',
       initials: 'AS',
+      photoUrl: 'https://images.unsplash.com/photo-1544717305-2782549b5136?auto=format&fit=crop&q=80&w=200',
       level: 'Level 1: Basic Sutras & Stories',
       batch: 'Batch A - Morning',
       parentName: 'Rahul Shah',
@@ -44,6 +49,7 @@ export function TeacherStudentsFlow({
       id: 'STU002',
       name: 'Diya Patel',
       initials: 'DP',
+      photoUrl: 'https://images.unsplash.com/photo-1517841905240-472988babdf9?auto=format&fit=crop&q=80&w=200',
       level: 'Level 1: Basic Sutras & Stories',
       batch: 'Batch A - Morning',
       parentName: 'Sneha Patel',
@@ -62,6 +68,7 @@ export function TeacherStudentsFlow({
       id: 'STU003',
       name: 'Rohan Jain',
       initials: 'RJ',
+      photoUrl: 'https://images.unsplash.com/photo-1539571696357-5a69c17a67c6?auto=format&fit=crop&q=80&w=200',
       level: 'Level 2: Jain Geography & Symbols',
       batch: 'Batch B - Afternoon',
       parentName: 'Vikram Jain',
@@ -78,6 +85,7 @@ export function TeacherStudentsFlow({
       id: 'STU004',
       name: 'Kavya Doshi',
       initials: 'KD',
+      photoUrl: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&q=80&w=200',
       level: 'Level 2: Jain Geography & Symbols',
       batch: 'Batch B - Afternoon',
       parentName: 'Priya Doshi',
@@ -94,6 +102,7 @@ export function TeacherStudentsFlow({
       id: 'STU005',
       name: 'Siddharth Mehta',
       initials: 'SM',
+      photoUrl: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&q=80&w=200',
       level: 'Level 1: Basic Sutras & Stories',
       batch: 'Batch A - Morning',
       parentName: 'Anil Mehta',
@@ -115,7 +124,6 @@ export function TeacherStudentsFlow({
   const teacherName = currentLoggedInTeacher?.name || "Samani Pragya ji";
 
   // Teachers should ONLY be able to view students assigned to their own batches / themselves.
-  // Teachers must NEVER see students belonging to another teacher.
   const teacherStudents = mockStudents.filter(student => student.teacher === teacherName);
 
   const filteredStudents = teacherStudents.filter(student => {
@@ -128,8 +136,18 @@ export function TeacherStudentsFlow({
     return matchesSearch && matchesLevel && matchesBatch;
   });
 
+  const activeStudent = teacherSelectedStudent || localSelectedStudent || teacherStudents[0];
+
+  const handleSelectStudent = (student: any) => {
+    if (setTeacherSelectedStudent) {
+      setTeacherSelectedStudent(student);
+    }
+    setLocalSelectedStudent(student);
+    setActiveScreen('TeacherStudentProfile');
+  };
+
   // STUDENT PROFILE SCREEN
-  if (activeScreen === 'TeacherStudentProfile' && selectedStudent) {
+  if (activeScreen === 'TeacherStudentProfile' && activeStudent) {
     return (
       <motion.div
         initial={{ opacity: 0, x: 20 }}
@@ -141,31 +159,38 @@ export function TeacherStudentsFlow({
           <button 
             onClick={() => { 
               setActiveScreen('TeacherStudents'); 
-              setSelectedStudent(null); 
             }} 
             className="p-2 hover:bg-slate-100 rounded-full transition-colors active:scale-95 cursor-pointer"
           >
             <ArrowRight className="w-5 h-5 text-slate-700 rotate-180" />
           </button>
           <div>
-            <h2 className="text-lg font-black text-slate-900 tracking-tight">Student Profile</h2>
+            <h2 className="text-lg font-black text-slate-900 tracking-tight">Student Profile Details</h2>
           </div>
         </div>
 
         <div className="p-5 space-y-5">
           {/* Student Details Card */}
           <div className="bg-white border border-slate-200 rounded-2xl p-5 shadow-sm text-center">
-            <div className="w-20 h-20 bg-blue-100 text-blue-700 rounded-full mx-auto flex items-center justify-center text-2xl font-black mb-3 border-4 border-white shadow-sm">
-              {selectedStudent.initials}
+            <div className="w-20 h-20 rounded-full mx-auto mb-3 border-4 border-white shadow-md overflow-hidden bg-emerald-100 flex items-center justify-center">
+              {activeStudent.photoUrl ? (
+                <img 
+                  src={activeStudent.photoUrl} 
+                  alt={activeStudent.name} 
+                  className="w-full h-full object-cover"
+                />
+              ) : (
+                <span className="text-2xl font-black text-emerald-800">{activeStudent.initials}</span>
+              )}
             </div>
-            <h2 className="text-xl font-black text-slate-900">{selectedStudent.name}</h2>
-            <p className="text-xs font-mono text-slate-500 mt-1">Student ID: {selectedStudent.id}</p>
+            <h2 className="text-xl font-black text-slate-900">{activeStudent.name}</h2>
+            <p className="text-xs font-mono text-slate-500 mt-1">Student ID: {activeStudent.id}</p>
             <div className="flex items-center justify-center gap-2 mt-3">
               <span className="text-[10px] font-bold text-emerald-700 bg-emerald-50 px-2.5 py-1 rounded-md border border-emerald-100 uppercase tracking-wider">
-                {selectedStudent.academicStatus}
+                {activeStudent.academicStatus}
               </span>
               <span className="text-[10px] font-bold text-blue-700 bg-blue-50 px-2.5 py-1 rounded-md border border-blue-100 uppercase tracking-wider">
-                {selectedStudent.status}
+                {activeStudent.status}
               </span>
             </div>
           </div>
@@ -179,16 +204,16 @@ export function TeacherStudentsFlow({
             <div className="space-y-4">
               <div>
                 <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Assigned Level</p>
-                <p className="text-sm font-semibold text-slate-700 mt-1">{selectedStudent.level}</p>
+                <p className="text-sm font-semibold text-slate-700 mt-1">{activeStudent.level}</p>
               </div>
               <div className="grid grid-cols-2 gap-4">
                 <div>
                   <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Assigned Batch</p>
-                  <p className="text-sm font-semibold text-slate-700 mt-1">{selectedStudent.batch}</p>
+                  <p className="text-sm font-semibold text-slate-700 mt-1">{activeStudent.batch}</p>
                 </div>
                 <div>
                   <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Assigned Teacher</p>
-                  <p className="text-sm font-semibold text-slate-700 mt-1">{selectedStudent.teacher}</p>
+                  <p className="text-sm font-semibold text-slate-700 mt-1">{activeStudent.teacher}</p>
                 </div>
               </div>
             </div>
@@ -203,11 +228,11 @@ export function TeacherStudentsFlow({
             <div className="grid grid-cols-2 gap-4">
               <div>
                 <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Parent Name</p>
-                <p className="text-sm font-semibold text-slate-700 mt-1">{selectedStudent.parentName}</p>
+                <p className="text-sm font-semibold text-slate-700 mt-1">{activeStudent.parentName}</p>
               </div>
               <div>
                 <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Parent Mobile Number</p>
-                <p className="text-sm font-semibold text-slate-700 mt-1">{selectedStudent.contactNumber}</p>
+                <p className="text-sm font-semibold text-slate-700 mt-1">{activeStudent.contactNumber}</p>
               </div>
             </div>
           </div>
@@ -222,7 +247,7 @@ export function TeacherStudentsFlow({
                   <TrendingUp className="w-5 h-5" />
                 </div>
                 <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1">Attendance</p>
-                <p className="text-lg font-black text-slate-800">{selectedStudent.attendancePercentage}</p>
+                <p className="text-lg font-black text-slate-800">{activeStudent.attendancePercentage}</p>
               </div>
 
               {/* 2. Gatha Progress Card */}
@@ -231,7 +256,7 @@ export function TeacherStudentsFlow({
                   <CheckCircle2 className="w-5 h-5" />
                 </div>
                 <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1">Gatha Progress</p>
-                <p className="text-lg font-black text-slate-800">{selectedStudent.gathaProgress}</p>
+                <p className="text-lg font-black text-slate-800">{activeStudent.gathaProgress}</p>
               </div>
               
               {/* 3. Bonus Points Card */}
@@ -240,7 +265,7 @@ export function TeacherStudentsFlow({
                   <Star className="w-5 h-5 fill-amber-500" />
                 </div>
                 <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1">Bonus Points</p>
-                <p className="text-lg font-black text-slate-800">{selectedStudent.bonusPoints} pts</p>
+                <p className="text-lg font-black text-slate-800">{activeStudent.bonusPoints} pts</p>
               </div>
 
               {/* 4. Academic Progress Card */}
@@ -249,7 +274,7 @@ export function TeacherStudentsFlow({
                   <User className="w-5 h-5" />
                 </div>
                 <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1">Academic Progress</p>
-                <p className="text-sm font-black text-slate-800 truncate px-1 mt-1">{selectedStudent.academicStatus}</p>
+                <p className="text-sm font-black text-slate-800 truncate px-1 mt-1">{activeStudent.academicStatus}</p>
               </div>
             </div>
           </div>
@@ -258,7 +283,7 @@ export function TeacherStudentsFlow({
     );
   }
 
-  // STUDENTS LIST SCREEN
+  // STUDENTS LIST SCREEN (Bottom Bar "Students" Screen)
   if (activeScreen === 'TeacherStudents') {
     return (
       <motion.div
@@ -267,7 +292,7 @@ export function TeacherStudentsFlow({
         className="h-full bg-slate-50 overflow-y-auto pb-24 text-slate-800"
       >
         {/* Header with Search and Filters */}
-        <div className="bg-white px-5 pt-8 pb-4 border-b border-slate-200 sticky top-0 z-20">
+        <div className="bg-white px-5 pt-6 pb-4 border-b border-slate-200 sticky top-0 z-20">
           <div className="flex items-center gap-3 mb-4">
             <button onClick={() => setActiveScreen('TeacherDashboard')} className="p-2 hover:bg-slate-100 rounded-full transition-colors active:scale-95 cursor-pointer">
               <ArrowRight className="w-5 h-5 text-slate-700 rotate-180" />
@@ -276,51 +301,23 @@ export function TeacherStudentsFlow({
           </div>
           
           {/* Search Bar */}
-          <div className="relative mb-4">
+          <div className="relative">
             <Search className="w-5 h-5 text-slate-400 absolute left-4 top-1/2 -translate-y-1/2" />
             <input 
               type="text"
               placeholder="Search by student name or ID..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full bg-slate-100 text-slate-900 text-sm font-medium rounded-xl py-3 pl-11 pr-4 border-none focus:ring-2 focus:ring-blue-500 placeholder:text-slate-500"
+              className="w-full bg-slate-100 text-slate-900 text-sm font-medium rounded-xl py-3 pl-11 pr-4 border-none focus:ring-2 focus:ring-emerald-500 placeholder:text-slate-400"
             />
-          </div>
-
-          {/* Filters: Level & Batch */}
-          <div className="flex items-center gap-2 overflow-x-auto pb-2 scrollbar-hide">
-            <div className="flex items-center gap-1.5 shrink-0 px-3 py-1.5 bg-slate-100 rounded-lg text-slate-600 border border-slate-200">
-              <Filter className="w-3.5 h-3.5" />
-              <span className="text-xs font-bold">Filters</span>
-            </div>
-            
-            <select 
-              value={filterLevel}
-              onChange={(e) => setFilterLevel(e.target.value)}
-              className="shrink-0 bg-white border border-slate-200 text-slate-700 text-xs font-bold rounded-lg px-3 py-1.5 focus:outline-none focus:ring-2 focus:ring-blue-500 cursor-pointer"
-            >
-              {levels.map(level => (
-                <option key={level} value={level}>{level === 'All' ? 'All Levels' : level.split(':')[0]}</option>
-              ))}
-            </select>
-
-            <select 
-              value={filterBatch}
-              onChange={(e) => setFilterBatch(e.target.value)}
-              className="shrink-0 bg-white border border-slate-200 text-slate-700 text-xs font-bold rounded-lg px-3 py-1.5 focus:outline-none focus:ring-2 focus:ring-blue-500 cursor-pointer"
-            >
-              {batches.map(batch => (
-                <option key={batch} value={batch}>{batch === 'All' ? 'All Batches' : batch}</option>
-              ))}
-            </select>
           </div>
         </div>
 
-        {/* List of Assigned Students */}
-        <div className="p-5 space-y-4">
-          <div className="flex justify-between items-end mb-2">
-            <h2 className="text-xs font-black text-slate-400 uppercase tracking-wider ml-1">Assigned Students</h2>
-            <span className="text-xs font-bold text-slate-500">{filteredStudents.length} Found</span>
+        {/* List View of Assigned Students */}
+        <div className="p-5 space-y-3">
+          <div className="flex justify-between items-end mb-1">
+            <h2 className="text-xs font-black text-slate-400 uppercase tracking-wider ml-1">Assigned Student Roster</h2>
+            <span className="text-xs font-bold text-slate-500">{filteredStudents.length} Students</span>
           </div>
 
           {filteredStudents.length === 0 ? (
@@ -331,79 +328,53 @@ export function TeacherStudentsFlow({
             </div>
           ) : (
             filteredStudents.map((student) => (
-              <div key={student.id} className="bg-white border border-slate-200 rounded-2xl p-5 shadow-sm">
-                
-                {/* Photo/Initials + Name + ID + Badge */}
-                <div className="flex justify-between items-start mb-4">
-                  <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 rounded-full bg-blue-100 text-blue-700 font-bold text-sm flex items-center justify-center shrink-0 border-2 border-white shadow-sm">
-                      {student.initials}
-                    </div>
-                    <div>
-                      <h3 className="text-sm font-bold text-slate-800 leading-tight">{student.name}</h3>
-                      <p className="text-[10px] font-mono text-slate-500 mt-0.5">ID: {student.id}</p>
+              <div 
+                key={student.id} 
+                onClick={() => handleSelectStudent(student)}
+                className="bg-white border border-slate-200 hover:border-emerald-500 hover:shadow-md rounded-2xl p-4 shadow-sm transition-all cursor-pointer group flex items-center justify-between gap-3"
+              >
+                {/* Photo & Name */}
+                <div className="flex items-center gap-3.5 min-w-0">
+                  <div className="w-12 h-12 rounded-full overflow-hidden shrink-0 border-2 border-emerald-100 shadow-xs bg-emerald-50 flex items-center justify-center">
+                    {student.photoUrl ? (
+                      <img 
+                        src={student.photoUrl} 
+                        alt={student.name} 
+                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" 
+                      />
+                    ) : (
+                      <span className="text-sm font-black text-emerald-800">{student.initials}</span>
+                    )}
+                  </div>
+                  
+                  <div className="min-w-0">
+                    <h3 className="text-sm font-bold text-slate-800 group-hover:text-emerald-700 transition-colors truncate">
+                      {student.name}
+                    </h3>
+                    <p className="text-[11px] font-semibold text-slate-500 truncate mt-0.5">
+                      {student.level.split(':')[0]} • {student.batch}
+                    </p>
+                    <div className="flex items-center gap-2 mt-1">
+                      <span className="text-[9px] font-mono text-slate-400 font-bold">ID: {student.id}</span>
+                      <span className="text-[9px] font-bold text-emerald-700 bg-emerald-50 px-1.5 py-0.5 rounded border border-emerald-100 uppercase">
+                        {student.attendancePercentage} Att.
+                      </span>
                     </div>
                   </div>
-                  <span className={`text-[9px] font-bold px-2 py-0.5 rounded border uppercase tracking-wider ${
+                </div>
+
+                <div className="shrink-0 flex items-center gap-2">
+                  <span className={`text-[9px] font-bold px-2 py-0.5 rounded border uppercase tracking-wider hidden sm:inline-block ${
                     student.status === 'Active' ? 'bg-emerald-50 text-emerald-700 border-emerald-100' :
                     student.status === 'Revision Stage' ? 'bg-amber-50 text-amber-700 border-amber-100' :
                     'bg-indigo-50 text-indigo-700 border-indigo-100'
                   }`}>
                     {student.status}
                   </span>
-                </div>
-                
-                {/* Details Section */}
-                <div className="space-y-2 mb-4 bg-slate-50 p-3 rounded-xl border border-slate-100">
-                  <div className="flex justify-between text-xs">
-                    <span className="font-bold text-slate-400">Assigned Level:</span>
-                    <span className="font-medium text-slate-700">{student.level}</span>
-                  </div>
-                  <div className="flex justify-between text-xs">
-                    <span className="font-bold text-slate-400">Assigned Batch:</span>
-                    <span className="font-medium text-slate-700">{student.batch}</span>
-                  </div>
-                  <div className="flex justify-between text-xs">
-                    <span className="font-bold text-slate-400">Parent Name:</span>
-                    <span className="font-medium text-slate-700">{student.parentName}</span>
-                  </div>
-                  <div className="flex justify-between text-xs">
-                    <span className="font-bold text-slate-400">Parent Mobile Number:</span>
-                    <span className="font-medium text-slate-700">{student.contactNumber}</span>
+                  <div className="w-8 h-8 rounded-full bg-slate-50 group-hover:bg-emerald-50 group-hover:text-emerald-700 flex items-center justify-center text-slate-400 transition-colors">
+                    <ChevronRight className="w-4 h-4" />
                   </div>
                 </div>
-
-                {/* Academic Quick Summary */}
-                <div className="grid grid-cols-2 gap-3 mb-4 bg-slate-50/50 p-3 rounded-xl border border-slate-100/50">
-                  <div>
-                    <p className="text-[9px] text-slate-400 uppercase tracking-wider font-bold">Attendance %</p>
-                    <p className="text-xs font-black text-slate-700 mt-0.5">{student.attendancePercentage}</p>
-                  </div>
-                  <div>
-                    <p className="text-[9px] text-slate-400 uppercase tracking-wider font-bold">Gathas Completed</p>
-                    <p className="text-xs font-black text-slate-700 mt-0.5">{student.gathaProgress}</p>
-                  </div>
-                  <div>
-                    <p className="text-[9px] text-slate-400 uppercase tracking-wider font-bold">Pending Gathas</p>
-                    <p className="text-xs font-black text-slate-700 mt-0.5">{student.pendingGathas?.length || 0}</p>
-                  </div>
-                  <div>
-                    <p className="text-[9px] text-slate-400 uppercase tracking-wider font-bold">Current Status</p>
-                    <p className="text-xs font-black text-slate-700 mt-0.5">{student.status}</p>
-                  </div>
-                </div>
-
-                {/* Actions (View Profile ONLY) */}
-                <button 
-                  onClick={() => {
-                    setSelectedStudent(student);
-                    setActiveScreen('TeacherStudentProfile');
-                  }}
-                  className="w-full py-2.5 bg-white text-slate-700 border border-slate-200 font-bold text-xs rounded-xl hover:bg-slate-50 transition-colors cursor-pointer active:scale-95 flex items-center justify-center gap-2"
-                >
-                  View Profile
-                  <ChevronRight className="w-3.5 h-3.5 animate-pulse" />
-                </button>
               </div>
             ))
           )}

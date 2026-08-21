@@ -53,6 +53,7 @@ import { TeachersManagement } from './components/TeachersManagement';
 import { AcademicStructure } from './components/AcademicStructure';
 import { StudentProgress } from './components/StudentProgress';
 import { LevelSyllabusManagement } from './components/LevelSyllabusManagement';
+import { SyllabusManagementView } from './components/SyllabusManagementView';
 import { LiveClasses } from './components/LiveClasses';
 import { AttendanceTracking } from './components/AttendanceTracking';
 import { SutrasGathas } from './components/SutrasGathas';
@@ -462,7 +463,7 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({ onReturnToLauncher }) 
     {
       category: 'CORE OPERATIONS',
       items: [
-        { id: 'overview' as AdminTab, label: 'Overview', icon: LayoutDashboard },
+        { id: 'overview' as AdminTab, label: 'Dashboard', icon: LayoutDashboard },
         { id: 'people' as AdminTab, label: 'People Directory', icon: Users, badge: pendingApprovalsCount },
         { id: 'classes' as AdminTab, label: 'Classes & Attendance', icon: Video },
       ],
@@ -471,8 +472,8 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({ onReturnToLauncher }) 
       category: 'ACADEMIC MANAGEMENT',
       items: [
         { id: 'student_progress' as AdminTab, label: 'Student Progress', icon: GraduationCap },
-        { id: 'level_syllabus' as AdminTab, label: 'Level & Syllabus Management', icon: Layers },
-        { id: 'academic' as AdminTab, label: 'Batches & Structure', icon: Users },
+        { id: 'level_syllabus' as AdminTab, label: 'Level management', icon: Layers },
+        { id: 'academic' as AdminTab, label: 'Batch and syllabus management', icon: Users },
         { id: 'activities' as AdminTab, label: 'Activities & Niyams', icon: CheckCircle2 },
       ],
     },
@@ -629,13 +630,15 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({ onReturnToLauncher }) 
               <ChevronRight className="w-3 h-3 text-stone-400" />
               <span className="text-[#163E2B] font-extrabold uppercase tracking-wider">
                 {currentTab === 'overview' || currentTab === 'dashboard'
-                  ? 'Overview Dashboard'
+                  ? 'Dashboard'
                   : currentTab === 'people'
                   ? 'People Directory'
                   : currentTab === 'classes'
                   ? 'Classes & Attendance'
+                  : currentTab === 'level_syllabus'
+                  ? 'Level Management'
                   : currentTab === 'academic'
-                  ? 'Academic Structure'
+                  ? 'Batch & Syllabus Management'
                   : currentTab === 'activities'
                   ? 'Activities & Niyams'
                   : currentTab === 'content'
@@ -888,6 +891,7 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({ onReturnToLauncher }) 
           {currentTab === 'level_syllabus' && (
             <LevelSyllabusManagement
               levels={adminState.academicLevels || []}
+              batches={adminState.batches || []}
               currentRole={currentRole}
               onAddLevel={handleAddLevel}
               onUpdateLevel={handleUpdateLevel}
@@ -896,100 +900,32 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({ onReturnToLauncher }) 
           )}
 
           {/* BATCHES & ACADEMIC STRUCTURE */}
-          {(currentTab === 'academic' || ['levels', 'batches', 'masters'].includes(currentTab)) && (
-            <div className="space-y-6">
-              <div className="bg-white border border-stone-200/90 rounded-2xl p-2 shadow-xs flex items-center gap-2 overflow-x-auto">
-                <button
-                  onClick={() => setAcademicSubTab('student_progress')}
-                  className={`px-4 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-2 cursor-pointer ${
-                    academicSubTab === 'student_progress'
-                      ? 'bg-[#163E2B] text-white shadow-xs'
-                      : 'bg-stone-100 text-slate-600 hover:bg-stone-200'
-                  }`}
-                >
-                  <GraduationCap className="w-4 h-4" />
-                  <span>Student Progress</span>
-                </button>
+          {currentTab === 'academic' && (
+            <>
+              <AcademicStructure
+                levels={adminState.academicLevels || []}
+                batches={adminState.batches || []}
+                masters={adminState.masterEntries || []}
+                currentRole={currentRole}
+                onAddLevel={handleAddLevel}
+                onUpdateLevel={handleUpdateLevel}
+                onAddBatch={handleAddBatch}
+                onUpdateBatch={handleUpdateBatch}
+                onAddMaster={handleAddMaster}
+                addToast={addToast}
+              />
 
-                <button
-                  onClick={() => setAcademicSubTab('level_syllabus')}
-                  className={`px-4 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-2 cursor-pointer ${
-                    academicSubTab === 'level_syllabus'
-                      ? 'bg-[#163E2B] text-white shadow-xs'
-                      : 'bg-stone-100 text-slate-600 hover:bg-stone-200'
-                  }`}
-                >
-                  <Layers className="w-4 h-4" />
-                  <span>Level & Syllabus ({adminState.academicLevels?.length || 0})</span>
-                </button>
-
-                <button
-                  onClick={() => setAcademicSubTab('batches')}
-                  className={`px-4 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-2 cursor-pointer ${
-                    academicSubTab === 'batches'
-                      ? 'bg-[#163E2B] text-white shadow-xs'
-                      : 'bg-stone-100 text-slate-600 hover:bg-stone-200'
-                  }`}
-                >
-                  <Users className="w-4 h-4" />
-                  <span>Batches ({adminState.batches?.length || 0})</span>
-                </button>
-
-                <button
-                  onClick={() => setAcademicSubTab('masters')}
-                  className={`px-4 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-2 cursor-pointer ${
-                    academicSubTab === 'masters'
-                      ? 'bg-[#163E2B] text-white shadow-xs'
-                      : 'bg-stone-100 text-slate-600 hover:bg-stone-200'
-                  }`}
-                >
-                  <Database className="w-4 h-4" />
-                  <span>Masters & Lookups</span>
-                </button>
-              </div>
-
-              {academicSubTab === 'student_progress' && (
-                <StudentProgress
-                  students={adminState.students || []}
-                  teachers={adminState.teachers || []}
-                  levels={adminState.academicLevels || []}
-                />
-              )}
-
-              {academicSubTab === 'level_syllabus' && (
-                <LevelSyllabusManagement
-                  levels={adminState.academicLevels || []}
-                  currentRole={currentRole}
-                  onAddLevel={handleAddLevel}
-                  onUpdateLevel={handleUpdateLevel}
-                  addToast={addToast}
-                />
-              )}
-
-              {(academicSubTab === 'levels' || academicSubTab === 'batches') && (
-                <AcademicStructure
-                  levels={adminState.academicLevels || []}
-                  batches={adminState.batches || []}
-                  masters={adminState.masterEntries || []}
-                  currentRole={currentRole}
-                  onAddLevel={handleAddLevel}
-                  onUpdateLevel={handleUpdateLevel}
-                  onAddBatch={handleAddBatch}
-                  onUpdateBatch={handleUpdateBatch}
-                  onAddMaster={handleAddMaster}
-                  addToast={addToast}
-                />
-              )}
-
-              {academicSubTab === 'masters' && (
-                <MastersManagement
-                  masters={adminState.masterEntries || []}
-                  currentRole={currentRole}
-                  onAddMaster={handleAddMaster}
-                  addToast={addToast}
-                />
-              )}
-            </div>
+              {/* Syllabus item management. This tab is labelled "Batch and syllabus
+                  management" but only rendered the batch half; the syllabus-item CRUD
+                  (add / edit / delete, audio + PDF upload) lives in this view. */}
+              <SyllabusManagementView
+                levels={adminState.academicLevels || []}
+                batches={adminState.batches || []}
+                currentRole={currentRole}
+                onUpdateLevel={handleUpdateLevel}
+                addToast={addToast}
+              />
+            </>
           )}
 
           {/* 5. ACTIVITIES & NIYAMS */}

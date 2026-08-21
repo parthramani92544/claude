@@ -11,7 +11,8 @@ import { TeacherGathaApprovalFlow } from './components/TeacherGathaApprovalFlow'
 import { TeacherAttendanceFlow } from './components/TeacherAttendanceFlow';
 import { TeacherReportsFlow } from './components/TeacherReportsFlow';
 import { TeacherProfileFlow } from './components/TeacherProfileFlow';
-import { BookOpen, BookOpenCheck, Play, CheckCircle, Calendar, Award, Clock, User, Bell, ChevronRight, Info, Sparkles, Trophy, Compass, Tv, Gamepad2, X, Check, Printer, Volume2, Heart, GraduationCap, Share2, Camera, Phone, Shield, Sliders, Edit3, Bookmark, Users, Video, Plus, RotateCcw, Lock, MessageSquare, Mic, MicOff, Send, Star, VolumeX, FileText, LayoutDashboard, Search, ChevronLeft, Settings, Download, Languages, LogOut, HelpCircle, Menu, CheckSquare, BookMarked, Music, DownloadCloud, FileCode, ArrowRight, MapPin, RefreshCw, Trash2, Unlock, SkipBack, SkipForward, CheckCircle2, TrendingUp, AlertCircle, AlertTriangle, CreditCard, QrCode, Building2, Smartphone, XCircle } from 'lucide-react';
+import { TeacherSubmittedReviewFlow } from './components/TeacherSubmittedReviewFlow';
+import { BookOpen, BookOpenCheck, Play, CheckCircle, Calendar, Award, Clock, User, UserPlus, Bell, ChevronRight, Info, Sparkles, Trophy, Compass, Tv, Gamepad2, X, Check, Printer, Volume2, Heart, GraduationCap, Share2, Camera, Phone, Shield, Sliders, Edit3, Bookmark, Users, Video, Plus, RotateCcw, Lock, MessageSquare, Mic, MicOff, Send, Star, VolumeX, FileText, LayoutDashboard, LayoutGrid, Search, ChevronLeft, Settings, Download, Languages, LogOut, HelpCircle, Menu, CheckSquare, BookMarked, Music, DownloadCloud, FileCode, ArrowRight, MapPin, RefreshCw, Trash2, Unlock, SkipBack, SkipForward, CheckCircle2, TrendingUp, AlertCircle, AlertTriangle, CreditCard, QrCode, Building2, Smartphone, XCircle, Timer, Radio } from 'lucide-react';
 
 import { Student, QuickAccessItem, LiveClass, JainQuote, SutraDetails, QuizQuestion, AIQuiz, AIQuizQuestion, QuizHistoryRecord } from './types';
 import { initialStudent, quickAccessItems, upcomingClass, jainQuotes, sutrasList, pathshalaTrivia, INITIAL_AI_QUIZZES } from './data';
@@ -19,6 +20,10 @@ import { syllabusData } from './syllabusData';
 import UnifiedAudioPlayer from './components/UnifiedAudioPlayer';
 import { PathshalaLogo } from './components/PathshalaLogo';
 import { AdminPortal } from './admin/AdminPortal';
+import { KhartargachHomeScreen } from './components/KhartargachHomeScreen';
+import { TeacherHomeScreen } from './components/TeacherHomeScreen';
+import { SyllabusModule } from './components/SyllabusModule';
+import { QuizModule } from './components/QuizModule';
 
 const getInitials = (name: string): string => {
   if (!name) return "";
@@ -140,13 +145,6 @@ const STAVANS_LIST = [
   }
 ];
 
-const getLevelNumber = (levelStr: string): number => {
-  if (!levelStr) return 1;
-  const match = levelStr.match(/level\s*(\d)/i);
-  if (match) return parseInt(match[1]);
-  return 1;
-};
-
 /**
  * Development-only screen preview helpers.
  *
@@ -171,6 +169,13 @@ const getDevPreviewParam = (key: string): string | null => {
 
 const devPreviewScreen = getDevPreviewParam('screen');
 const devPreviewState = getDevPreviewParam('state');
+
+const getLevelNumber = (levelStr: string): number => {
+  if (!levelStr) return 1;
+  const match = levelStr.match(/level\s*(\d)/i);
+  if (match) return parseInt(match[1]);
+  return 1;
+};
 
 export default function App() {
   // Navigation & Interactive States
@@ -251,12 +256,38 @@ export default function App() {
     attendance: 91, // Start at 91% so they can earn 94% on June 30th!
     quizHistory: [
       {
-        quizId: "namutthunam_quiz",
-        quizTitle: "Namutthunam Sutra Spiritual Praise",
+        quizId: "navkar_quiz",
+        quizTitle: "Navkar Mantra Core Meaning",
+        category: "Morning Prayers",
+        difficulty: "Beginner",
+        level: 1,
         score: 2,
-        totalQuestions: 3,
-        percentage: 67,
-        completedAt: "Completed 3 days ago"
+        totalQuestions: 2,
+        percentage: 100,
+        pointsEarned: 50,
+        timeSpentSeconds: 45,
+        completedAt: "Completed 2 days ago",
+        userAnswers: [1, 1],
+        answersSummary: [
+          {
+            question: "Who is praised first in the Navkar Mantra?",
+            type: "mcq",
+            options: ["Siddhas", "Arihants", "Acharyas", "Sadhus"],
+            userAnswer: 1,
+            correctAnswer: 1,
+            isCorrect: true,
+            explanation: "Arihants (the living enlightened teachers) are praised first because they guide us to the path of liberation."
+          },
+          {
+            question: "The Navkar Mantra is dedicated to a specific Jain Tirthankara by name.",
+            type: "boolean",
+            options: ["True", "False"],
+            userAnswer: 1,
+            correctAnswer: 1,
+            isCorrect: true,
+            explanation: "False. The Navkar Mantra is a non-sectarian prayer bowing to the qualities of five supreme spiritual stages (Pancha Parameshthi), not a single individual."
+          }
+        ]
       }
     ]
   });
@@ -409,6 +440,7 @@ export default function App() {
   const [newTeacherPassword, setNewTeacherPassword] = useState<string>('');
   const [newTeacherSubject, setNewTeacherSubject] = useState<string>('');
   const [teacherSelectedLiveClass, setTeacherSelectedLiveClass] = useState<any>(null);
+  const [teacherSelectedStudent, setTeacherSelectedStudent] = useState<any>(null);
   const [newTeacherClassesCount, setNewTeacherClassesCount] = useState<number>(0);
 
   // Syllabus Module States
@@ -434,6 +466,27 @@ export default function App() {
   const [regLevel, setRegLevel] = useState<string>('Level 1: Basic Sutras & Stories');
   const [regBatch, setRegBatch] = useState<string>('Saturdays, 05:30 PM');
   const [regAttendingOther, setRegAttendingOther] = useState<string>('No');
+  
+  // Registration Type & Children Registration State
+  const [regType, setRegType] = useState<'self' | 'children'>('self');
+  const [childFirstName, setChildFirstName] = useState<string>('Viraat');
+  const [childSurname, setChildSurname] = useState<string>('Shah');
+  const [childDob, setChildDob] = useState<string>('2018-05-20');
+  const [childPhoto, setChildPhoto] = useState<string>('https://images.unsplash.com/photo-1544717305-2782549b5136?w=150&auto=format&fit=crop&q=80');
+  const [childLevel, setChildLevel] = useState<string>('Level 1: Basic Sutras & Stories');
+  const [childBatch, setChildBatch] = useState<string>('Saturdays, 05:30 PM');
+  const [childAttendingOther, setChildAttendingOther] = useState<string>('No');
+  const [addedChildrenList, setAddedChildrenList] = useState<Array<{
+    id: string;
+    firstName: string;
+    surname: string;
+    dob: string;
+    photo: string;
+    level: string;
+    batch: string;
+    attendingOther: string;
+  }>>([]);
+
   const [isLocatingAddress, setIsLocatingAddress] = useState<boolean>(false);
   const [isSimulatedApproved, setIsSimulatedApproved] = useState<boolean>(false);
   const [isGurujiApproved, setIsGurujiApproved] = useState<boolean>(false);
@@ -458,13 +511,57 @@ export default function App() {
       paymentStatus: 'completed',
       paymentAmount: 100,
       paymentTxnId: 'TXN_INIT_987654'
+    },
+    {
+      id: "STUD_INITIAL_2",
+      firstName: "Ananya",
+      surname: "Shah",
+      dob: "2014-04-10",
+      photo: "https://images.unsplash.com/photo-1544717305-2782549b5136?w=150&auto=format&fit=crop&q=80",
+      mobile: "9876543210",
+      parentMobile: "9876543210",
+      email: "shah.family@example.com",
+      address: "Flat 402, Parasmani Apartments, SV Road, Malad West, Mumbai - 400064",
+      level: "Level 2: Kumar Shala (Jain Geography)",
+      batch: "Sundays, 10:00 AM",
+      attendingOther: "No",
+      approved: true,
+      paymentStatus: 'completed',
+      paymentAmount: 100,
+      paymentTxnId: 'TXN_INIT_987655'
     }
   ]);
   const [selectedStudentIndexForLogin, setSelectedStudentIndexForLogin] = useState<number>(0);
+  const [selectedAccountRadio, setSelectedAccountRadio] = useState<string>('SELF_ACCOUNT');
   const [otpTimer, setOtpTimer] = useState<number>(0);
 
   // Registration Fee Payment Flow States (₹100 per student profile)
   const [pendingPaymentStudentIndex, setPendingPaymentStudentIndex] = useState<number | null>(null);
+
+  const resetRegistrationForm = () => {
+    setRegistrationStep(1);
+    setRegFirstName('');
+    setRegSurname('');
+    setRegDob('');
+    setRegPhoto('');
+    setRegMobile('');
+    setRegParentMobile('');
+    setRegEmail('');
+    setRegAddress('');
+    setRegBatch('Saturdays, 05:30 PM');
+    setRegLevel('Level 1: Basic Sutras & Stories');
+    setRegAttendingOther('No');
+
+    setRegType('self');
+    setChildFirstName('');
+    setChildSurname('');
+    setChildDob('');
+    setChildPhoto('');
+    setChildBatch('Saturdays, 05:30 PM');
+    setChildLevel('Level 1: Basic Sutras & Stories');
+    setChildAttendingOther('No');
+    setAddedChildrenList([]);
+  };
   const [paymentState, setPaymentState] = useState<'checkout' | 'processing' | 'success' | 'failed'>('checkout');
   const [selectedPaymentMethod, setSelectedPaymentMethod] = useState<'upi' | 'card' | 'qr' | 'netbanking'>('upi');
   const [paymentTxnId, setPaymentTxnId] = useState<string>('');
@@ -792,7 +889,7 @@ export default function App() {
     }
   ]);
 
-  // Selected Live Class state for the Details page.
+  // Selected Live Class state for the Details page
   // Dev preview: seed a class so `?screen=LiveClassDetails|LiveClassRoom` render real data.
   const [selectedLiveClass, setSelectedLiveClass] = useState<any>(
     (devPreviewScreen === 'LiveClassDetails' || devPreviewScreen === 'LiveClassRoom')
@@ -1482,7 +1579,9 @@ export default function App() {
   const screensList = [
     { name: 'Splash', icon: Sparkles, label: '1. Splash Screen' },
     { name: 'Language', icon: Languages, label: '2. Language Selection' },
+    { name: 'AccountSelect', icon: Users, label: '2b. Select Account Profile' },
     { name: 'Login', icon: Lock, label: '3. Login / Register' },
+    { name: 'SelectStudentProfile', icon: Users, label: '3a. Select Student Profile' },
     { name: 'Payment', icon: CreditCard, label: '3b. Registration Fee (₹100)' },
     { name: 'ForgotPassword', icon: HelpCircle, label: '4. Forgot Password' },
     { name: 'Home', icon: LayoutDashboard, label: '5. Home Dashboard' },
@@ -1620,7 +1719,7 @@ export default function App() {
             </div>
 
             {/* Canvas Container inside the screen */}
-            <div data-device-screen className="w-full h-full rounded-[40px] bg-[#FAF8F5] overflow-y-auto no-scrollbar relative flex flex-col text-slate-800 shadow-xs">
+            <div data-device-screen className="w-full h-full rounded-[40px] bg-[#FAF8F5] overflow-hidden relative flex flex-col text-slate-800 shadow-xs">
               
               {/* Device Status Bar */}
               <div className="pt-3.5 pb-2 px-6 flex justify-between items-center text-xs font-bold text-[#0f172a]/70 z-30 font-mono shrink-0">
@@ -1637,7 +1736,7 @@ export default function App() {
               </div>
 
               {/* ACTIVE SCREEN CONTENT */}
-              <div ref={scrollContainerRef} className="flex-1 overflow-y-auto pb-24 relative">
+              <div ref={scrollContainerRef} className="flex-1 overflow-y-auto pb-24 relative no-scrollbar">
                 
                 {/* 1. SPLASH SCREEN */}
                 {activeScreen === 'Splash' && (
@@ -1692,15 +1791,28 @@ export default function App() {
                   <motion.div 
                     initial={{ opacity: 0, x: 20 }} 
                     animate={{ opacity: 1, x: 0 }} 
-                    className="p-6 space-y-6"
+                    className="p-5 space-y-5"
                   >
-                    <div className="space-y-1.5">
-                      <span className="text-[10px] font-bold text-[#163E2B] tracking-widest uppercase font-mono">Welcome</span>
+                    {/* Header with back */}
+                    <div className="flex items-center justify-between border-b border-slate-100 pb-3">
+                      <button 
+                        onClick={() => setActiveScreen('Login')}
+                        className="flex items-center gap-1.5 text-xs font-bold text-slate-500 hover:text-slate-800 cursor-pointer"
+                      >
+                        <ChevronLeft className="w-4 h-4" />
+                        <span>Back to Login</span>
+                      </button>
+                      <span className="text-xs font-bold text-slate-800">Language</span>
+                      <span className="w-10"></span>
+                    </div>
+
+                    <div className="space-y-1.5 text-center">
+                      <span className="text-[10px] font-bold text-[#163E2B] tracking-widest uppercase font-mono bg-emerald-50 px-2.5 py-0.5 rounded border border-emerald-100 inline-block">Step 1 of 2</span>
                       <h3 className="text-xl font-black text-slate-900">Select Language</h3>
                       <p className="text-xs text-slate-500">Choose your preferred medium for Sutras, Stavan lyrics and lectures.</p>
                     </div>
 
-                    <div className="space-y-3.5 pt-2">
+                    <div className="space-y-3.5 pt-1">
                       {[
                         { id: 'English', title: 'English Medium', subtitle: 'Standard global notation & explanation', flag: '🇬🇧' },
                         { id: 'Hindi', title: 'हिन्दी माध्यम', subtitle: 'देवनागरी लिपि और सुलभ व्याख्या', flag: '🇮🇳' },
@@ -1713,7 +1825,7 @@ export default function App() {
                             onClick={() => setSelectedLanguage(lang.id)}
                             className={`p-4 rounded-[22px] border cursor-pointer transition-all flex items-center justify-between ${
                               isSelected 
-                                ? 'bg-emerald-50/80 border-[#163E2B] shadow-md shadow-[#163E2B]/5' 
+                                ? 'bg-emerald-50/80 border-[#163E2B] shadow-md shadow-[#163E2B]/5 ring-2 ring-[#163E2B]/20' 
                                 : 'bg-white border-slate-200 hover:border-slate-300 shadow-xs'
                             }`}
                           >
@@ -1727,7 +1839,7 @@ export default function App() {
                             <div className={`w-5.5 h-5.5 rounded-full border flex items-center justify-center transition-all ${
                               isSelected ? 'bg-[#163E2B] border-[#163E2B] text-white' : 'border-slate-300 bg-white'
                             }`}>
-                              {isSelected && <Check className="w-3.5 h-3.5" />}
+                              {isSelected && <Check className="w-3.5 h-3.5 stroke-[3]" />}
                             </div>
                           </div>
                         );
@@ -1740,14 +1852,151 @@ export default function App() {
                         if (isTeacher) {
                           setActiveScreen('TeacherDashboard');
                         } else {
-                          setActiveScreen('Home');
+                          setActiveScreen('AccountSelect');
                         }
                       }}
-                      className="w-full py-4 bg-[#163E2B] hover:bg-[#0F2D1F] text-white font-black text-sm rounded-full shadow-lg shadow-[#163E2B]/15 flex items-center justify-center gap-2 cursor-pointer transition-all mt-4"
+                      className="w-full py-4 bg-[#163E2B] hover:bg-[#0F2D1F] text-white font-black text-sm rounded-full shadow-lg shadow-[#163E2B]/15 flex items-center justify-center gap-2 cursor-pointer transition-all mt-4 active:scale-98"
                     >
-                      <span>Confirm Language</span>
+                      <span>Confirm Language & Continue</span>
                       <ChevronRight className="w-4 h-4" />
                     </button>
+                  </motion.div>
+                )}
+
+                {/* 2.4. ACCOUNT SELECTION SCREEN (SELF & ADDED STUDENTS RADIO SELECTION) */}
+                {activeScreen === 'AccountSelect' && (
+                  <motion.div 
+                    initial={{ opacity: 0, x: 20 }} 
+                    animate={{ opacity: 1, x: 0 }} 
+                    className="p-5 space-y-5"
+                  >
+                    {/* Header with back to language */}
+                    <div className="flex items-center justify-between border-b border-slate-100 pb-3">
+                      <button 
+                        onClick={() => setActiveScreen('Language')}
+                        className="flex items-center gap-1.5 text-xs font-bold text-slate-500 hover:text-slate-800 cursor-pointer"
+                      >
+                        <ChevronLeft className="w-4 h-4" />
+                        <span>Back to Language</span>
+                      </button>
+                      <span className="text-xs font-bold text-slate-800">Account Profile</span>
+                      <span className="w-10"></span>
+                    </div>
+
+                    <div className="space-y-1.5 text-center">
+                      <span className="text-[10px] font-bold text-[#163E2B] tracking-widest uppercase font-mono bg-emerald-50 px-2.5 py-0.5 rounded border border-emerald-100 inline-block">Step 2 of 2</span>
+                      <h3 className="text-xl font-black text-slate-900">Select Account Profile</h3>
+                      <p className="text-xs text-slate-500">Choose a student profile linked to +91 {loginPhone || "9876543210"} to access their dashboard and Pathshala records.</p>
+                    </div>
+
+                    {/* Radio Button Accounts List */}
+                    <div className="space-y-3 pt-1">
+                      <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block font-mono">
+                        Available Profiles ({registeredStudentsList.length})
+                      </span>
+
+                      {/* List of Registered Student Profiles */}
+                      {registeredStudentsList.map((stud, idx) => {
+                        const isSelected = selectedAccountRadio === stud.id || (selectedAccountRadio === 'SELF_ACCOUNT' && idx === 0);
+                        return (
+                          <div 
+                            key={stud.id}
+                            onClick={() => setSelectedAccountRadio(stud.id)}
+                            className={`p-4 rounded-[22px] border cursor-pointer transition-all flex items-center justify-between ${
+                              isSelected 
+                                ? 'bg-emerald-50/80 border-[#163E2B] shadow-md shadow-[#163E2B]/5 ring-2 ring-[#163E2B]/20' 
+                                : 'bg-white border-slate-200 hover:border-slate-300 shadow-xs'
+                            }`}
+                          >
+                            <div className="flex items-center gap-3">
+                              <div className="relative">
+                                <img 
+                                  src={stud.photo || "https://images.unsplash.com/photo-1544717305-2782549b5136?w=150&auto=format&fit=crop&q=80"} 
+                                  alt={stud.firstName} 
+                                  className="w-12 h-12 rounded-full object-cover border border-slate-200" 
+                                />
+                                <span className="absolute -bottom-1 -right-1 bg-[#163E2B] text-white text-[8px] font-extrabold px-1.5 py-0.2 rounded-full border border-white">
+                                  {idx === 0 ? "Primary" : "Student"}
+                                </span>
+                              </div>
+                              <div>
+                                <div className="flex items-center gap-1.5">
+                                  <h4 className="font-extrabold text-sm text-slate-900">{stud.firstName} {stud.surname}</h4>
+                                  <span className="text-[9px] font-mono font-bold bg-emerald-100/70 text-[#163E2B] px-1.5 py-0.5 rounded border border-emerald-200">
+                                    Active
+                                  </span>
+                                </div>
+                                <p className="text-[10px] text-slate-500 mt-0.5">{stud.level} • {stud.batch}</p>
+                              </div>
+                            </div>
+
+                            {/* Radio Circle Indicator */}
+                            <div className={`w-6 h-6 rounded-full border-2 flex items-center justify-center transition-all ${
+                              isSelected 
+                                ? 'bg-[#163E2B] border-[#163E2B] text-white' 
+                                : 'border-slate-300 bg-white'
+                            }`}>
+                              {isSelected && <Check className="w-3.5 h-3.5 stroke-[3]" />}
+                            </div>
+                          </div>
+                        );
+                      })}
+                    </div>
+
+                    {/* Action Buttons */}
+                    <div className="space-y-3 pt-3">
+                      <button 
+                        onClick={() => {
+                          let chosenStud = registeredStudentsList.find(s => s.id === selectedAccountRadio);
+                          if (!chosenStud) {
+                            chosenStud = registeredStudentsList[0];
+                          }
+                          if (chosenStud) {
+                            setStudent({
+                              ...student,
+                              name: `${chosenStud.firstName} ${chosenStud.surname}`,
+                              level: chosenStud.level,
+                              batch: chosenStud.batch || "Saturdays, 05:30 PM",
+                              profileImage: chosenStud.photo,
+                              attendanceScore: 200,
+                              gathaScore: 250,
+                              bonusPoints: 0,
+                              attendance: 91,
+                              gathasCount: 36,
+                              rank: "Top 5%",
+                              badge: "Star Reciter"
+                            });
+                          }
+                          setIsGurujiApproved(true);
+                          localStorage.setItem('shalaSession', 'active');
+                          setActiveScreen('Home');
+                        }}
+                        className="w-full py-4 bg-[#163E2B] hover:bg-[#0F2D1F] text-white font-black text-sm rounded-full shadow-lg shadow-[#163E2B]/15 flex items-center justify-center gap-2 cursor-pointer transition-all active:scale-98"
+                      >
+                        <span>Continue to Account</span>
+                        <ChevronRight className="w-4 h-4" />
+                      </button>
+
+                      <button 
+                        onClick={() => {
+                          setChildFirstName('');
+                          setChildSurname('');
+                          setChildDob('');
+                          setChildPhoto('');
+                          setChildBatch('Saturdays, 05:30 PM');
+                          setChildLevel('Level 1: Basic Sutras & Stories');
+                          setChildAttendingOther('No');
+                          setRegType('children');
+                          setRegistrationStep(4);
+                          setPaymentState('checkout');
+                          setActiveScreen('Register');
+                        }}
+                        className="w-full py-3 bg-white border border-slate-200 hover:border-slate-300 text-slate-700 font-extrabold text-xs rounded-full flex items-center justify-center gap-2 cursor-pointer transition-all shadow-xs active:scale-98"
+                      >
+                        <UserPlus className="w-4 h-4 text-[#163E2B]" />
+                        <span>+ Register New Student</span>
+                      </button>
+                    </div>
                   </motion.div>
                 )}
 
@@ -1848,7 +2097,7 @@ export default function App() {
                       <div className="flex items-center gap-2">
                         <span className="text-[10px] font-bold text-slate-400 font-mono">PROGRESS:</span>
                         <div className="flex items-center gap-1">
-                          {[1, 2, 3].map((s) => (
+                          {[1, 2, 3, 4].map((s) => (
                             <div 
                               key={s} 
                               className={`w-5 h-5 rounded-full flex items-center justify-center text-[10px] font-bold font-mono transition-all ${
@@ -1865,7 +2114,7 @@ export default function App() {
                         </div>
                       </div>
                       <span className="text-[10px] font-bold text-[#163E2B] font-mono uppercase bg-emerald-50 px-2 py-0.5 rounded">
-                        Step {registrationStep} of 3
+                        Step {registrationStep} of 4
                       </span>
                     </div>
 
@@ -2046,68 +2295,284 @@ export default function App() {
                       </div>
                     )}
 
-                    {/* Form Step 3: Pathshala Levels */}
+                    {/* Form Step 3: Select Registration Type (Self vs Add Children) */}
                     {registrationStep === 3 && (
                       <div className="space-y-4 bg-white border border-slate-200 rounded-[24px] p-5 shadow-xs">
                         <div className="border-b border-slate-100 pb-2 mb-1">
-                          <h4 className="font-extrabold text-xs text-slate-950 uppercase tracking-wider">3. Pathshala Enrollment</h4>
-                          <p className="text-[10px] text-slate-400">Select standard levels and batch timing schedules.</p>
+                          <h4 className="font-extrabold text-xs text-slate-900 uppercase tracking-wider">3. Select Registration Type</h4>
+                          <p className="text-[10px] text-slate-400">Choose whether you are registering for yourself or enrolling your children.</p>
                         </div>
 
-                        <div className="space-y-1.5">
-                          <label className="text-[10px] font-bold text-slate-500 uppercase block">Pathshala Level Selection *</label>
-                          <select 
-                            value={regLevel}
-                            onChange={(e) => setRegLevel(e.target.value)}
-                            className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2.5 text-xs font-bold text-slate-800 focus:outline-none focus:border-[#163E2B] transition-all cursor-pointer"
+                        <div className="space-y-3 pt-1">
+                          {/* Option 1: Self Registration */}
+                          <div 
+                            onClick={() => setRegType('self')}
+                            className={`p-4 rounded-2xl border cursor-pointer transition-all flex items-start gap-3.5 ${
+                              regType === 'self'
+                                ? 'bg-emerald-50/80 border-[#163E2B] shadow-sm'
+                                : 'bg-slate-50 border-slate-200/90 hover:border-slate-300'
+                            }`}
                           >
-                            <option value="Level 1: Basic Sutras & Stories">Level 1: Bal Shala (Basic Sutras & Stories)</option>
-                            <option value="Level 2: Jain Geography & Symbols">Level 2: Kumar Shala (Jain Geography & Symbols)</option>
-                            <option value="Level 3: Pratikraman & Advanced Vows">Level 3: Yuva Shala (Pratikraman & Philosophy)</option>
-                          </select>
-                        </div>
+                            <div className={`w-9 h-9 rounded-xl flex items-center justify-center shrink-0 transition-all ${
+                              regType === 'self' ? 'bg-[#163E2B] text-white' : 'bg-white text-slate-500 border border-slate-200'
+                            }`}>
+                              <User className="w-5 h-5" />
+                            </div>
+                            <div className="flex-1">
+                              <div className="flex items-center justify-between">
+                                <h5 className="font-black text-xs text-slate-900">Self Registration</h5>
+                                <div className={`w-4 h-4 rounded-full border flex items-center justify-center ${
+                                  regType === 'self' ? 'bg-[#163E2B] border-[#163E2B] text-white' : 'border-slate-300 bg-white'
+                                }`}>
+                                  {regType === 'self' && <Check className="w-3 h-3" />}
+                                </div>
+                              </div>
+                              <p className="text-[10px] text-slate-500 mt-1 leading-relaxed">
+                                Register for yourself directly to attend Pathshala classes and access student materials.
+                              </p>
+                            </div>
+                          </div>
 
-                        <div className="space-y-1.5">
-                          <label className="text-[10px] font-bold text-slate-500 uppercase block">Batch Time Selection *</label>
-                          <select 
-                            value={regBatch}
-                            onChange={(e) => setRegBatch(e.target.value)}
-                            className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2.5 text-xs font-bold text-slate-800 focus:outline-none focus:border-[#163E2B] transition-all cursor-pointer"
+                          {/* Option 2: Add Your Children Registration */}
+                          <div 
+                            onClick={() => setRegType('children')}
+                            className={`p-4 rounded-2xl border cursor-pointer transition-all flex items-start gap-3.5 ${
+                              regType === 'children'
+                                ? 'bg-emerald-50/80 border-[#163E2B] shadow-sm'
+                                : 'bg-slate-50 border-slate-200/90 hover:border-slate-300'
+                            }`}
                           >
-                            <option value="Saturdays, 05:30 PM">Saturdays, 05:30 PM (Weekly Main Session)</option>
-                            <option value="Sundays, 10:00 AM">Sundays, 10:00 AM (Weekend Morning)</option>
-                            <option value="Wednesdays, 06:00 PM">Wednesdays, 06:00 PM (Mid-week Revision)</option>
-                          </select>
-                        </div>
-
-                        <div className="space-y-2">
-                          <label className="text-[10px] font-bold text-slate-500 uppercase block">Are you currently attending any Pathshala? *</label>
-                          <div className="flex gap-3">
-                            {['Yes', 'No'].map((opt) => {
-                              const isSel = regAttendingOther === opt;
-                              return (
-                                <button
-                                  key={opt}
-                                  type="button"
-                                  onClick={() => setRegAttendingOther(opt)}
-                                  className={`flex-1 py-2.5 rounded-xl border text-xs font-extrabold transition-all cursor-pointer ${
-                                    isSel 
-                                      ? 'bg-[#163E2B] border-[#163E2B] text-white shadow-xs' 
-                                      : 'bg-slate-50 border-slate-200 text-slate-600 hover:border-slate-300'
-                                  }`}
-                                >
-                                  {opt}
-                                </button>
-                              );
-                            })}
+                            <div className={`w-9 h-9 rounded-xl flex items-center justify-center shrink-0 transition-all ${
+                              regType === 'children' ? 'bg-[#163E2B] text-white' : 'bg-white text-slate-500 border border-slate-200'
+                            }`}>
+                              <Users className="w-5 h-5" />
+                            </div>
+                            <div className="flex-1">
+                              <div className="flex items-center justify-between">
+                                <h5 className="font-black text-xs text-slate-900">Add Your Children Registration</h5>
+                                <div className={`w-4 h-4 rounded-full border flex items-center justify-center ${
+                                  regType === 'children' ? 'bg-[#163E2B] border-[#163E2B] text-white' : 'border-slate-300 bg-white'
+                                }`}>
+                                  {regType === 'children' && <Check className="w-3 h-3" />}
+                                </div>
+                              </div>
+                              <p className="text-[10px] text-slate-500 mt-1 leading-relaxed">
+                                Enroll one or more of your children into Pathshala levels managed under parent account.
+                              </p>
+                            </div>
                           </div>
                         </div>
                       </div>
                     )}
 
+                    {/* Form Step 4: Pathshala Enrollment */}
+                    {registrationStep === 4 && (
+                      <div className="space-y-4">
+                        {regType === 'self' ? (
+                          <div className="space-y-4 bg-white border border-slate-200 rounded-[24px] p-5 shadow-xs">
+                            <div className="border-b border-slate-100 pb-2 mb-1">
+                              <h4 className="font-extrabold text-xs text-slate-950 uppercase tracking-wider">4. Pathshala Enrollment</h4>
+                              <p className="text-[10px] text-slate-400">Select batch timing schedule first, then select Pathshala level.</p>
+                            </div>
+
+                            {/* 1. Batch Selection FIRST */}
+                            <div className="space-y-1.5">
+                              <label className="text-[10px] font-bold text-[#163E2B] uppercase block flex items-center gap-1">
+                                <Clock className="w-3 h-3" />
+                                <span>1. Select Batch Timing *</span>
+                              </label>
+                              <select 
+                                value={regBatch}
+                                onChange={(e) => setRegBatch(e.target.value)}
+                                className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2.5 text-xs font-bold text-slate-800 focus:outline-none focus:border-[#163E2B] transition-all cursor-pointer"
+                              >
+                                <option value="Saturdays, 05:30 PM">Batch A - Saturdays, 05:30 PM (Weekly Main Session)</option>
+                                <option value="Sundays, 10:00 AM">Batch B - Sundays, 10:00 AM (Weekend Morning)</option>
+                                <option value="Wednesdays, 06:00 PM">Batch C - Wednesdays, 06:00 PM (Mid-week Revision)</option>
+                              </select>
+                            </div>
+
+                            {/* 2. Level Selection SECOND */}
+                            <div className="space-y-1.5 pt-1">
+                              <label className="text-[10px] font-bold text-[#163E2B] uppercase block flex items-center gap-1">
+                                <BookOpen className="w-3 h-3" />
+                                <span>2. Select Pathshala Level *</span>
+                              </label>
+                              <select 
+                                value={regLevel}
+                                onChange={(e) => setRegLevel(e.target.value)}
+                                className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2.5 text-xs font-bold text-slate-800 focus:outline-none focus:border-[#163E2B] transition-all cursor-pointer"
+                              >
+                                <option value="Level 1: Basic Sutras & Stories">Level 1: Bal Shala (Basic Sutras & Stories)</option>
+                                <option value="Level 2: Jain Geography & Symbols">Level 2: Kumar Shala (Jain Geography & Symbols)</option>
+                                <option value="Level 3: Pratikraman & Advanced Vows">Level 3: Yuva Shala (Pratikraman & Philosophy)</option>
+                              </select>
+                            </div>
+
+                            <div className="space-y-2 pt-1">
+                              <label className="text-[10px] font-bold text-slate-500 uppercase block">Are you currently attending any Pathshala? *</label>
+                              <div className="flex gap-3">
+                                {['Yes', 'No'].map((opt) => {
+                                  const isSel = regAttendingOther === opt;
+                                  return (
+                                    <button
+                                      key={opt}
+                                      type="button"
+                                      onClick={() => setRegAttendingOther(opt)}
+                                      className={`flex-1 py-2.5 rounded-xl border text-xs font-extrabold transition-all cursor-pointer ${
+                                        isSel 
+                                          ? 'bg-[#163E2B] border-[#163E2B] text-white shadow-xs' 
+                                          : 'bg-slate-50 border-slate-200 text-slate-600 hover:border-slate-300'
+                                      }`}
+                                    >
+                                      {opt}
+                                    </button>
+                                  );
+                                })}
+                              </div>
+                            </div>
+                          </div>
+                        ) : (
+                          /* Single Child Registration */
+                          <div className="space-y-4">
+                            <div className="bg-white border border-slate-200 rounded-[24px] p-5 shadow-xs space-y-4">
+                              <div className="border-b border-slate-100 pb-2 mb-1 flex items-center justify-between">
+                                <div>
+                                  <h4 className="font-extrabold text-xs text-slate-950 uppercase tracking-wider">
+                                    Child Details & Pathshala Enrollment
+                                  </h4>
+                                  <p className="text-[10px] text-slate-400">Enter student details and select batch timing followed by level.</p>
+                                </div>
+                                <span className="text-[10px] font-mono font-bold text-[#163E2B] bg-emerald-50 px-2.5 py-0.5 rounded border border-emerald-100">
+                                  Student Profile
+                                </span>
+                              </div>
+
+                              <div className="grid grid-cols-2 gap-3.5">
+                                <div className="space-y-1">
+                                  <label className="text-[10px] font-bold text-slate-500 uppercase block">Child First Name *</label>
+                                  <input 
+                                    type="text" 
+                                    value={childFirstName}
+                                    onChange={(e) => setChildFirstName(e.target.value)}
+                                    placeholder="e.g. Viraat"
+                                    className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2.5 text-xs font-bold text-slate-800 focus:outline-none focus:border-[#163E2B] transition-all"
+                                  />
+                                </div>
+                                <div className="space-y-1">
+                                  <label className="text-[10px] font-bold text-slate-500 uppercase block">Child Surname *</label>
+                                  <input 
+                                    type="text" 
+                                    value={childSurname}
+                                    onChange={(e) => setChildSurname(e.target.value)}
+                                    placeholder="e.g. Shah"
+                                    className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2.5 text-xs font-bold text-slate-800 focus:outline-none focus:border-[#163E2B] transition-all"
+                                  />
+                                </div>
+                              </div>
+
+                              <div className="space-y-1">
+                                <label className="text-[10px] font-bold text-slate-500 uppercase block">Child Date of Birth *</label>
+                                <input 
+                                  type="date" 
+                                  value={childDob}
+                                  onChange={(e) => setChildDob(e.target.value)}
+                                  className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2.5 text-xs font-bold text-slate-800 focus:outline-none focus:border-[#163E2B] transition-all"
+                                />
+                              </div>
+
+                              {/* Child Photo Upload */}
+                              <div className="space-y-1.5">
+                                <label className="text-[10px] font-bold text-slate-500 uppercase block">Child Photo</label>
+                                <div className="flex items-center gap-3 p-3 bg-slate-50 border border-slate-100 rounded-xl">
+                                  <img src={childPhoto || "https://images.unsplash.com/photo-1544717305-2782549b5136?w=150&auto=format&fit=crop&q=80"} alt="Child Preview" className="w-10 h-10 rounded-full object-cover border border-slate-200 shrink-0" />
+                                  <label className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-white border border-slate-200 hover:border-slate-300 rounded-lg text-[10px] font-extrabold text-slate-700 hover:bg-slate-100 cursor-pointer transition-all">
+                                    <Camera className="w-3.5 h-3.5 text-slate-500" />
+                                    <span>Upload Child Photo</span>
+                                    <input 
+                                      type="file" 
+                                      accept="image/*" 
+                                      className="hidden" 
+                                      onChange={(e) => {
+                                        const file = e.target.files?.[0];
+                                        if (file) {
+                                          const reader = new FileReader();
+                                          reader.onloadend = () => {
+                                            setChildPhoto(reader.result as string);
+                                          };
+                                          reader.readAsDataURL(file);
+                                        }
+                                      }} 
+                                    />
+                                  </label>
+                                </div>
+                              </div>
+
+                              {/* 1. Batch Selection FIRST */}
+                              <div className="space-y-1.5 pt-1">
+                                <label className="text-[10px] font-bold text-[#163E2B] uppercase block flex items-center gap-1">
+                                  <Clock className="w-3 h-3" />
+                                  <span>1. Select Batch Timing *</span>
+                                </label>
+                                <select 
+                                  value={childBatch}
+                                  onChange={(e) => setChildBatch(e.target.value)}
+                                  className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2.5 text-xs font-bold text-slate-800 focus:outline-none focus:border-[#163E2B] transition-all cursor-pointer"
+                                >
+                                  <option value="Saturdays, 05:30 PM">Batch A - Saturdays, 05:30 PM (Weekly Main Session)</option>
+                                  <option value="Sundays, 10:00 AM">Batch B - Sundays, 10:00 AM (Weekend Morning)</option>
+                                  <option value="Wednesdays, 06:00 PM">Batch C - Wednesdays, 06:00 PM (Mid-week Revision)</option>
+                                </select>
+                              </div>
+
+                              {/* 2. Level Selection SECOND */}
+                              <div className="space-y-1.5">
+                                <label className="text-[10px] font-bold text-[#163E2B] uppercase block flex items-center gap-1">
+                                  <BookOpen className="w-3 h-3" />
+                                  <span>2. Select Pathshala Level *</span>
+                                </label>
+                                <select 
+                                  value={childLevel}
+                                  onChange={(e) => setChildLevel(e.target.value)}
+                                  className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2.5 text-xs font-bold text-slate-800 focus:outline-none focus:border-[#163E2B] transition-all cursor-pointer"
+                                >
+                                  <option value="Level 1: Basic Sutras & Stories">Level 1: Bal Shala (Basic Sutras & Stories)</option>
+                                  <option value="Level 2: Jain Geography & Symbols">Level 2: Kumar Shala (Jain Geography & Symbols)</option>
+                                  <option value="Level 3: Pratikraman & Advanced Vows">Level 3: Yuva Shala (Pratikraman & Philosophy)</option>
+                                </select>
+                              </div>
+
+                              <div className="space-y-1.5">
+                                <label className="text-[10px] font-bold text-slate-500 uppercase block">Attending any other Pathshala? *</label>
+                                <div className="flex gap-3">
+                                  {['Yes', 'No'].map((opt) => {
+                                    const isSel = childAttendingOther === opt;
+                                    return (
+                                      <button
+                                        key={opt}
+                                        type="button"
+                                        onClick={() => setChildAttendingOther(opt)}
+                                        className={`flex-1 py-2 rounded-xl border text-xs font-extrabold transition-all cursor-pointer ${
+                                          isSel 
+                                            ? 'bg-[#163E2B] border-[#163E2B] text-white shadow-xs' 
+                                            : 'bg-slate-50 border-slate-200 text-slate-600 hover:border-slate-300'
+                                        }`}
+                                      >
+                                        {opt}
+                                      </button>
+                                    );
+                                  })}
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                        )}
+                      </div>
+                    )}
+
                     {/* Navigation Buttons */}
                     <div className="space-y-2.5 pt-2">
-                      {registrationStep < 3 ? (
+                      {registrationStep < 4 ? (
                         <button 
                           onClick={() => {
                             if (registrationStep === 1) {
@@ -2134,34 +2599,66 @@ export default function App() {
                           {/* Complete & Submit */}
                           <button 
                             onClick={() => {
-                              if (!regFirstName) {
-                                alert("Please make sure at least the First Name is filled to complete registration.");
-                                return;
+                              if (regType === 'self') {
+                                if (!regFirstName) {
+                                  alert("Please make sure First Name is filled to complete registration.");
+                                  return;
+                                }
+
+                                const selfRecord = {
+                                  id: `STUD_${Date.now()}`,
+                                  firstName: regFirstName,
+                                  surname: regSurname || "Shah",
+                                  dob: regDob || "2016-08-15",
+                                  photo: regPhoto || "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&auto=format&fit=crop&q=80",
+                                  mobile: regMobile || "9876543210",
+                                  parentMobile: regParentMobile || "9876543210",
+                                  email: regEmail || "parent@example.com",
+                                  address: regAddress || "Flat 402, Parasmani Apartments, SV Road, Malad West, Mumbai - 400064",
+                                  level: regLevel,
+                                  batch: regBatch,
+                                  attendingOther: regAttendingOther,
+                                  approved: false,
+                                  paymentStatus: 'pending',
+                                  paymentAmount: 100
+                                };
+
+                                setRegisteredStudentsList(prev => {
+                                  const nextList = [...prev, selfRecord];
+                                  setPendingPaymentStudentIndex(nextList.length - 1);
+                                  return nextList;
+                                });
+                              } else {
+                                // Children Registration (One child at a time)
+                                if (!childFirstName) {
+                                  alert("Please enter the child's first name to proceed.");
+                                  return;
+                                }
+
+                                const childRecord = {
+                                  id: `STUD_${Date.now()}_${Math.random().toString(36).substring(2, 5)}`,
+                                  firstName: childFirstName,
+                                  surname: childSurname || regSurname || "Shah",
+                                  dob: childDob || "2018-05-20",
+                                  photo: childPhoto || "https://images.unsplash.com/photo-1544717305-2782549b5136?w=150&auto=format&fit=crop&q=80",
+                                  mobile: regMobile || "9876543210",
+                                  parentMobile: regParentMobile || "9876543210",
+                                  email: regEmail || "parent@example.com",
+                                  address: regAddress || "Flat 402, Parasmani Apartments, SV Road, Malad West, Mumbai - 400064",
+                                  level: childLevel,
+                                  batch: childBatch,
+                                  attendingOther: childAttendingOther,
+                                  approved: false,
+                                  paymentStatus: 'pending',
+                                  paymentAmount: 100
+                                };
+
+                                setRegisteredStudentsList(prev => {
+                                  const nextList = [...prev, childRecord];
+                                  setPendingPaymentStudentIndex(nextList.length - 1);
+                                  return nextList;
+                                });
                               }
-
-                              const lastChild = {
-                                id: `STUD_${Date.now()}`,
-                                firstName: regFirstName,
-                                surname: regSurname || "Shah",
-                                dob: regDob || "2016-08-15",
-                                photo: regPhoto || "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&auto=format&fit=crop&q=80",
-                                mobile: regMobile || "9876543210",
-                                parentMobile: regParentMobile || "9876543210",
-                                email: regEmail || "parent@example.com",
-                                address: regAddress || "Flat 402, Parasmani Apartments, SV Road, Malad West, Mumbai - 400064",
-                                level: regLevel,
-                                batch: regBatch,
-                                attendingOther: regAttendingOther,
-                                approved: false,
-                                paymentStatus: 'pending',
-                                paymentAmount: 100
-                              };
-
-                              setRegisteredStudentsList(prev => {
-                                const nextList = [...prev, lastChild];
-                                setPendingPaymentStudentIndex(nextList.length - 1);
-                                return nextList;
-                              });
 
                               setPaymentState('checkout');
                               setActiveScreen('Payment');
@@ -2319,54 +2816,6 @@ export default function App() {
                           </button>
                         </div>
 
-                        {/* Sibling Multi-account Selector */}
-                        {isOtpSent && otpCode === '1234' && (
-                          <motion.div 
-                            initial={{ opacity: 0, scale: 0.95 }}
-                            animate={{ opacity: 1, scale: 1 }}
-                            className="bg-emerald-50/60 border border-emerald-100 rounded-[20px] p-4 space-y-2.5"
-                          >
-                            <div className="space-y-0.5 text-center">
-                              <span className="text-[9px] font-bold text-[#163E2B] uppercase tracking-widest">MULTIPLE ACCOUNTS FOUND</span>
-                              <h4 className="text-xs font-bold text-slate-800">Select Student Profile</h4>
-                            </div>
-
-                            <div className="grid grid-cols-2 gap-2">
-                              {registeredStudentsList.map((stud, idx) => {
-                                const isChosen = selectedStudentIndexForLogin === idx;
-                                const isPendingFee = stud.paymentStatus === 'pending';
-                                return (
-                                  <button
-                                    key={idx}
-                                    onClick={() => setSelectedStudentIndexForLogin(idx)}
-                                    className={`p-2.5 rounded-xl border text-left transition-all relative cursor-pointer ${
-                                      isChosen 
-                                        ? 'bg-white border-[#163E2B] shadow-xs ring-2 ring-emerald-600/10' 
-                                        : 'bg-white/60 border-slate-200/60 opacity-80 hover:opacity-100'
-                                    }`}
-                                  >
-                                    <div className="flex items-center gap-2">
-                                      <InitialBadge name={`${stud.firstName} ${stud.surname}`} className="w-7 h-7 text-[10px]" />
-                                      <div className="min-w-0 flex-1">
-                                        <span className="font-bold text-xs text-slate-800 block truncate">{stud.firstName}</span>
-                                        <span className="text-[9px] font-semibold text-[#163E2B]/80 block truncate">{stud.level.split(':')[0]}</span>
-                                        {isPendingFee && (
-                                          <span className="text-[8px] font-bold text-amber-800 bg-amber-100 px-1.5 py-0.5 rounded border border-amber-200 block mt-0.5 w-max">
-                                            Fee Pending (₹100)
-                                          </span>
-                                        )}
-                                      </div>
-                                    </div>
-                                    {isChosen && (
-                                      <span className="absolute top-1 right-1 w-3.5 h-3.5 bg-[#163E2B] text-white text-[8px] rounded-full flex items-center justify-center font-bold">✓</span>
-                                    )}
-                                  </button>
-                                );
-                              })}
-                            </div>
-                          </motion.div>
-                        )}
-
                         <div className="space-y-3 pt-2">
                           <button 
                             onClick={() => {
@@ -2384,39 +2833,9 @@ export default function App() {
                                   return;
                                 }
 
-                                const selectedStudentObj = registeredStudentsList[selectedStudentIndexForLogin];
-                                if (selectedStudentObj) {
-                                  if (selectedStudentObj.paymentStatus === 'pending') {
-                                    setPendingPaymentStudentIndex(selectedStudentIndexForLogin);
-                                    setPaymentState('checkout');
-                                    setActiveScreen('Payment');
-                                    return;
-                                  }
-
-                                  setStudent({
-                                    name: `${selectedStudentObj.firstName} ${selectedStudentObj.surname}`,
-                                    level: selectedStudentObj.level,
-                                    batch: selectedStudentObj.batch || "Saturdays, 05:30 PM",
-                                    attendanceScore: 200,
-                                    gathaScore: 250,
-                                    bonusPoints: 0,
-                                    attendance: 91,
-                                    gathasCount: 36,
-                                    rank: "Top 5%",
-                                    badge: "Star Reciter",
-                                    profileImage: selectedStudentObj.photo
-                                  });
-                                  setClassroomTimeElapsed(0);
-                                  setIsAttendanceMarked(false);
-                                }
-
-                                localStorage.setItem('shalaSession', 'active');
-                                if (localStorage.getItem('hasSelectedLanguage') === 'true') {
-                                  setActiveScreen('Home');
-                                } else {
-                                  setPendingUserType('student');
-                                  setActiveScreen('Language');
-                                }
+                                // User request: After successfully added OTP -> Select Language screen -> Select Account profile screen
+                                setPendingUserType('student');
+                                setActiveScreen('Language');
                               }
                             }}
                             className="w-full py-3 bg-[#163E2B] hover:bg-[#0F2D1F] text-white font-bold text-sm rounded-xl shadow-md shadow-[#163E2B]/10 flex items-center justify-center gap-2 cursor-pointer transition-all active:scale-98"
@@ -2534,6 +2953,175 @@ export default function App() {
                   </motion.div>
                 )}
 
+                {/* 3a. SELECT STUDENT PROFILE SCREEN (Dedicated screen after OTP verification) */}
+                {activeScreen === 'SelectStudentProfile' && (
+                  <motion.div 
+                    initial={{ opacity: 0, y: 15 }} 
+                    animate={{ opacity: 1, y: 0 }} 
+                    className="p-5 space-y-5"
+                  >
+                    {/* Header / Back */}
+                    <div className="flex items-center justify-between border-b border-slate-100 pb-3">
+                      <button 
+                        onClick={() => setActiveScreen('Login')}
+                        className="flex items-center gap-1 text-xs font-bold text-slate-500 hover:text-slate-800 cursor-pointer"
+                      >
+                        <ChevronLeft className="w-4 h-4" />
+                        <span>Back to Login</span>
+                      </button>
+                      <span className="text-xs font-bold text-slate-800">Student Profile</span>
+                      <span className="w-10"></span>
+                    </div>
+
+                    <div className="space-y-1.5 text-center">
+                      <span className="text-[9px] font-bold text-[#163E2B] tracking-widest uppercase bg-emerald-50 px-3 py-1 rounded-full border border-emerald-100/60 inline-block font-mono">
+                        MULTIPLE ACCOUNTS FOUND
+                      </span>
+                      <h3 className="text-xl font-bold text-slate-900 tracking-tight">
+                        Select Student Profile
+                      </h3>
+                      <p className="text-xs text-slate-500 max-w-[280px] mx-auto leading-relaxed">
+                        Profiles linked to mobile number <span className="font-semibold text-slate-700">+91 {loginPhone || '9876543210'}</span>. Select a student to continue.
+                      </p>
+                    </div>
+
+                    {/* Student Profile Cards List */}
+                    <div className="space-y-2.5 pt-1">
+                      {registeredStudentsList.map((stud, idx) => {
+                        const isChosen = selectedStudentIndexForLogin === idx;
+                        const isPendingFee = stud.paymentStatus === 'pending';
+                        return (
+                          <div
+                            key={idx}
+                            onClick={() => setSelectedStudentIndexForLogin(idx)}
+                            className={`p-3.5 rounded-2xl border transition-all relative cursor-pointer flex items-center justify-between ${
+                              isChosen 
+                                ? 'bg-emerald-50/80 border-[#163E2B] shadow-md shadow-[#163E2B]/5 ring-2 ring-[#163E2B]/20' 
+                                : 'bg-white border-slate-200 hover:border-slate-300 shadow-xs'
+                            }`}
+                          >
+                            <div className="flex items-center gap-3 min-w-0 flex-1">
+                              <div className="relative shrink-0">
+                                {stud.photo ? (
+                                  <img 
+                                    src={stud.photo} 
+                                    alt={stud.firstName} 
+                                    className="w-12 h-12 rounded-full object-cover border border-slate-200" 
+                                  />
+                                ) : (
+                                  <InitialBadge name={`${stud.firstName} ${stud.surname}`} className="w-12 h-12 text-sm font-bold" />
+                                )}
+                                {isChosen && (
+                                  <span className="absolute -bottom-1 -right-1 w-5 h-5 bg-[#163E2B] text-white text-[10px] rounded-full flex items-center justify-center font-bold border-2 border-white shadow-xs">
+                                    ✓
+                                  </span>
+                                )}
+                              </div>
+
+                              <div className="min-w-0 flex-1">
+                                <div className="flex items-center gap-2">
+                                  <h4 className="font-bold text-sm text-slate-900 truncate">
+                                    {stud.firstName} {stud.surname}
+                                  </h4>
+                                  {isPendingFee ? (
+                                    <span className="text-[8px] font-bold text-amber-800 bg-amber-100 px-1.5 py-0.5 rounded border border-amber-200 shrink-0">
+                                      Fee Pending (₹100)
+                                    </span>
+                                  ) : (
+                                    <span className="text-[8px] font-bold text-[#163E2B] bg-emerald-100/80 px-1.5 py-0.5 rounded border border-emerald-200 shrink-0">
+                                      Active
+                                    </span>
+                                  )}
+                                </div>
+                                <p className="text-[11px] text-slate-500 truncate mt-0.5 font-medium">
+                                  {stud.level}
+                                </p>
+                                <p className="text-[10px] text-slate-400 truncate">
+                                  {stud.batch || "Saturdays, 05:30 PM"}
+                                </p>
+                              </div>
+                            </div>
+
+                            {/* Radio / Selection circle */}
+                            <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center shrink-0 ml-2 transition-all ${
+                              isChosen 
+                                ? 'bg-[#163E2B] border-[#163E2B] text-white' 
+                                : 'border-slate-300 bg-white'
+                            }`}>
+                              {isChosen && <Check className="w-3 h-3 stroke-[3]" />}
+                            </div>
+                          </div>
+                        );
+                      })}
+                    </div>
+
+                    {/* Primary Action Button */}
+                    <div className="space-y-3 pt-3">
+                      <button 
+                        onClick={() => {
+                          const selectedStudentObj = registeredStudentsList[selectedStudentIndexForLogin] || registeredStudentsList[0];
+                          if (selectedStudentObj) {
+                            if (selectedStudentObj.paymentStatus === 'pending') {
+                              setPendingPaymentStudentIndex(selectedStudentIndexForLogin);
+                              setPaymentState('checkout');
+                              setActiveScreen('Payment');
+                              return;
+                            }
+
+                            setStudent({
+                              name: `${selectedStudentObj.firstName} ${selectedStudentObj.surname}`,
+                              level: selectedStudentObj.level,
+                              batch: selectedStudentObj.batch || "Saturdays, 05:30 PM",
+                              attendanceScore: 200,
+                              gathaScore: 250,
+                              bonusPoints: 0,
+                              attendance: 91,
+                              gathasCount: 36,
+                              rank: "Top 5%",
+                              badge: "Star Reciter",
+                              profileImage: selectedStudentObj.photo
+                            });
+                            setClassroomTimeElapsed(0);
+                            setIsAttendanceMarked(false);
+                          }
+
+                          localStorage.setItem('shalaSession', 'active');
+                          if (localStorage.getItem('hasSelectedLanguage') === 'true') {
+                            setActiveScreen('Home');
+                          } else {
+                            setPendingUserType('student');
+                            setActiveScreen('Language');
+                          }
+                        }}
+                        className="w-full py-3.5 bg-[#163E2B] hover:bg-[#0F2D1F] text-white font-bold text-sm rounded-xl shadow-md shadow-[#163E2B]/10 flex items-center justify-center gap-2 cursor-pointer transition-all active:scale-98"
+                      >
+                        <span>Continue with {registeredStudentsList[selectedStudentIndexForLogin]?.firstName || 'Selected Profile'}</span>
+                        <ChevronRight className="w-4 h-4" />
+                      </button>
+
+                      <button 
+                        onClick={() => {
+                          setChildFirstName('');
+                          setChildSurname('');
+                          setChildDob('');
+                          setChildPhoto('');
+                          setChildBatch('Saturdays, 05:30 PM');
+                          setChildLevel('Level 1: Basic Sutras & Stories');
+                          setChildAttendingOther('No');
+                          setRegType('children');
+                          setRegistrationStep(4);
+                          setPaymentState('checkout');
+                          setActiveScreen('Register');
+                        }}
+                        className="w-full py-2.5 bg-white border border-slate-200/80 hover:border-slate-300 text-slate-700 font-bold text-xs rounded-xl flex items-center justify-center gap-2 cursor-pointer shadow-xs active:scale-98 transition-all"
+                      >
+                        <UserPlus className="w-3.5 h-3.5 text-[#163E2B]" />
+                        <span>+ Register Another Child / Sibling</span>
+                      </button>
+                    </div>
+                  </motion.div>
+                )}
+
                 {/* 3b. REGISTRATION FEE PAYMENT SCREEN (MINIMAL & SIMPLE) */}
                 {activeScreen === 'Payment' && (() => {
                   const targetStudent = (pendingPaymentStudentIndex !== null && registeredStudentsList[pendingPaymentStudentIndex])
@@ -2576,54 +3164,95 @@ export default function App() {
                             </p>
                           </div>
 
-                          <button
-                            onClick={() => {
-                              // Activate student profile in registeredStudentsList
-                              if (pendingPaymentStudentIndex !== null) {
-                                setRegisteredStudentsList(prev => prev.map((s, idx) => {
-                                  if (idx === pendingPaymentStudentIndex) {
-                                    return {
-                                      ...s,
-                                      paymentStatus: 'completed',
-                                      approved: true,
-                                      paymentTxnId: paymentTxnId || `TXN_${Date.now()}`
-                                    };
-                                  }
-                                  return s;
-                                }));
-                              }
+                          {/* Action Buttons: Add New Student OR Continue to App */}
+                          <div className="space-y-3 pt-2">
+                            {/* Option A: Add New Student (Redirects directly to Child Details & Pathshala Enrollment step) */}
+                            <button
+                              onClick={() => {
+                                // Mark current payment complete
+                                if (pendingPaymentStudentIndex !== null) {
+                                  setRegisteredStudentsList(prev => prev.map((s, idx) => {
+                                    if (idx === pendingPaymentStudentIndex) {
+                                      return {
+                                        ...s,
+                                        paymentStatus: 'completed',
+                                        approved: true,
+                                        paymentTxnId: paymentTxnId || `TXN_${Date.now()}`
+                                      };
+                                    }
+                                    return s;
+                                  }));
+                                }
 
-                              // Set current active student profile
-                              setStudent({
-                                name: `${targetStudent.firstName} ${targetStudent.surname}`,
-                                level: targetStudent.level,
-                                batch: targetStudent.batch || "Saturdays, 05:30 PM",
-                                attendanceScore: 200,
-                                gathaScore: 250,
-                                bonusPoints: 0,
-                                attendance: 91,
-                                gathasCount: 36,
-                                rank: "Top 5%",
-                                badge: "Star Reciter",
-                                profileImage: targetStudent.photo,
-                                quizHistory: []
-                              });
-                              setIsGurujiApproved(true);
-                              localStorage.setItem('shalaSession', 'active');
+                                // Reset child details form and redirect directly to Step 4 (Child Details & Pathshala Enrollment)
+                                setChildFirstName('');
+                                setChildSurname('');
+                                setChildDob('');
+                                setChildPhoto('');
+                                setChildBatch('Saturdays, 05:30 PM');
+                                setChildLevel('Level 1: Basic Sutras & Stories');
+                                setChildAttendingOther('No');
+                                setRegType('children');
+                                setRegistrationStep(4);
+                                setPaymentState('checkout');
+                                setActiveScreen('Register');
+                              }}
+                              className="w-full py-3.5 bg-emerald-50 hover:bg-emerald-100 text-[#163E2B] font-extrabold text-xs rounded-full border border-emerald-200/90 flex items-center justify-center gap-2 cursor-pointer transition-all shadow-xs"
+                            >
+                              <UserPlus className="w-4 h-4" />
+                              <span>+ Add New Student</span>
+                            </button>
 
-                              // Automatically navigate to Home screen
-                              if (localStorage.getItem('hasSelectedLanguage') === 'true') {
-                                setActiveScreen('Home');
-                              } else {
-                                setPendingUserType('student');
-                                setActiveScreen('Language');
-                              }
-                            }}
-                            className="w-full py-4 bg-[#163E2B] hover:bg-[#0F2D1F] text-white font-bold text-sm rounded-full shadow-lg shadow-[#163E2B]/15 flex items-center justify-center gap-2 cursor-pointer transition-all active:scale-98"
-                          >
-                            <span>Continue</span>
-                            <ArrowRight className="w-4 h-4" />
-                          </button>
+                            {/* Option B: Continue to App (Redirects to Home screen) */}
+                            <button
+                              onClick={() => {
+                                // Activate student profile in registeredStudentsList
+                                if (pendingPaymentStudentIndex !== null) {
+                                  setRegisteredStudentsList(prev => prev.map((s, idx) => {
+                                    if (idx === pendingPaymentStudentIndex) {
+                                      return {
+                                        ...s,
+                                        paymentStatus: 'completed',
+                                        approved: true,
+                                        paymentTxnId: paymentTxnId || `TXN_${Date.now()}`
+                                      };
+                                    }
+                                    return s;
+                                  }));
+                                }
+
+                                // Set current active student profile
+                                setStudent({
+                                  name: `${targetStudent.firstName} ${targetStudent.surname}`,
+                                  level: targetStudent.level,
+                                  batch: targetStudent.batch || "Saturdays, 05:30 PM",
+                                  attendanceScore: 200,
+                                  gathaScore: 250,
+                                  bonusPoints: 0,
+                                  attendance: 91,
+                                  gathasCount: 36,
+                                  rank: "Top 5%",
+                                  badge: "Star Reciter",
+                                  profileImage: targetStudent.photo,
+                                  quizHistory: []
+                                });
+                                setIsGurujiApproved(true);
+                                localStorage.setItem('shalaSession', 'active');
+
+                                // Redirect to Account Selection / Language selection
+                                if (localStorage.getItem('hasSelectedLanguage') === 'true') {
+                                  setActiveScreen('AccountSelect');
+                                } else {
+                                  setPendingUserType('student');
+                                  setActiveScreen('Language');
+                                }
+                              }}
+                              className="w-full py-3.5 bg-[#163E2B] hover:bg-[#0F2D1F] text-white font-extrabold text-xs rounded-full shadow-lg shadow-[#163E2B]/15 flex items-center justify-center gap-2 cursor-pointer transition-all active:scale-98"
+                            >
+                              <span>Continue to App</span>
+                              <ArrowRight className="w-4 h-4" />
+                            </button>
+                          </div>
                         </div>
                       ) : paymentState === 'failed' ? (
                         /* PAYMENT FAILURE STATE */
@@ -2812,686 +3441,40 @@ export default function App() {
                   );
                 })()}
 
-                {/* 5b. SYLLABUS ROADMAP SCREEN */}
-                {activeScreen === 'Syllabus' && (() => {
-                  const getSyllabusKey = (studentLevel: string): string => {
-                    const lvl = studentLevel ? studentLevel.toLowerCase() : '';
-                    if (lvl.includes('level 1') || lvl.includes('bal shala')) {
-                      return "Level 1: Basic Sutras & Stories";
-                    }
-                    if (lvl.includes('level 2') || lvl.includes('kumar shala')) {
-                      return "Level 2: Jain Geography & Symbols";
-                    }
-                    return "Level 3: Pratikraman & Advanced Vows";
-                  };
-
-                  const activeSyllabusKey = getSyllabusKey(student.level);
-                  const activeSyllabus = syllabusDataState[activeSyllabusKey] || syllabusDataState["Level 3: Pratikraman & Advanced Vows"];
-
-                  // Calculate stats
-                  let totalTopics = 0;
-                  let completedTopics = 0;
-                  let pendingTopics = 0;
-                  let reworkTopics = 0;
-                  let notStartedTopics = 0;
-                  let notApprovedTopics = 0;
-
-                  activeSyllabus.chapters.forEach(ch => {
-                    ch.topics.forEach(t => {
-                      totalTopics++;
-                      if (t.status === 'Approved') completedTopics++;
-                      else if (t.status === 'Pending Teacher Review' || t.status === 'Pending Review') pendingTopics++;
-                      else if (t.status === 'Rework Required') reworkTopics++;
-                      else if (t.status === 'Not Approved' || t.status === 'Rejected') notApprovedTopics++;
-                      else notStartedTopics++;
-                    });
-                  });
-
-                  const remainingTopics = totalTopics - completedTopics;
-                  const progressPct = totalTopics > 0 ? Math.round((completedTopics / totalTopics) * 100) : 0;
-
-                  return (
-                    <motion.div
-                      initial={{ opacity: 0 }}
-                      animate={{ opacity: 1 }}
-                      className="bg-[#FAF8F5] min-h-full p-5 sm:p-6 space-y-6 max-h-full overflow-y-auto no-scrollbar pb-24 text-slate-800"
-                    >
-                      {/* Academic Heading */}
-                      <div className="flex items-center justify-between bg-white border border-slate-100 rounded-2xl p-4 shadow-xs">
-                        <div className="flex items-center gap-3">
-                          <button
-                            onClick={() => navigateBack()}
-                            className="w-9 h-9 rounded-full bg-slate-50 border border-slate-100 flex items-center justify-center cursor-pointer hover:bg-slate-100 transition-all active:scale-95"
-                          >
-                            <ChevronLeft className="w-5 h-5 text-slate-600" />
-                          </button>
-                          <div>
-                            <span className="text-[10px] font-bold text-[#163E2B] uppercase tracking-wider block">Academic Roadmap</span>
-                            <h3 className="text-lg font-black text-slate-800 leading-tight">My Syllabus</h3>
-                          </div>
-                        </div>
-
-                        <div className="bg-emerald-50 border border-emerald-100 text-[#163E2B] px-3 py-1 rounded-full text-[10px] font-bold flex items-center gap-1.5">
-                          <span className="w-1.5 h-1.5 rounded-full bg-emerald-600 animate-pulse" />
-                          <span>{activeSyllabus.levelId || "Level 3"}</span>
-                        </div>
-                      </div>
-
-                      {/* Overall Progress Section Card */}
-                      <div className="bg-white border border-slate-100 rounded-2xl p-6 shadow-sm space-y-5">
-                        {completedTopics === totalTopics && totalTopics > 0 && (
-                          <div className="bg-emerald-50/60 border border-emerald-100 p-4 rounded-xl space-y-1">
-                            <h5 className="text-xs font-bold text-emerald-800 mb-1 flex items-center gap-1.5">
-                              🎉 Congratulations!
-                            </h5>
-                            <p className="text-[11px] text-emerald-700 leading-relaxed">
-                              You have completed the {activeSyllabus.levelName} syllabus. Please complete your revision with your Teacher before promotion.
-                            </p>
-                          </div>
-                        )}
-                        
-                        <div className="flex justify-between items-start">
-                          <div>
-                            <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">CURRENTLY ENROLLED</span>
-                            <h4 className="text-base font-bold text-slate-850 mt-1">{activeSyllabus.levelName}</h4>
-                          </div>
-                          <div className="text-right">
-                            <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block mb-1">Status</span>
-                            <span className={`px-2.5 py-1 rounded-full text-[9px] font-bold tracking-wider uppercase ${
-                              completedTopics === totalTopics 
-                                ? (student.promotionStatus === 'Awaiting Promotion' ? 'bg-amber-50 text-amber-800 border border-amber-100' : student.promotionStatus === 'Promoted' ? 'bg-emerald-50 text-emerald-800 border border-emerald-100' : 'bg-emerald-50 text-[#0F2D1F] border border-emerald-100') 
-                                : 'bg-slate-50 text-slate-600 border border-slate-100'
-                            }`}>
-                              {completedTopics === totalTopics ? (student.promotionStatus === 'Awaiting Promotion' || student.promotionStatus === 'Promoted' ? student.promotionStatus : 'Revision Pending') : 'Learning'}
-                            </span>
-                          </div>
-                        </div>
-                        
-                        {/* Completed Levels */}
-                        {student.completedLevels && student.completedLevels.length > 0 && (
-                          <div className="pt-3.5 border-t border-slate-100/60">
-                            <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block mb-2">COMPLETED LEVELS</span>
-                            <div className="flex flex-wrap gap-2">
-                              {student.completedLevels.map((lvl, idx) => (
-                                <span key={idx} className="bg-emerald-50/70 text-emerald-700 border border-emerald-100 px-2.5 py-1 rounded-lg text-[10px] font-semibold flex items-center gap-1">
-                                  <Check className="w-3 h-3 text-emerald-600" />
-                                  <span>{lvl}</span>
-                                </span>
-                              ))}
-                            </div>
-                          </div>
-                        )}
-                        
-                        {/* Progress Bar */}
-                        <div className="space-y-3 pt-3.5 border-t border-slate-100/60">
-                          <div className="flex justify-between items-center text-xs">
-                            <span className="font-semibold text-slate-500">Syllabus Progress</span>
-                            <span className="font-bold text-[#163E2B]">{completedTopics} of {totalTopics} Gathas Completed</span>
-                          </div>
-                          
-                          <div className="relative h-2 bg-slate-100 rounded-full overflow-hidden">
-                            <div
-                              className="absolute top-0 left-0 h-full bg-[#163E2B] rounded-full transition-all duration-500"
-                              style={{ width: `${progressPct}%` }}
-                            />
-                          </div>
-
-                          <div className="flex justify-between items-center text-[10px] text-slate-400">
-                            <span className="font-medium">Curriculum Completion</span>
-                            <span className="font-bold font-mono">{progressPct}% Complete</span>
-                          </div>
-                        </div>
-
-                        {/* Stats mini grid */}
-                        <div className="grid grid-cols-3 gap-3 pt-4 border-t border-slate-100/60">
-                          <div className="bg-slate-50/50 rounded-xl p-3 text-center border border-slate-100">
-                            <span className="text-lg font-black text-[#163E2B] block font-mono">
-                              {activeSyllabus.chapters.filter(ch => ch.topics.length > 0 && ch.topics.every(t => t.status === 'Approved')).length}
-                            </span>
-                            <span className="text-[9px] font-bold text-slate-400 uppercase tracking-wider block mt-0.5">Chapters Done</span>
-                          </div>
-                          <div className="bg-slate-50/50 rounded-xl p-3 text-center border border-slate-100">
-                            <span className="text-lg font-black text-[#163E2B] block font-mono">
-                              {completedTopics}
-                            </span>
-                            <span className="text-[9px] font-bold text-slate-400 uppercase tracking-wider block mt-0.5">Gathas Approved</span>
-                          </div>
-                          <div className="bg-slate-50/50 rounded-xl p-3 text-center border border-slate-100">
-                            <span className="text-lg font-black text-[#163E2B] block font-mono">
-                              {remainingTopics}
-                            </span>
-                            <span className="text-[9px] font-bold text-slate-400 uppercase tracking-wider block mt-0.5">Remaining</span>
-                          </div>
-                        </div>
-                      </div>
-
-                      {/* Chapters list section */}
-                      <div className="space-y-4">
-                        <div className="flex justify-between items-center px-1">
-                          <h4 className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">
-                            CURRICULUM CHAPTERS ({activeSyllabus.chapters.length})
-                          </h4>
-                          <span className="text-[10px] font-bold text-[#163E2B]">Tap to expand</span>
-                        </div>
-
-                        <div className="space-y-3.5">
-                          {activeSyllabus.chapters.map((chapter) => {
-                            const isExpanded = !!expandedChapters[chapter.id];
-                            const chapterTotal = chapter.topics.length;
-                            const chapterCompleted = chapter.topics.filter(t => t.status === 'Approved').length;
-
-                            return (
-                              <div key={chapter.id} className="bg-white border border-slate-100 rounded-2xl shadow-sm overflow-hidden transition-all duration-300">
-                                {/* Chapter Header Tab */}
-                                <button
-                                  onClick={() => {
-                                    setExpandedChapters(prev => ({
-                                      ...prev,
-                                      [chapter.id]: !prev[chapter.id]
-                                    }));
-                                  }}
-                                  className="w-full px-5 py-4 flex items-center justify-between text-left hover:bg-slate-50/30 transition-colors cursor-pointer"
-                                >
-                                  <div className="space-y-1">
-                                    <h4 className="text-sm font-bold text-slate-800 leading-tight">
-                                      {chapter.name}
-                                    </h4>
-                                    <div className="flex items-center gap-2">
-                                      <span className="text-[10px] font-medium text-slate-400 block uppercase tracking-wider">
-                                        {chapterTotal} {chapterTotal === 1 ? 'Topic' : 'Topics'}
-                                      </span>
-                                      <span className="w-1 h-1 rounded-full bg-slate-300" />
-                                      <span className="px-2 py-0.5 bg-slate-50 rounded-md text-slate-500 text-[10px] font-medium border border-slate-100">
-                                        {chapterCompleted} / {chapterTotal} Approved
-                                      </span>
-                                    </div>
-                                  </div>
-
-                                  <div className="flex items-center gap-3">
-                                    {/* Progress badge circle indicator */}
-                                    <div className="w-8 h-8 rounded-full border border-emerald-100 bg-emerald-50/20 flex items-center justify-center text-[10px] font-bold text-[#163E2B]">
-                                      {chapterTotal > 0 ? Math.round((chapterCompleted / chapterTotal) * 100) : 0}%
-                                    </div>
-                                    <ChevronLeft className={`w-4 h-4 text-slate-400 transition-transform duration-200 ${isExpanded ? '-rotate-90' : 'rotate-0'}`} />
-                                  </div>
-                                </button>
-
-                                {/* Chapter Topics List */}
-                                {isExpanded && (
-                                  <div className="border-t border-slate-100 bg-[#FDFBF7]/30 p-5 space-y-4">
-                                    {chapter.topics.map((topic) => {
-                                      // Determine badge styling based on status
-                                      let statusBg = "";
-                                      let statusText = "";
-                                      let statusDot = "";
-                                      const isApproved = topic.status === 'Approved';
-                                      const isPending = topic.status === 'Pending Teacher Review' || topic.status === 'Pending Review';
-                                      const isRework = topic.status === 'Rework Required';
-                                      const isRejected = topic.status === 'Rejected' || topic.status === 'Not Approved';
-                                      const canSubmit = !isApproved && !isPending;
-                                      
-                                      switch (topic.status) {
-                                        case 'Approved':
-                                          statusBg = "bg-emerald-50 text-emerald-700 border-emerald-100/80";
-                                          statusText = "Approved";
-                                          statusDot = "●";
-                                          break;
-                                        case 'Pending Teacher Review':
-                                        case 'Pending Review':
-                                          statusBg = "bg-amber-50 text-amber-700 border-amber-100/80";
-                                          statusText = "Pending Review";
-                                          statusDot = "●";
-                                          break;
-                                        case 'Rework Required':
-                                          statusBg = "bg-orange-50 text-orange-700 border-orange-100/80";
-                                          statusText = "Rework Required";
-                                          statusDot = "●";
-                                          break;
-                                        case 'Not Approved':
-                                        case 'Rejected':
-                                          statusBg = "bg-emerald-50 text-[#163E2B] border-emerald-100/80";
-                                          statusText = "Rejected";
-                                          statusDot = "●";
-                                          break;
-                                        default:
-                                          statusBg = "bg-slate-50 text-slate-500 border-slate-100";
-                                          statusText = "Not Started";
-                                          statusDot = "○";
-                                          break;
-                                      }
-
-                                      // Submit handler
-                                      const triggerSubmit = () => {
-                                        if (!canSubmit) return;
-                                        setSyllabusDataState(prev => {
-                                          const updated = { ...prev };
-                                          const activeKey = getSyllabusKey(student.level);
-                                          const syllabus = updated[activeKey];
-                                          if (syllabus) {
-                                            const ch = syllabus.chapters.find(c => c.id === chapter.id);
-                                            if (ch) {
-                                              const t = ch.topics.find(top => top.id === topic.id);
-                                              if (t) {
-                                                t.status = 'Pending Teacher Review';
-                                                t.dateAssigned = new Date().toISOString().split('T')[0];
-                                              }
-                                            }
-                                          }
-                                          return updated;
-                                        });
-                                        alert(`"${topic.name}" submitted to ${topic.assignedBy} for review!`);
-                                      };
-
-                                      return (
-                                        <div 
-                                          key={topic.id} 
-                                          className={`bg-white border border-slate-100 rounded-2xl p-5 shadow-xs hover:border-slate-200 transition-all space-y-4 ${
-                                            canSubmit ? 'hover:shadow-sm' : ''
-                                          }`}
-                                        >
-                                          <div className="flex justify-between items-start gap-4">
-                                            <div className="flex items-start gap-3.5">
-                                              {/* Checkbox Action */}
-                                              <button
-                                                onClick={triggerSubmit}
-                                                disabled={!canSubmit}
-                                                className={`w-6 h-6 rounded-full border flex items-center justify-center transition-all mt-0.5 shrink-0 ${
-                                                  isApproved 
-                                                    ? 'bg-emerald-600 border-emerald-600 text-white cursor-not-allowed shadow-xs'
-                                                    : isPending
-                                                    ? 'bg-amber-100 border-amber-400 text-amber-600 cursor-not-allowed shadow-xs'
-                                                    : 'border-slate-200 hover:border-[#163E2B] hover:bg-emerald-50/50 text-[#0F2D1F] cursor-pointer active:scale-95 shadow-xs'
-                                                }`}
-                                                title={
-                                                  isApproved
-                                                    ? 'Approved Gatha'
-                                                    : isPending
-                                                    ? 'Pending Review'
-                                                    : 'Tick to submit Gatha for Teacher Review'
-                                                }
-                                              >
-                                                {isApproved ? (
-                                                  <Check className="w-3.5 h-3.5 stroke-[3]" />
-                                                ) : isPending ? (
-                                                  <span className="w-1.5 h-1.5 rounded-full bg-amber-500 animate-ping" />
-                                                ) : (
-                                                  <span className="text-[10px] text-[#163E2B] font-bold opacity-0 hover:opacity-100">✓</span>
-                                                )}
-                                              </button>
-
-                                              <div className="space-y-1">
-                                                <span className="text-[9px] font-bold text-slate-400 uppercase tracking-wider block">GATHA TOPIC</span>
-                                                <h5 className="text-sm font-bold text-slate-850 leading-snug">
-                                                  {topic.name}
-                                                </h5>
-                                                {canSubmit && (
-                                                  <button 
-                                                    onClick={triggerSubmit}
-                                                    className="text-[10px] font-bold text-[#163E2B] bg-emerald-50 hover:bg-emerald-100/80 px-2.5 py-1 rounded-lg mt-1.5 block cursor-pointer transition-colors border border-emerald-100/50"
-                                                  >
-                                                    {isRework || isRejected ? '🔁 Tap to re-submit' : '✓ Tap to submit'}
-                                                  </button>
-                                                )}
-                                              </div>
-                                            </div>
-                                            
-                                            {/* Status Badge */}
-                                            <span className={`px-2.5 py-1 border rounded-full text-[9px] font-bold tracking-wider uppercase flex items-center gap-1 shrink-0 ${statusBg}`}>
-                                              <span className="text-[6px] leading-none">{statusDot}</span>
-                                              <span>{statusText}</span>
-                                            </span>
-                                          </div>
-
-                                          {/* Details Grid */}
-                                          <div className="grid grid-cols-2 gap-4 pt-3 border-t border-slate-100/60 text-xs">
-                                            <div>
-                                              <span className="text-slate-400 block text-[9px] uppercase font-bold tracking-wider">Assigned By</span>
-                                              <span className="font-semibold text-slate-700">{topic.assignedBy}</span>
-                                            </div>
-                                            <div>
-                                              <span className="text-slate-400 block text-[9px] uppercase font-bold tracking-wider">Date Assigned</span>
-                                              <span className="font-semibold text-slate-700">{topic.dateAssigned}</span>
-                                            </div>
-                                          </div>
-
-                                          {/* Teacher Remarks Block */}
-                                          {topic.teacherRemarks && (
-                                            <div className="bg-[#FAF5F6] border border-emerald-100/50 rounded-xl p-4 text-xs space-y-2 mt-2">
-                                              <div className="flex items-center gap-2 text-[9px] font-bold text-[#163E2B] uppercase tracking-wider">
-                                                <MessageSquare className="w-3.5 h-3.5 text-[#163E2B]" />
-                                                <span>Teacher Remarks & feedback</span>
-                                              </div>
-                                              <p className="text-slate-700 font-medium italic leading-relaxed">
-                                                "{topic.teacherRemarks}"
-                                              </p>
-                                              {topic.reviewDate && (
-                                                <div className="text-[9px] text-slate-400 font-medium pt-1">
-                                                  Reviewed on {topic.reviewDate}
-                                                </div>
-                                              )}
-                                            </div>
-                                          )}
-                                        </div>
-                                      );
-                                    })}
-                                  </div>
-                                )}
-                              </div>
-                            );
-                          })}
-                        </div>
-                      </div>
-
-                      {/* Locked Levels */}
-                      <div className="space-y-4 pt-2">
-                        {(() => {
-                          const lvl = student.level ? student.level.toLowerCase() : '';
-                          const showLevel2Lock = lvl.includes('level 1') || lvl.includes('bal shala');
-                          const showLevel3Lock = showLevel2Lock || lvl.includes('level 2') || lvl.includes('kumar shala');
-                          
-                          return (
-                            <>
-                              {showLevel2Lock && (
-                                <div className="bg-white border border-slate-100/80 rounded-2xl p-5 flex items-center justify-center text-center opacity-70 shadow-xs">
-                                  <div className="space-y-1">
-                                    <div className="flex items-center justify-center gap-1.5 text-slate-400 font-bold text-sm">
-                                      <Lock className="w-4 h-4 text-slate-400" />
-                                      <span>Level 2: Jain Geography & Symbols</span>
-                                    </div>
-                                    <p className="text-[10px] text-slate-400 font-medium">Available after curriculum promotion.</p>
-                                  </div>
-                                </div>
-                              )}
-                              {showLevel3Lock && (
-                                <div className="bg-white border border-slate-100/80 rounded-2xl p-5 flex items-center justify-center text-center opacity-70 shadow-xs">
-                                  <div className="space-y-1">
-                                    <div className="flex items-center justify-center gap-1.5 text-slate-400 font-bold text-sm">
-                                      <Lock className="w-4 h-4 text-slate-400" />
-                                      <span>Level 3: Pratikraman & Advanced Vows</span>
-                                    </div>
-                                    <p className="text-[10px] text-slate-400 font-medium">Available after curriculum promotion.</p>
-                                  </div>
-                                </div>
-                              )}
-                            </>
-                          );
-                        })()}
-                      </div>
-
-                      {/* Promotion Info Message */}
-                      <div className="bg-emerald-50/40 border border-emerald-100/50 rounded-2xl p-4 text-center mt-4">
-                        <p className="text-xs text-[#163E2B] font-semibold leading-relaxed">
-                          Promotion is granted after successful syllabus completion, revision, and teacher approval.
-                        </p>
-                      </div>
-
-                    </motion.div>
-                  );
-                })()}
-                
-                {/* 24 & 25. TEACHER LIVE CLASSES & DETAILS */}
-                {['TeacherStudents', 'TeacherStudentProfile'].includes(activeScreen) && (
-                  <TeacherStudentsFlow 
-                    activeScreen={activeScreen}
-                    setActiveScreen={setActiveScreen}
-                    currentLoggedInTeacher={currentLoggedInTeacher}
-                  />
-                )}
-                {['TeacherGathaApprovals', 'TeacherGathaSubmissionDetails'].includes(activeScreen) && (
-                  <TeacherGathaApprovalFlow 
-                    activeScreen={activeScreen}
-                    setActiveScreen={setActiveScreen}
-                    currentLoggedInTeacher={currentLoggedInTeacher}
-                  />
-                )}
-                {['TeacherAttendance', 'TeacherAttendanceDetails'].includes(activeScreen) && (
-                  <TeacherAttendanceFlow 
-                    activeScreen={activeScreen}
-                    setActiveScreen={setActiveScreen}
-                    currentLoggedInTeacher={currentLoggedInTeacher}
-                  />
-                )}
-                {['TeacherReports', 'TeacherReportsDetails'].includes(activeScreen) && (
-                  <TeacherReportsFlow 
-                    activeScreen={activeScreen}
-                    setActiveScreen={setActiveScreen}
-                    currentLoggedInTeacher={currentLoggedInTeacher}
-                  />
-                )}
-                {['TeacherLiveClasses', 'TeacherLiveClassDetails'].includes(activeScreen) && (
-                  <TeacherLiveClassesFlow 
-                    activeScreen={activeScreen}
-                    setActiveScreen={setActiveScreen}
-                    teacherSelectedLiveClass={teacherSelectedLiveClass}
-                    setTeacherSelectedLiveClass={setTeacherSelectedLiveClass}
-                    currentLoggedInTeacher={currentLoggedInTeacher}
+                {/* 5b. SYLLABUS LIST & DETAILS FLOW */}
+                {['Syllabus', 'MyCourses', 'Courses', 'SyllabusDetails'].includes(activeScreen) && (
+                  <SyllabusModule
+                    syllabusData={syllabusDataState}
+                    onUpdateSyllabusData={setSyllabusDataState}
+                    currentStudentLevel={student.level}
+                    studentName={student.name}
+                    mode={activeScreen === 'Courses' ? 'courses' : 'my_courses'}
+                    onBackToHome={() => setActiveScreen('Home')}
+                    onOpenAudioPlayer={(track) => {
+                      if (track?.id) {
+                        const matchedSutra = sutrasList.find(s => s.id === track.id || (track.title && s.name?.toLowerCase().includes(track.title.toLowerCase())));
+                        if (matchedSutra) {
+                          setSelectedSutra(matchedSutra);
+                          setActiveScreen('SutraDetails');
+                          return;
+                        }
+                      }
+                      setActiveScreen('SutraList');
+                    }}
                   />
                 )}
                 
-                
-                {/* TEACHER PROFILE FLOW */}
-                {activeScreen === 'TeacherProfile' && (
-                  <TeacherProfileFlow 
-                    activeScreen={activeScreen}
-                    setActiveScreen={setActiveScreen}
-                    currentLoggedInTeacher={currentLoggedInTeacher}
-                    setCurrentLoggedInTeacher={setCurrentLoggedInTeacher}
-                  />
-                )}
 
-                {/* 4. HOME DASHBOARD (Integrated tab 1) */}
+                {/* 4. HOME DASHBOARD (Khartargach E-Pathshala UI) */}
                 {activeScreen === 'Home' && (
-                  <motion.div
-                    initial={{ opacity: 0 }}
-                    animate={{ opacity: 1 }}
-                    className="p-5 space-y-5"
-                  >
-                    {activeBonusEvent && (
-                      <div 
-                        onClick={() => setActiveScreen('BonusEvent')}
-                        className="bg-indigo-50 border-2 border-indigo-200 hover:border-indigo-300 rounded-[24px] p-4 flex items-center justify-between shadow-sm cursor-pointer active:scale-97 transition-all group"
-                      >
-                        <div className="flex items-center gap-3">
-                          <div className="w-10 h-10 bg-indigo-100 rounded-2xl flex items-center justify-center text-indigo-700">
-                            <Star className="w-5 h-5 fill-indigo-500" />
-                          </div>
-                          <div>
-                            <h4 className="text-sm font-bold text-indigo-900 group-hover:text-indigo-700 transition-colors">{activeBonusEvent.title}</h4>
-                            <p className="text-[10px] font-semibold text-indigo-500">Tap to view & submit bonus activities</p>
-                          </div>
-                        </div>
-                        <ChevronRight className="w-5 h-5 text-indigo-400 group-hover:text-indigo-600 transition-colors" />
-                      </div>
-                    )}
-
-                    {/* Greeting & Quick Stats */}
-                    <div className="flex items-center justify-between">
-                      <div>
-                        <span className="text-[10px] font-bold text-slate-400 tracking-widest uppercase block">WELCOME,</span>
-                        <h2 className="text-xl font-black text-slate-800 tracking-tight">{student.name}</h2>
-                      </div>
-
-                      <div className="flex items-center gap-2.5">
-                        <button 
-                          onClick={() => setActiveScreen('Search')}
-                          className="w-10 h-10 bg-white border border-slate-100/50 hover:bg-slate-50 rounded-full flex items-center justify-center shadow-xs active:scale-95 transition-all cursor-pointer"
-                        >
-                          <Search className="w-4.5 h-4.5 text-slate-600" />
-                        </button>
-                        <button 
-                          onClick={() => setActiveScreen('Notifications')}
-                          className="w-10 h-10 bg-white border border-slate-100/50 hover:bg-slate-50 rounded-full flex items-center justify-center relative shadow-xs active:scale-95 transition-all cursor-pointer"
-                        >
-                          <Bell className="w-4.5 h-4.5 text-slate-600" />
-                          <span className="absolute top-2.5 right-2.5 w-2 h-2 bg-emerald-600 rounded-full border border-white animate-pulse" />
-                        </button>
-                        <button 
-                          onClick={() => setActiveScreen('Profile')}
-                          className="w-10 h-10 rounded-full border border-slate-100/50 shadow-xs overflow-hidden active:scale-95 transition-all cursor-pointer"
-                        >
-                          <InitialBadge name={student.name} className="w-10 h-10 text-xs" />
-                        </button>
-                      </div>
-                    </div>
-
-                    {/* Progress Card */}
-                    <div className="bg-white border border-slate-100 rounded-2xl p-5 text-slate-800 shadow-sm relative overflow-hidden">
-                      <div className="flex justify-between items-start mb-4">
-                        <div>
-                          <span className="text-[10px] font-semibold text-slate-400 uppercase tracking-wider block">Academic Profile</span>
-                          <h3 className="text-base font-bold text-slate-900 mt-1">{student.level}</h3>
-                        </div>
-                        <div className="bg-slate-50 border border-slate-200 px-3 py-1 rounded-full flex items-center gap-1.5">
-                          <div className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
-                          <span className="text-[11px] font-medium text-slate-600">{student.points} Points</span>
-                        </div>
-                      </div>
-
-                      <div className="grid grid-cols-2 gap-4 border-t border-slate-100 pt-4 mb-4">
-                        <div>
-                          <span className="text-[10px] text-slate-500 block font-medium uppercase tracking-wider mb-0.5">Pathshala Attendance</span>
-                          <span className="text-lg font-semibold text-slate-900">{student.attendance}%</span>
-                        </div>
-                        <div>
-                          <span className="text-[10px] text-slate-500 block font-medium uppercase tracking-wider mb-0.5">Sutra Recital Standing</span>
-                          <span className="text-lg font-semibold text-slate-900">{student.gathasCount} / {student.totalGathas} Gathas</span>
-                        </div>
-                      </div>
-
-                      <div className="space-y-2 mt-4 pt-4 border-t border-slate-100">
-                        <div className="flex justify-between text-[10px] font-medium uppercase tracking-wider">
-                          <span className="text-slate-500">Academic Standing</span>
-                          <span className="text-[#163E2B] font-bold tracking-normal normal-case">{student.progressStatus}</span>
-                        </div>
-                        <div className="relative h-1.5 bg-slate-100 rounded-full overflow-hidden">
-                          <div 
-                            className="absolute top-0 left-0 h-full bg-[#163E2B] rounded-full transition-all duration-300" 
-                            style={{ width: `${(student.gathasCount / student.totalGathas) * 100}%` }}
-                          />
-                        </div>
-                      </div>
-                    </div>
-
-                    {/* Highly Professional Syllabus Roadmap Banner */}
-                    <div 
-                      onClick={() => setActiveScreen('Syllabus')}
-                      className="bg-white border border-slate-200/80 hover:border-emerald-500/30 rounded-2xl p-4 flex items-center justify-between gap-3 shadow-2xs hover:shadow-xs transition-all cursor-pointer group"
-                    >
-                      <div className="flex items-center gap-3">
-                        <div className="w-9 h-9 rounded-xl bg-emerald-50 text-[#163E2B] flex items-center justify-center shrink-0">
-                          <BookMarked className="w-5 h-5" />
-                        </div>
-                        <div>
-                          <span className="text-[8.5px] font-bold text-[#163E2B] uppercase tracking-widest font-mono block">Learning roadmap</span>
-                          <h4 className="text-xs font-black text-[#0f172a] group-hover:text-[#163E2B] transition-colors">My Syllabus Roadmap</h4>
-                          <p className="text-[10px] text-slate-400 mt-0.5">Chapters, Gathas, & Teacher review status</p>
-                        </div>
-                      </div>
-                      <button className="w-7 h-7 rounded-full bg-slate-50 flex items-center justify-center border border-slate-100 group-hover:bg-emerald-50 group-hover:border-emerald-100 transition-all shrink-0">
-                        <ChevronRight className="w-4 h-4 text-slate-400 group-hover:text-[#163E2B]" />
-                      </button>
-                    </div>
-
-                    {/* Quick Access Grid */}
-                    <div className="space-y-2.5">
-                      <div className="flex justify-between items-center">
-                        <h4 className="text-xs font-semibold uppercase tracking-wider text-slate-600">Quick Access</h4>
-                        <span className="text-[11px] text-[#163E2B] font-medium">5 Quick Tools</span>
-                      </div>
-                      <div className="grid grid-cols-2 gap-3">
-                        {/* Live Class */}
-                        <div 
-                          onClick={() => setActiveScreen('LiveClassList')}
-                          className="bg-white border border-[#E5E0D8]/80 hover:border-[#D1C9BC] rounded-[20px] p-4 flex flex-col items-start text-left h-[145px] shadow-sm hover:shadow-md transition-all duration-200 cursor-pointer active:scale-97 group w-full"
-                        >
-                          <div className="w-9 h-9 rounded-xl bg-emerald-50 text-[#163E2B] flex items-center justify-center mb-3.5 shrink-0">
-                            <Video className="w-[18px] h-[18px]" />
-                          </div>
-                          <h5 className="font-bold text-xs text-slate-800 group-hover:text-[#163E2B] transition-colors leading-tight whitespace-normal break-words w-full">
-                            Live Class
-                          </h5>
-                          <p className="text-[10px] text-slate-400 mt-1.5 line-clamp-2 leading-relaxed w-full">
-                            Interact with Pujya Samanji
-                          </p>
-                        </div>
-
-                        {/* Sutra Path */}
-                        <div 
-                          onClick={() => setActiveScreen('SutraList')}
-                          className="bg-white border border-[#E5E0D8]/80 hover:border-[#D1C9BC] rounded-[20px] p-4 flex flex-col items-start text-left h-[145px] shadow-sm hover:shadow-md transition-all duration-200 cursor-pointer active:scale-97 group w-full"
-                        >
-                          <div className="w-9 h-9 rounded-xl bg-emerald-50 text-[#163E2B] flex items-center justify-center mb-3.5 shrink-0">
-                            <BookOpenCheck className="w-[18px] h-[18px]" />
-                          </div>
-                          <h5 className="font-bold text-xs text-slate-800 group-hover:text-[#163E2B] transition-colors leading-tight whitespace-normal break-words w-full">
-                            Sutra
-                          </h5>
-                          <p className="text-[10px] text-slate-400 mt-1.5 line-clamp-2 leading-relaxed w-full">
-                            Pronunciation training
-                          </p>
-                        </div>
-
-                        {/* Devotional Prayers */}
-                        <div 
-                          onClick={() => setActiveScreen('StavanList')}
-                          className="bg-white border border-[#E5E0D8]/80 hover:border-[#D1C9BC] rounded-[20px] p-4 flex flex-col items-start text-left h-[145px] shadow-sm hover:shadow-md transition-all duration-200 cursor-pointer active:scale-97 group w-full"
-                        >
-                          <div className="w-9 h-9 rounded-xl bg-emerald-50 text-[#163E2B] flex items-center justify-center mb-3.5 shrink-0">
-                            <Volume2 className="w-[18px] h-[18px]" />
-                          </div>
-                          <h5 className="font-bold text-xs text-slate-800 group-hover:text-[#163E2B] transition-colors leading-tight whitespace-normal break-words w-full">
-                            Stavan & Stuti
-                          </h5>
-                          <p className="text-[10px] text-slate-400 mt-1.5 line-clamp-2 leading-relaxed w-full">
-                            Sanskrit stotras audio
-                          </p>
-                        </div>
-
-                        {/* Trivia & Games */}
-                        <div 
-                          onClick={() => setActiveScreen('GamesHome')}
-                          className="bg-white border border-[#E5E0D8]/80 hover:border-[#D1C9BC] rounded-[20px] p-4 flex flex-col items-start text-left h-[145px] shadow-sm hover:shadow-md transition-all duration-200 cursor-pointer active:scale-97 group w-full"
-                        >
-                          <div className="w-9 h-9 rounded-xl bg-emerald-50 text-[#163E2B] flex items-center justify-center mb-3.5 shrink-0">
-                            <Gamepad2 className="w-[18px] h-[18px]" />
-                          </div>
-                          <h5 className="font-bold text-xs text-slate-800 group-hover:text-[#163E2B] transition-colors leading-tight whitespace-normal break-words w-full">
-                            Games
-                          </h5>
-                          <p className="text-[10px] text-slate-400 mt-1.5 line-clamp-2 leading-relaxed w-full">
-                            Cosmos puzzle & quiz
-                          </p>
-                        </div>
-
-                        {/* Academic Progress */}
-                        <div 
-                          onClick={() => setActiveScreen('Profile')}
-                          className="bg-white border border-[#E5E0D8]/80 hover:border-[#D1C9BC] rounded-[20px] p-4 flex flex-col items-start text-left h-[145px] shadow-sm hover:shadow-md transition-all duration-200 cursor-pointer active:scale-97 group w-full"
-                        >
-                          <div className="w-9 h-9 rounded-xl bg-emerald-50 text-[#163E2B] flex items-center justify-center mb-3.5 shrink-0">
-                            <User className="w-[18px] h-[18px]" />
-                          </div>
-                          <h5 className="font-bold text-xs text-slate-800 group-hover:text-[#163E2B] transition-colors leading-tight whitespace-normal break-words w-full">
-                            Academic Progress
-                          </h5>
-                          <p className="text-[10px] text-slate-400 mt-1.5 line-clamp-2 leading-relaxed w-full">
-                            View your Profile
-                          </p>
-                        </div>
-                      </div>
-                    </div>
-
-                    {/* Today's Motivation - Elegant Quote Block */}
- 
-                    <div className="bg-cream-200/40 border border-cream-300 rounded-[22px] p-4 text-center relative">
-                      <p className="font-serif italic text-xs text-[#0f172a] leading-relaxed">
-                        "{jainQuotes[currentQuoteIndex].text}"
-                      </p>
-                      <span className="text-[9px] font-black text-[#163E2B] font-mono block mt-1.5 uppercase">
-                        — {jainQuotes[currentQuoteIndex].author}
-                      </span>
-                    </div>
-                  </motion.div>
+                  <KhartargachHomeScreen 
+                    student={student}
+                    setActiveScreen={setActiveScreen}
+                    activeBonusEvent={activeBonusEvent}
+                    currentQuote={jainQuotes[currentQuoteIndex]}
+                    unreadNotificationsCount={5}
+                    niyamDays={niyamDays}
+                  />
                 )}
 
                 {/* 5. LIVE CLASS LIST */}
@@ -3499,40 +3482,26 @@ export default function App() {
                   <motion.div 
                     initial={{ opacity: 0 }} 
                     animate={{ opacity: 1 }} 
-                    className="p-6 space-y-6 max-w-2xl mx-auto bg-slate-50 min-h-screen"
+                    className="p-4 sm:p-5 space-y-4 max-w-xl mx-auto bg-[#FAF8F5] min-h-screen pb-32"
                   >
-                    <div className="flex items-center gap-3">
+                    {/* Top Navigation Header */}
+                    <div className="flex items-center gap-3.5 pt-1">
                       <button 
                         onClick={() => navigateBack()} 
-                        className="w-9 h-9 rounded-full bg-white hover:bg-slate-100 flex items-center justify-center border border-slate-200 transition-colors shadow-sm cursor-pointer"
+                        className="w-10 h-10 rounded-full bg-white hover:bg-stone-50 flex items-center justify-center border border-stone-200/80 transition-colors shadow-xs cursor-pointer shrink-0"
                       >
-                        <ChevronLeft className="w-5 h-5 text-slate-700" />
+                        <ChevronLeft className="w-5 h-5 text-stone-700" />
                       </button>
                       <div className="text-left">
-                        <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest block">ONLINE PATHSHALA</span>
-                        <h3 className="text-lg font-bold text-slate-900 leading-tight">Live Classes</h3>
+                        <span className="text-[10px] font-extrabold text-[#9C8E7D] uppercase tracking-widest block font-mono">ONLINE PATHSHALA</span>
+                        <h3 className="text-2xl font-black text-slate-900 leading-tight">Live Classes</h3>
                       </div>
                     </div>
 
-                    {/* Student Info Card */}
-                    <div className="bg-white border border-slate-200 rounded-xl p-4 flex justify-between items-center shadow-sm">
-                      <div className="flex items-center gap-3">
-                        <InitialBadge name={student.name} className="w-8 h-8 text-xs bg-slate-100 text-slate-700 font-semibold" />
-                        <div className="text-left">
-                          <span className="font-semibold text-slate-900 block leading-tight">{student.name}</span>
-                          <span className="text-[11px] text-slate-500 block">{student.level}</span>
-                        </div>
-                      </div>
-                      <div className="text-right">
-                        <span className="text-[10px] text-slate-400 block uppercase font-medium">My Batch</span>
-                        <span className="font-semibold text-slate-700 text-xs">{student.batch || "Saturdays, 05:30 PM"}</span>
-                      </div>
-                    </div>
-
-                    {/* Tabs */}
-                    <div className="flex border-b border-slate-200">
+                    {/* Segmented Filter Tabs */}
+                    <div className="flex items-center justify-around bg-transparent pt-1 pb-1">
                       {[
-                        { id: 'Live', label: 'Live Now' },
+                        { id: 'Live', label: 'Live' },
                         { id: 'Upcoming', label: 'Upcoming' },
                         { id: 'Completed', label: 'Completed' }
                       ].map((tab) => {
@@ -3541,10 +3510,10 @@ export default function App() {
                           <button
                             key={tab.id}
                             onClick={() => setLiveClassListTab(tab.id as any)}
-                            className={`flex-1 pb-3 text-sm font-semibold transition-all border-b-2 -mb-[2px] cursor-pointer ${
+                            className={`px-6 py-2 rounded-full text-xs font-black transition-all cursor-pointer ${
                               isCurrent 
-                                ? 'border-[#163E2B] text-[#163E2B]' 
-                                : 'border-transparent text-slate-500 hover:text-slate-700'
+                                ? 'bg-[#E5EFE7] text-[#163E2B] border border-[#D0E4D4] shadow-2xs' 
+                                : 'text-stone-500 hover:text-stone-800'
                             }`}
                           >
                             {tab.label}
@@ -3565,11 +3534,11 @@ export default function App() {
 
                         if (filtered.length === 0) {
                           return (
-                            <div className="bg-white border border-slate-200 rounded-xl p-8 text-center space-y-3 shadow-sm">
-                              <Tv className="w-10 h-10 text-slate-300 mx-auto" />
+                            <div className="bg-white rounded-[24px] border border-stone-200/80 p-8 text-center space-y-3 shadow-sm">
+                              <Tv className="w-10 h-10 text-stone-300 mx-auto" />
                               <div className="space-y-1">
                                 <h5 className="font-bold text-sm text-slate-900">No Classes Scheduled</h5>
-                                <p className="text-xs text-slate-500 leading-relaxed max-w-[280px] mx-auto">
+                                <p className="text-xs text-stone-500 leading-relaxed max-w-[280px] mx-auto">
                                   There are no {liveClassListTab.toLowerCase()} classes available for your level and batch at this time.
                                 </p>
                               </div>
@@ -3584,56 +3553,91 @@ export default function App() {
                               setSelectedLiveClass(item);
                               setActiveScreen('LiveClassDetails');
                             }}
-                            className="bg-white border border-slate-200 hover:border-slate-300 rounded-xl p-5 shadow-sm space-y-4 cursor-pointer transition-all hover:shadow-md"
+                            className="bg-white rounded-[24px] p-5 border border-stone-200/80 shadow-[0_4px_16px_rgba(0,0,0,0.03)] space-y-3.5 text-left cursor-pointer transition-all hover:shadow-md"
                           >
-                            <div className="flex justify-between items-start gap-4">
-                              <div className="space-y-1.5 text-left">
-                                <div className="flex flex-wrap gap-2 items-center">
-                                  <span className={`px-2.5 py-0.5 rounded text-[10px] font-semibold uppercase ${
-                                    item.status === 'LIVE NOW' 
-                                      ? 'bg-emerald-100 text-[#163E2B]' 
-                                      : item.status === 'Upcoming'
-                                      ? 'bg-amber-100 text-amber-800'
-                                      : 'bg-slate-100 text-slate-600'
-                                  }`}>
-                                    {item.status === 'LIVE NOW' ? 'Live Now' : item.status}
-                                  </span>
-                                  {item.isGeneral && (
-                                    <span className="px-2 py-0.5 bg-indigo-50 text-indigo-700 border border-indigo-100 rounded text-[10px] font-medium">General Session</span>
-                                  )}
-                                </div>
-                                <h4 className="font-bold text-base text-slate-900 leading-snug">{item.title}</h4>
-                                <p className="text-sm text-slate-600 font-medium">Guruji: {item.teacher}</p>
-                              </div>
-                            </div>
-
-                            <div className="grid grid-cols-2 gap-y-2 gap-x-4 pt-2 border-t border-slate-100 text-xs text-slate-600 text-left">
-                              <div>
-                                <span className="text-slate-400 block text-[10px] uppercase font-medium">Pathshala Level</span>
-                                <span className="font-medium text-slate-800">{item.level.split(':')[0]}</span>
-                              </div>
-                              <div>
-                                <span className="text-slate-400 block text-[10px] uppercase font-medium">Assigned Batch</span>
-                                <span className="font-medium text-slate-800">{item.batch}</span>
-                              </div>
-                              <div className="col-span-2 flex flex-col sm:flex-row sm:justify-between gap-1.5 pt-1 text-slate-500">
-                                <span className="flex items-center gap-1.5">
-                                  <Calendar className="w-4 h-4 text-slate-400" />
-                                  {item.date} • {item.time}
-                                </span>
-                                <span className="flex items-center gap-1.5">
-                                  <Clock className="w-4 h-4 text-slate-400" />
-                                  Duration: {item.duration}
-                                </span>
-                              </div>
-                            </div>
-
-                            <div className="flex justify-end pt-2 border-t border-slate-100/60">
-                              <span className="text-xs font-semibold text-[#163E2B] flex items-center gap-1">
-                                View Class Details
-                                <ChevronRight className="w-4 h-4" />
+                            {/* Card Header Row */}
+                            <div className="flex items-center justify-between">
+                              <span className={`px-3 py-1 rounded-full text-[11px] font-black uppercase tracking-wider ${
+                                item.status === 'LIVE NOW' 
+                                  ? 'bg-[#E5EFE7] text-[#163E2B]' 
+                                  : item.status === 'Upcoming'
+                                  ? 'bg-amber-100 text-amber-900'
+                                  : 'bg-stone-100 text-stone-600'
+                              }`}>
+                                • {item.status === 'LIVE NOW' ? 'LIVE NOW' : item.status}
                               </span>
+                              <div className="text-[#2D5A3C]">
+                                <Radio className="w-5 h-5 animate-pulse" />
+                              </div>
                             </div>
+
+                            {/* Title & Instructor */}
+                            <div className="space-y-1">
+                              <h4 className="font-black text-xl text-slate-900 leading-snug">{item.title}</h4>
+                              <div className="flex items-center gap-1.5 text-xs text-stone-500 font-medium">
+                                <User className="w-3.5 h-3.5 text-stone-400 shrink-0" />
+                                <span>Guruji: {item.teacher}</span>
+                              </div>
+                            </div>
+
+                            {/* 2x2 Meta Grid (Centered Icon with text below) */}
+                            <div className="grid grid-cols-2 gap-2.5 pt-1">
+                              {/* Box 1: Pathshala Level */}
+                              <div className="bg-[#FAF8F5] border border-stone-100/90 rounded-2xl p-3 flex flex-col items-center justify-center text-center gap-1.5 min-w-0">
+                                <div className="w-10 h-10 rounded-2xl bg-[#E5EFE7] text-[#2D5A3C] flex items-center justify-center shrink-0">
+                                  <GraduationCap className="w-5 h-5" />
+                                </div>
+                                <div className="text-center w-full min-w-0">
+                                  <span className="text-[10px] font-medium text-stone-400 block leading-tight">Pathshala Level</span>
+                                  <span className="text-xs font-bold text-slate-900 block leading-tight mt-0.5">{item.level.split(':')[0]}</span>
+                                </div>
+                              </div>
+
+                              {/* Box 2: Assigned Batch */}
+                              <div className="bg-[#FAF8F5] border border-stone-100/90 rounded-2xl p-3 flex flex-col items-center justify-center text-center gap-1.5 min-w-0">
+                                <div className="w-10 h-10 rounded-2xl bg-[#E5EFE7] text-[#2D5A3C] flex items-center justify-center shrink-0">
+                                  <Calendar className="w-5 h-5" />
+                                </div>
+                                <div className="text-center w-full min-w-0">
+                                  <span className="text-[10px] font-medium text-stone-400 block leading-tight">Assigned Batch</span>
+                                  <span className="text-xs font-bold text-slate-900 block leading-tight mt-0.5">{item.batch}</span>
+                                </div>
+                              </div>
+
+                              {/* Box 3: Date & Time */}
+                              <div className="bg-[#FAF8F5] border border-stone-100/90 rounded-2xl p-3 flex flex-col items-center justify-center text-center gap-1.5 min-w-0">
+                                <div className="w-10 h-10 rounded-2xl bg-[#E5EFE7] text-[#2D5A3C] flex items-center justify-center shrink-0">
+                                  <Clock className="w-5 h-5" />
+                                </div>
+                                <div className="text-center w-full min-w-0">
+                                  <span className="text-[10px] font-medium text-stone-400 block leading-tight">Date & Time</span>
+                                  <span className="text-xs font-bold text-slate-900 block leading-tight mt-0.5">{item.date} • {item.time.replace(/.*,\s*/, '')}</span>
+                                </div>
+                              </div>
+
+                              {/* Box 4: Duration */}
+                              <div className="bg-[#FAF8F5] border border-stone-100/90 rounded-2xl p-3 flex flex-col items-center justify-center text-center gap-1.5 min-w-0">
+                                <div className="w-10 h-10 rounded-2xl bg-[#E5EFE7] text-[#2D5A3C] flex items-center justify-center shrink-0">
+                                  <Timer className="w-5 h-5" />
+                                </div>
+                                <div className="text-center w-full min-w-0">
+                                  <span className="text-[10px] font-medium text-stone-400 block leading-tight">Duration</span>
+                                  <span className="text-xs font-bold text-slate-900 block leading-tight mt-0.5">{item.duration}</span>
+                                </div>
+                              </div>
+                            </div>
+
+                            {/* Action Button */}
+                            <button
+                              onClick={() => {
+                                setSelectedLiveClass(item);
+                                setActiveScreen('LiveClassDetails');
+                              }}
+                              className="w-full py-3.5 bg-[#2D5A3C] hover:bg-[#1E3F2A] active:scale-[0.99] text-white font-extrabold text-xs sm:text-sm rounded-xl shadow-xs flex items-center justify-center gap-2 cursor-pointer transition-all mt-1"
+                            >
+                              <span>View Class Details</span>
+                              <ChevronRight className="w-4 h-4" />
+                            </button>
                           </div>
                         ));
                       })()}
@@ -3646,97 +3650,120 @@ export default function App() {
                   <motion.div 
                     initial={{ opacity: 0 }} 
                     animate={{ opacity: 1 }} 
-                    className="p-6 space-y-6 max-w-2xl mx-auto bg-slate-50 min-h-screen text-left"
+                    className="p-4 sm:p-5 space-y-4 max-w-xl mx-auto bg-[#FAF8F5] min-h-screen text-left pb-32"
                   >
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-3">
+                    {/* Top Navigation Header */}
+                    <div className="flex items-center justify-between pt-1">
+                      <div className="flex items-center gap-3.5">
                         <button 
                           onClick={() => navigateBack()} 
-                          className="w-9 h-9 rounded-full bg-white hover:bg-slate-100 flex items-center justify-center border border-slate-200 transition-colors shadow-sm cursor-pointer"
+                          className="w-10 h-10 rounded-full bg-white hover:bg-stone-50 flex items-center justify-center border border-stone-200/80 transition-colors shadow-xs cursor-pointer"
                         >
-                          <ChevronLeft className="w-5 h-5 text-slate-700" />
+                          <ChevronLeft className="w-5 h-5 text-stone-700" />
                         </button>
-                        <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest block">CLASS OVERVIEW</span>
+                        <span className="text-[10px] font-extrabold text-[#9C8E7D] uppercase tracking-widest block font-mono">CLASS OVERVIEW</span>
                       </div>
                       {selectedLiveClass?.status === 'LIVE NOW' && (
-                        <span className="px-2.5 py-1 bg-emerald-100 text-[#163E2B] font-semibold text-xs rounded-full">
-                          ● LIVE NOW
+                        <span className="px-3.5 py-1 bg-[#E5EFE7] text-[#163E2B] font-black text-[11px] rounded-full uppercase tracking-wider">
+                          • LIVE NOW
                         </span>
                       )}
                     </div>
 
                     {selectedLiveClass ? (
-                      <div className="space-y-6">
-                        {/* Class Main Information Card */}
-                        <div className="bg-white border border-slate-200 rounded-xl p-6 shadow-sm space-y-6">
-                          <div className="space-y-2">
-                            <span className="text-[10px] font-bold text-[#163E2B] uppercase tracking-wider block">Class Topic</span>
-                            <h2 className="text-xl font-bold text-slate-900 leading-snug">{selectedLiveClass.title}</h2>
-                            <p className="text-sm text-slate-500">Presented by <strong className="text-slate-800 font-semibold">{selectedLiveClass.teacher}</strong></p>
-                          </div>
-
-                          <hr className="border-slate-100" />
-
-                          {/* Attributes Grid */}
-                          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                            <div className="border border-slate-100 rounded-lg p-3.5 space-y-1">
-                              <span className="text-[10px] font-bold text-slate-400 uppercase block">Pathshala Level</span>
-                              <span className="font-semibold text-slate-800 text-sm">{selectedLiveClass.level}</span>
-                            </div>
-                            <div className="border border-slate-100 rounded-lg p-3.5 space-y-1">
-                              <span className="text-[10px] font-bold text-slate-400 uppercase block">Assigned Batch</span>
-                              <span className="font-semibold text-slate-800 text-sm">{selectedLiveClass.batch}</span>
-                            </div>
-                            <div className="border border-slate-100 rounded-lg p-3.5 space-y-1">
-                              <span className="text-[10px] font-bold text-slate-400 uppercase block">Date & Time</span>
-                              <span className="font-semibold text-slate-800 text-sm">{selectedLiveClass.date} • {selectedLiveClass.time}</span>
-                            </div>
-                            <div className="border border-slate-100 rounded-lg p-3.5 space-y-1">
-                              <span className="text-[10px] font-bold text-slate-400 uppercase block">Class Duration</span>
-                              <span className="font-semibold text-slate-800 text-sm">{selectedLiveClass.duration}</span>
-                            </div>
-                          </div>
-
-                          <hr className="border-slate-100" />
-
-                          {/* Syllabus Overview */}
-                          <div className="space-y-2">
-                            <span className="text-[10px] font-bold text-[#163E2B] uppercase tracking-wider block">Short Syllabus & Agenda</span>
-                            <p className="text-sm text-slate-600 leading-relaxed">
-                              {selectedLiveClass.description}
-                            </p>
-                          </div>
-
-                          <hr className="border-slate-100" />
-
-                          {/* Sunday Optional Notice */}
-                          {isSundayClass && (
-                            <div className="bg-amber-50 border border-amber-200 rounded-xl p-4 flex gap-3">
-                              <Sparkles className="w-5 h-5 text-amber-600 shrink-0" />
-                              <div className="space-y-1">
-                                <span className="text-xs font-bold text-amber-900 block">Sunday Special Class (Optional)</span>
-                                <p className="text-[11px] text-amber-700 leading-relaxed">
-                                  Attendance will not be counted. Bonus Points will be awarded upon participation.
-                                </p>
+                      <div className="space-y-4">
+                        {/* Main Information Card */}
+                        <div className="bg-white rounded-[24px] p-5 border border-stone-200/80 shadow-[0_4px_16px_rgba(0,0,0,0.03)] space-y-4">
+                          <div className="flex items-center gap-3.5">
+                            <div className="relative shrink-0">
+                              <div className="w-13 h-13 rounded-full bg-[#E5EFE7] border border-[#D0E4D4] flex items-center justify-center text-[#2D5A3C] shrink-0">
+                                <BookOpen className="w-6 h-6" />
+                              </div>
+                              <div className="absolute -bottom-1 -right-1 w-5 h-5 bg-[#2D5A3C] rounded-full border-2 border-white flex items-center justify-center text-white text-[10px]">
+                                🌱
                               </div>
                             </div>
-                          )}
+                            <div className="min-w-0">
+                              <h2 className="text-xl font-black text-slate-900 leading-snug">{selectedLiveClass.title}</h2>
+                              <p className="text-xs text-stone-500 font-medium mt-0.5">
+                                Presented by <span className="text-slate-800 font-bold">{selectedLiveClass.teacher}</span>
+                              </p>
+                            </div>
+                          </div>
 
-                          {/* Important Instructions */}
-                          <div className="space-y-3">
-                            <span className="text-[10px] font-bold text-slate-500 uppercase tracking-wider block">Important Instructions</span>
-                            <ul className="space-y-2 text-xs text-slate-600 list-disc list-inside">
-                              <li>Please join 5 minutes before the scheduled class time.</li>
-                              <li>Keep your camera turned on and sit in a quiet, respectful learning environment.</li>
-                              <li>Keep your microphone muted unless requested to speak by Guruji.</li>
-                              <li>Prepare your notebook, pen, and daily reciting worksheets.</li>
-                              <li>Attendance will be marked automatically after 5 minutes of continuous participation.</li>
-                            </ul>
+                          {/* 2x2 Meta Grid (Centered Icon with text below) */}
+                          <div className="grid grid-cols-2 gap-2.5 pt-1">
+                            {/* Box 1: Pathshala Level */}
+                            <div className="bg-[#FAF8F5] border border-stone-100/90 rounded-2xl p-3 flex flex-col items-center justify-center text-center gap-1.5 min-w-0">
+                              <div className="w-10 h-10 rounded-2xl bg-[#E5EFE7] text-[#2D5A3C] flex items-center justify-center shrink-0">
+                                <GraduationCap className="w-5 h-5" />
+                              </div>
+                              <div className="text-center w-full min-w-0">
+                                <span className="text-[10px] font-medium text-stone-400 block leading-tight">Pathshala Level</span>
+                                <span className="text-xs font-bold text-slate-900 block leading-tight mt-0.5">{selectedLiveClass.level}</span>
+                              </div>
+                            </div>
+
+                            {/* Box 2: Assigned Batch */}
+                            <div className="bg-[#FAF8F5] border border-stone-100/90 rounded-2xl p-3 flex flex-col items-center justify-center text-center gap-1.5 min-w-0">
+                              <div className="w-10 h-10 rounded-2xl bg-[#E5EFE7] text-[#2D5A3C] flex items-center justify-center shrink-0">
+                                <Calendar className="w-5 h-5" />
+                              </div>
+                              <div className="text-center w-full min-w-0">
+                                <span className="text-[10px] font-medium text-stone-400 block leading-tight">Assigned Batch</span>
+                                <span className="text-xs font-bold text-slate-900 block leading-tight mt-0.5">{selectedLiveClass.batch}</span>
+                              </div>
+                            </div>
+
+                            {/* Box 3: Date & Time */}
+                            <div className="bg-[#FAF8F5] border border-stone-100/90 rounded-2xl p-3 flex flex-col items-center justify-center text-center gap-1.5 min-w-0">
+                              <div className="w-10 h-10 rounded-2xl bg-[#E5EFE7] text-[#2D5A3C] flex items-center justify-center shrink-0">
+                                <Clock className="w-5 h-5" />
+                              </div>
+                              <div className="text-center w-full min-w-0">
+                                <span className="text-[10px] font-medium text-stone-400 block leading-tight">Date & Time</span>
+                                <span className="text-xs font-bold text-slate-900 block leading-tight mt-0.5">{selectedLiveClass.date} • {selectedLiveClass.time.replace(/.*,\s*/, '')}</span>
+                              </div>
+                            </div>
+
+                            {/* Box 4: Class Duration */}
+                            <div className="bg-[#FAF8F5] border border-stone-100/90 rounded-2xl p-3 flex flex-col items-center justify-center text-center gap-1.5 min-w-0">
+                              <div className="w-10 h-10 rounded-2xl bg-[#E5EFE7] text-[#2D5A3C] flex items-center justify-center shrink-0">
+                                <Timer className="w-5 h-5" />
+                              </div>
+                              <div className="text-center w-full min-w-0">
+                                <span className="text-[10px] font-medium text-stone-400 block leading-tight">Class Duration</span>
+                                <span className="text-xs font-bold text-slate-900 block leading-tight mt-0.5">{selectedLiveClass.duration}</span>
+                              </div>
+                            </div>
                           </div>
                         </div>
 
-                        {/* CTA Primary Button */}
-                        <div className="pt-2">
+                        {/* Short Syllabus & Agenda Card */}
+                        <div className="bg-white rounded-[24px] p-5 border border-stone-200/80 shadow-[0_4px_16px_rgba(0,0,0,0.03)] space-y-3.5">
+                          <div className="flex items-center gap-2.5">
+                            <div className="w-8 h-8 rounded-xl bg-[#E5EFE7] text-[#2D5A3C] flex items-center justify-center">
+                              <FileText className="w-4 h-4" />
+                            </div>
+                            <h3 className="font-black text-sm text-slate-900">Short Syllabus & Agenda</h3>
+                          </div>
+                          
+                          <ul className="space-y-2.5 text-xs text-stone-700 font-medium pl-1">
+                            <li className="flex items-start gap-2">
+                              <span className="w-1.5 h-1.5 rounded-full bg-[#2D5A3C] mt-1.5 shrink-0" />
+                              <span>Navkar Mantra pronunciation basics</span>
+                            </li>
+                            <li className="flex items-start gap-2">
+                              <span className="w-1.5 h-1.5 rounded-full bg-[#2D5A3C] mt-1.5 shrink-0" />
+                              <span>Guided repetition practice</span>
+                            </li>
+                            <li className="flex items-start gap-2">
+                              <span className="w-1.5 h-1.5 rounded-full bg-[#2D5A3C] mt-1.5 shrink-0" />
+                              <span>Q&A and correction tips</span>
+                            </li>
+                          </ul>
+
+                          {/* Join Live Class CTA */}
                           <button
                             onClick={() => {
                               setClassroomTimeElapsed(0);
@@ -3747,10 +3774,11 @@ export default function App() {
                                 setIsOpeningLiveClass(false);
                               }, 2500);
                             }}
-                            className="w-full py-4 bg-[#163E2B] hover:bg-[#0F2D1F] active:scale-[0.98] transition-all text-white font-bold text-sm rounded-xl flex items-center justify-center gap-2 cursor-pointer shadow-sm"
+                            className="w-full py-3.5 bg-[#2D5A3C] hover:bg-[#1E3F2A] active:scale-[0.99] text-white font-extrabold text-xs sm:text-sm rounded-xl shadow-xs flex items-center justify-center gap-2 cursor-pointer transition-all mt-4"
                           >
-                            <Video className="w-4 h-4 text-white" />
+                            <Radio className="w-4 h-4 animate-pulse" />
                             <span>Join Live Class</span>
+                            <ChevronRight className="w-4 h-4" />
                           </button>
                         </div>
                       </div>
@@ -5028,22 +5056,11 @@ export default function App() {
                         </div>
                       </div>
 
-                      <div className="bg-white border border-emerald-200 rounded-[24px] p-5 shadow-sm space-y-4">
-                        <div className="flex items-start gap-4">
-                          <div className="w-12 h-12 bg-emerald-50 rounded-2xl flex items-center justify-center text-[#163E2B] shrink-0">
-                            <Star className="w-6 h-6 fill-[#C5A059]" />
-                          </div>
-                          <div>
-                            <h4 className="text-xs font-black text-slate-900">Spiritual Commitments</h4>
-                            <p className="text-[10px] text-slate-500 mt-1 leading-relaxed">
-                              Log your daily niyams here. Today's entries remain editable until the day ends. You can review up to 3 days of past submissions.
-                            </p>
-                          </div>
-                        </div>
-                      </div>
-
                       {/* Date Selector */}
-                      <div className="flex gap-2 overflow-x-auto pb-2 scrollbar-hide">
+                      <div 
+                        className="flex gap-2 overflow-x-auto no-scrollbar pb-1 -mx-1 px-1 touch-pan-x"
+                        style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
+                      >
                         {niyamDays.map((day) => {
                           const isDayLocked = getIsNiyamDateLocked(day.date, day.submitted);
                           const status = getNiyamDayStatus(day);
@@ -5382,883 +5399,33 @@ export default function App() {
                    </motion.div>
                  )}
 
-                {/* 13. GAMES HOME */}
-                {activeScreen === 'GamesHome' && (() => {
-                  const studentLevelNum = student.level.includes('Level 1') ? 1 : student.level.includes('Level 2') ? 2 : 3;
-                  const availableQuizzesCount = allQuizzes.filter(q => q.level === studentLevelNum).length;
-                  const quizzesCompletedCount = student.quizHistory?.length || 0;
-                  const averageQuizScore = quizzesCompletedCount > 0
-                    ? Math.round(student.quizHistory.reduce((acc, curr) => acc + curr.percentage, 0) / quizzesCompletedCount)
-                    : 0;
-
-                  // Last attempted quiz
-                  const lastQuizHistory = student.quizHistory && student.quizHistory.length > 0 ? student.quizHistory[0] : null;
-                  const lastQuizObj = lastQuizHistory ? allQuizzes.find(q => q.id === lastQuizHistory.quizId) : null;
-
-                  // Daily Practice featured quiz
-                  const dailyPracticeQuiz = allQuizzes.find(q => q.level === studentLevelNum) || allQuizzes[0];
-
-                  return (
-                    <motion.div 
-                      initial={{ opacity: 0 }} 
-                      animate={{ opacity: 1 }} 
-                      className="p-5 space-y-5 pb-24"
-                    >
-                      {/* Header */}
-                      <div className="flex justify-between items-center">
-                        <div className="flex items-center gap-2">
-                          <button onClick={() => navigateBack()} className="w-8 h-8 rounded-full bg-cream-200 flex items-center justify-center cursor-pointer hover:bg-cream-300 transition-all">
-                            <ChevronLeft className="w-5 h-5" />
-                          </button>
-                          <div>
-                            <span className="text-[9px] font-bold text-[#163E2B] uppercase tracking-widest font-mono">LEARNING MODULE</span>
-                            <h3 className="text-base font-black text-[#0f172a]">Learning Games</h3>
-                          </div>
-                        </div>
-                      </div>
-
-                      {/* Welcome Card */}
-                      <div className="bg-gradient-to-br from-[#163E2B] via-emerald-800 to-amber-500 rounded-[24px] p-5 text-white shadow-md relative overflow-hidden">
-                        <div className="absolute right-0 bottom-0 opacity-10 pointer-events-none transform translate-y-4 translate-x-4">
-                          <Gamepad2 className="w-40 h-40" />
-                        </div>
-                        <span className="text-[9px] font-bold text-emerald-200 uppercase tracking-wider font-mono">WELCOME BACK</span>
-                        <h4 className="text-lg font-black leading-tight mt-0.5">Learning Games</h4>
-                        <p className="text-[11px] text-emerald-100 mt-1 leading-relaxed">
-                          Practice what you've learned through quizzes prepared by your Pathshala.
-                        </p>
-
-                        <div className="grid grid-cols-4 gap-2 pt-4 mt-2 border-t border-emerald-500/30 text-center">
-                          <div>
-                            <span className="block text-[8px] font-bold text-emerald-200 uppercase tracking-wider font-mono">My Level</span>
-                            <span className="block text-[10px] font-black mt-0.5 text-white">Lvl {studentLevelNum}</span>
-                          </div>
-                          <div>
-                            <span className="block text-[8px] font-bold text-emerald-200 uppercase tracking-wider font-mono">Available</span>
-                            <span className="block text-[10px] font-black mt-0.5 text-white">{availableQuizzesCount} Qs</span>
-                          </div>
-                          <div>
-                            <span className="block text-[8px] font-bold text-emerald-200 uppercase tracking-wider font-mono">Completed</span>
-                            <span className="block text-[10px] font-black mt-0.5 text-white">{quizzesCompletedCount}</span>
-                          </div>
-                          <div>
-                            <span className="block text-[8px] font-bold text-emerald-200 uppercase tracking-wider font-mono">Avg Score</span>
-                            <span className="block text-[10px] font-black mt-0.5 text-white">{averageQuizScore}%</span>
-                          </div>
-                        </div>
-                      </div>
-
-                      {/* Quick Actions */}
-                      <div className="space-y-2.5">
-                        <h4 className="text-xs font-black text-slate-800 uppercase tracking-wider">Quick Actions</h4>
-                        <div className="grid grid-cols-1 gap-2">
-                          <button
-                            onClick={() => handleStartAIQuiz(dailyPracticeQuiz)}
-                            className="w-full p-3.5 bg-white border border-slate-200 hover:border-emerald-200 rounded-2xl flex items-center justify-between shadow-2xs text-left cursor-pointer transition-all active:scale-98"
-                          >
-                            <div className="flex items-center gap-3">
-                              <div className="w-8 h-8 rounded-xl bg-emerald-50 text-[#163E2B] flex items-center justify-center shrink-0">
-                                <Play className="w-4 h-4 fill-[#163E2B]" />
-                              </div>
-                              <div>
-                                <h5 className="font-bold text-xs text-slate-900">Start Learning</h5>
-                                <p className="text-[9.5px] text-slate-400 mt-0.5">Jump straight into active learning assessments</p>
-                              </div>
-                            </div>
-                            <ChevronRight className="w-4 h-4 text-slate-400" />
-                          </button>
-
-                          {lastQuizObj && (
-                            <button
-                              onClick={() => handleStartAIQuiz(lastQuizObj)}
-                              className="w-full p-3.5 bg-white border border-slate-200 hover:border-emerald-200 rounded-2xl flex items-center justify-between shadow-2xs text-left cursor-pointer transition-all active:scale-98"
-                            >
-                              <div className="flex items-center gap-3">
-                                <div className="w-8 h-8 rounded-xl bg-amber-50 text-amber-600 flex items-center justify-center shrink-0">
-                                  <RefreshCw className="w-4 h-4" />
-                                </div>
-                                <div>
-                                  <h5 className="font-bold text-xs text-slate-900">Continue Last Quiz</h5>
-                                  <p className="text-[9.5px] text-slate-400 mt-0.5">Retake: {lastQuizHistory.quizTitle}</p>
-                                </div>
-                              </div>
-                              <ChevronRight className="w-4 h-4 text-slate-400" />
-                            </button>
-                          )}
-
-                          <button
-                            onClick={() => setActiveScreen('ProfileReportCard')}
-                            className="w-full p-3.5 bg-white border border-slate-200 hover:border-emerald-200 rounded-2xl flex items-center justify-between shadow-2xs text-left cursor-pointer transition-all active:scale-98"
-                          >
-                            <div className="flex items-center gap-3">
-                              <div className="w-8 h-8 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center shrink-0">
-                                <Award className="w-4 h-4" />
-                              </div>
-                              <div>
-                                <h5 className="font-bold text-xs text-slate-900">View Previous Results</h5>
-                                <p className="text-[9.5px] text-slate-400 mt-0.5">Check completed questions and report cards</p>
-                              </div>
-                            </div>
-                            <ChevronRight className="w-4 h-4 text-slate-400" />
-                          </button>
-                        </div>
-                      </div>
-
-                      {/* Categories */}
-                      <div className="space-y-2.5">
-                        <h4 className="text-xs font-black text-slate-800 uppercase tracking-wider">Categories</h4>
-                        <div className="grid grid-cols-1 gap-2.5">
-                          {[
-                            {
-                              title: "Sutra Quiz",
-                              icon: BookOpen,
-                              desc: "Quizzes on Navkar Mantra, prayers, and Sutras.",
-                              category: "Sutra",
-                              count: allQuizzes.filter(q => q.level === studentLevelNum && (q.type === 'Sutra' || q.type === 'Gatha')).length
-                            },
-                            {
-                              title: "Stavan & Stuti Quiz",
-                              icon: Music,
-                              desc: "Test your memory on devotional hymns and Stavans.",
-                              category: "Stavan",
-                              count: allQuizzes.filter(q => q.level === studentLevelNum && (q.type === 'Stavan' || q.type === 'Stuti')).length
-                            },
-                            {
-                              title: "Gatha Quiz",
-                              icon: FileText,
-                              desc: "Exams on spiritual verses, meanings, and recitation.",
-                              category: "Sutra",
-                              count: allQuizzes.filter(q => q.level === studentLevelNum && q.type === 'Gatha').length
-                            },
-                            {
-                              title: "Jain Stories Quiz",
-                              icon: Sparkles,
-                              desc: "Ethics, stories of Tirthankaras, and moral tales.",
-                              category: "Stories",
-                              count: allQuizzes.filter(q => q.level === studentLevelNum && (q.type === 'Jain Stories' || q.type === 'Bhagwan Stories')).length
-                            },
-                            {
-                              title: "Mixed Revision Quiz",
-                              icon: Award,
-                              desc: "Comprehensive revision of all Pathshala modules.",
-                              category: "All",
-                              count: allQuizzes.filter(q => q.level === studentLevelNum).length
-                            }
-                          ].map((catItem, idx) => {
-                            const IconCmp = catItem.icon;
-                            return (
-                              <div
-                                key={idx}
-                                onClick={() => {
-                                  setQuizFilterCategory(catItem.category);
-                                  setActiveScreen('GamesQuizHub');
-                                }}
-                                className="bg-white border border-slate-200 hover:border-emerald-200 rounded-[22px] p-4 flex items-center gap-3.5 shadow-2xs cursor-pointer transition-all active:scale-98"
-                              >
-                                <div className="w-10 h-10 rounded-xl bg-emerald-50 text-[#163E2B] flex items-center justify-center shrink-0">
-                                  <IconCmp className="w-5 h-5" />
-                                </div>
-                                <div className="flex-1 min-w-0">
-                                  <div className="flex items-center justify-between">
-                                    <h5 className="font-extrabold text-xs text-slate-900 truncate">{catItem.title}</h5>
-                                    <span className="text-[9px] font-bold font-mono text-[#163E2B] bg-emerald-50 border border-emerald-100/60 px-2 py-0.5 rounded-md">
-                                      {catItem.count} {catItem.count === 1 ? 'Quiz' : 'Quizzes'}
-                                    </span>
-                                  </div>
-                                  <p className="text-[10px] text-slate-500 mt-0.5 leading-snug">{catItem.desc}</p>
-                                </div>
-                              </div>
-                            );
-                          })}
-                        </div>
-                      </div>
-
-                      {/* Daily Practice Card */}
-                      <div className="space-y-2.5">
-                        <h4 className="text-xs font-black text-slate-800 uppercase tracking-wider">Daily Practice</h4>
-                        <div className="bg-gradient-to-r from-cream-100 to-amber-50/40 border border-cream-200 rounded-[24px] p-4.5 space-y-3.5 shadow-2xs">
-                          <div className="flex justify-between items-start">
-                            <div className="space-y-1">
-                              <span className="px-2 py-0.5 bg-amber-100 text-amber-800 font-bold font-mono text-[8px] rounded uppercase border border-amber-200">Featured Today</span>
-                              <h5 className="font-extrabold text-xs text-slate-900 leading-tight pt-1">{dailyPracticeQuiz.title}</h5>
-                            </div>
-                            <div className="w-9 h-9 bg-amber-100/50 rounded-lg flex items-center justify-center text-amber-600">
-                              <Trophy className="w-5 h-5" />
-                            </div>
-                          </div>
-
-                          <div className="grid grid-cols-2 gap-3 border-t border-cream-200/50 pt-2.5 text-[10px] text-slate-500">
-                            <div>
-                              <span className="text-slate-400 block text-[8px] font-bold uppercase tracking-wider font-mono">Assigned Source</span>
-                              <span className="text-slate-700 font-bold truncate block">{dailyPracticeQuiz.relatedContentName}</span>
-                            </div>
-                            <div>
-                              <span className="text-slate-400 block text-[8px] font-bold uppercase tracking-wider font-mono">Difficulty</span>
-                              <span className="text-slate-700 font-bold block">{dailyPracticeQuiz.difficulty}</span>
-                            </div>
-                          </div>
-
-                          <button
-                            onClick={() => handleStartAIQuiz(dailyPracticeQuiz)}
-                            className="w-full py-2 bg-amber-500 hover:bg-amber-600 text-white font-extrabold text-[10px] rounded-xl cursor-pointer transition-all text-center"
-                          >
-                            Practice Today
-                          </button>
-                        </div>
-                      </div>
-
-                      {/* Recent Activity */}
-                      {lastQuizHistory && lastQuizObj && (
-                        <div className="space-y-2.5">
-                          <h4 className="text-xs font-black text-slate-800 uppercase tracking-wider">Recent Activity</h4>
-                          <div className="bg-white border border-slate-200 rounded-[22px] p-4 flex flex-col gap-3 shadow-2xs">
-                            <div className="flex justify-between items-start">
-                              <div className="space-y-1">
-                                <span className="text-[10px] text-slate-400 font-mono block">{lastQuizHistory.completedAt}</span>
-                                <h5 className="font-extrabold text-xs text-slate-900 leading-tight">{lastQuizHistory.quizTitle}</h5>
-                              </div>
-                              <div className="bg-emerald-50 border border-emerald-100 px-2.5 py-1 rounded-xl text-center">
-                                <span className="block text-[8px] font-bold text-emerald-600 uppercase tracking-wider font-mono">Score</span>
-                                <span className="font-black text-xs text-emerald-800 font-mono">{lastQuizHistory.score}/{lastQuizHistory.totalQuestions}</span>
-                              </div>
-                            </div>
-
-                            <div className="flex gap-2 border-t border-slate-100 pt-2.5">
-                              <button
-                                onClick={() => handleViewPastResult(lastQuizObj, lastQuizHistory)}
-                                className="flex-1 py-1.5 bg-slate-50 border border-slate-200 hover:bg-slate-100 text-slate-700 font-bold text-[10px] rounded-lg cursor-pointer transition-all text-center"
-                              >
-                                View Result
-                              </button>
-                              <button
-                                onClick={() => handleStartAIQuiz(lastQuizObj)}
-                                className="flex-1 py-1.5 bg-emerald-50 border border-emerald-100 hover:bg-emerald-100 text-[#163E2B] font-bold text-[10px] rounded-lg cursor-pointer transition-all text-center"
-                              >
-                                Continue
-                              </button>
-                            </div>
-                          </div>
-                        </div>
-                      )}
-
-                      {/* Prominent Browse Button */}
-                      <div className="pt-2">
-                        <button
-                          onClick={() => {
-                            setQuizFilterCategory('All');
-                            setActiveScreen('GamesQuizHub');
-                          }}
-                          className="w-full py-3 bg-[#163E2B] hover:bg-[#0F2D1F] text-white font-extrabold text-xs rounded-2xl shadow-md cursor-pointer text-center flex items-center justify-center gap-2 active:scale-98 transition-all"
-                        >
-                          <span>Browse All Quizzes</span>
-                          <ArrowRight className="w-4 h-4" />
-                        </button>
-                      </div>
-                    </motion.div>
-                  );
-                })()}
-
-                {/* 13b. GAMES & QUIZ HUB (Existing) */}
-                {activeScreen === 'GamesQuizHub' && (
-                  <motion.div 
-                    initial={{ opacity: 0 }} 
-                    animate={{ opacity: 1 }} 
-                    className="p-5 space-y-5 pb-24"
-                  >
-                    {/* Header */}
-                    <div className="flex justify-between items-center">
-                      <div className="flex items-center gap-2">
-                        <button onClick={() => setActiveScreen('GamesHome')} className="w-8 h-8 rounded-full bg-cream-200 flex items-center justify-center cursor-pointer hover:bg-cream-300 transition-all">
-                          <ChevronLeft className="w-5 h-5" />
-                        </button>
-                        <div>
-                          <span className="text-[9px] font-bold text-[#163E2B] uppercase tracking-widest font-mono font-black">LEARNING MODULE</span>
-                          <h3 className="text-base font-black text-[#0f172a]">Games & Quiz Hub</h3>
-                        </div>
-                      </div>
-                    </div>
-
-                    {/* STUDENT BROWSER MODE */}
-                    <div className="space-y-5">
-                        {/* Profile Grade Display */}
-                        <div className="flex justify-between items-center bg-slate-50 border border-slate-200/60 rounded-2xl px-4 py-2.5 text-xs">
-                          <div className="flex items-center gap-1.5 font-bold text-slate-700">
-                            <GraduationCap className="w-4 h-4 text-[#163E2B]" />
-                            <span>My Grade: {student.level}</span>
-                          </div>
-                          <div className="flex items-center gap-1 font-mono text-[9px] font-bold text-slate-500 bg-slate-200/60 px-2.5 py-0.5 rounded-full uppercase">
-                            Lang: {selectedLanguage}
-                          </div>
-                        </div>
-
-                        {/* 1. CONTINUE LEARNING (Scores and Completion History) */}
-                        {student.quizHistory && student.quizHistory.length > 0 && (
-                          <div className="space-y-2.5">
-                            <div className="flex justify-between items-center">
-                              <h4 className="text-xs font-black text-slate-800 uppercase tracking-wider">Continue Learning</h4>
-                              <span className="text-[10px] text-slate-400 font-mono">Saved to Profile</span>
-                            </div>
-
-                            <div className="space-y-2.5">
-                              {student.quizHistory.map((hist) => {
-                                // Find associated quiz object to start it
-                                const quizObj = allQuizzes.find(q => q.id === hist.quizId);
-                                if (!quizObj) return null;
-
-                                return (
-                                  <div key={hist.quizId} className="bg-white border border-slate-200/60 rounded-2xl p-4 flex justify-between items-center shadow-2xs gap-3">
-                                    <div className="space-y-1.5 flex-1">
-                                      <div className="flex items-center gap-1.5">
-                                        <span className="px-1.5 py-0.5 bg-emerald-50 text-emerald-700 font-bold font-mono text-[8px] rounded uppercase border border-emerald-100">COMPLETED</span>
-                                        <span className="text-[10px] text-slate-400 font-mono">{hist.completedAt}</span>
-                                      </div>
-                                      <h5 className="font-extrabold text-xs text-slate-900 leading-tight">{hist.quizTitle}</h5>
-                                      
-                                      {/* Performance Bar */}
-                                      <div className="flex items-center gap-2">
-                                        <div className="w-24 bg-slate-100 h-1.5 rounded-full overflow-hidden">
-                                          <div 
-                                            className={`h-full rounded-full ${hist.percentage >= 80 ? 'bg-emerald-500' : hist.percentage >= 50 ? 'bg-amber-500' : 'bg-emerald-500'}`} 
-                                            style={{ width: `${hist.percentage}%` }}
-                                          ></div>
-                                        </div>
-                                        <span className="text-[10px] text-slate-500 font-bold font-mono">
-                                          {hist.score}/{hist.totalQuestions} ({hist.percentage}%)
-                                        </span>
-                                      </div>
-                                    </div>
-
-                                    <button 
-                                      onClick={() => handleStartAIQuiz(quizObj)}
-                                      className="py-1.5 px-3 bg-emerald-50 border border-emerald-100 hover:border-emerald-200 text-[#163E2B] font-bold text-[10px] rounded-xl cursor-pointer transition-all active:scale-95 shrink-0"
-                                    >
-                                      Retake
-                                    </button>
-                                  </div>
-                                );
-                              })}
-                            </div>
-                          </div>
-                        )}
-
-                        {/* 2. RECOMMENDED FOR YOU (Handpicked Level-Specific) */}
-                        <div className="space-y-2.5">
-                          <h4 className="text-xs font-black text-slate-800 uppercase tracking-wider">Recommended for You</h4>
-                          
-                          <div className="grid grid-cols-1 gap-3">
-                            {allQuizzes
-                              .filter(q => q.level === (student.level.includes('Level 1') ? 1 : student.level.includes('Level 2') ? 2 : 3))
-                              .slice(0, 2)
-                              .map((quiz) => (
-                                <div key={quiz.id} className="bg-gradient-to-r from-emerald-50/50 to-slate-50/50 border border-emerald-100/60 rounded-[22px] p-4 flex flex-col justify-between shadow-2xs gap-3">
-                                  <div className="space-y-1.5">
-                                    <div className="flex justify-between items-center">
-                                      <div className="flex gap-1.5">
-                                        <span className="px-1.5 py-0.5 bg-emerald-100/60 text-[#163E2B] font-bold font-mono text-[8px] rounded uppercase border border-emerald-100">{quiz.type}</span>
-                                        <span className="px-1.5 py-0.5 bg-slate-100 text-slate-600 font-bold font-mono text-[8px] rounded border border-slate-200">Level {quiz.level}</span>
-                                      </div>
-                                      <div className="flex items-center gap-1 text-[9px] text-slate-500 font-medium">
-                                        <Clock className="w-3.5 h-3.5 text-slate-400" />
-                                        <span>{quiz.estimatedTime}</span>
-                                      </div>
-                                    </div>
-                                    <h5 className="font-extrabold text-xs text-slate-950 pt-1">{quiz.title}</h5>
-                                    
-                                    <div className="grid grid-cols-2 gap-2 text-[10px] text-slate-500 pt-1 pb-1">
-                                      <div>
-                                        <span className="text-slate-400 block text-[8px] font-bold uppercase tracking-wider font-mono">Related Content</span>
-                                        <span className="text-slate-700 font-bold truncate block">{quiz.relatedContentName}</span>
-                                      </div>
-                                      <div>
-                                        <span className="text-slate-400 block text-[8px] font-bold uppercase tracking-wider font-mono">Questions</span>
-                                        <span className="text-slate-700 font-bold block">{quiz.questions.length} Qs</span>
-                                      </div>
-                                    </div>
-                                  </div>
-
-                                  <div className="flex justify-between items-center pt-2 border-t border-emerald-100/20">
-                                    <span className={`text-[9px] font-bold font-mono px-2 py-0.5 rounded ${
-                                      quiz.difficulty === 'Beginner' ? 'bg-emerald-50 text-emerald-700' :
-                                      quiz.difficulty === 'Intermediate' ? 'bg-amber-50 text-amber-700 border border-amber-100' :
-                                      'bg-emerald-50 text-[#163E2B]'
-                                    }`}>{quiz.difficulty.toUpperCase()}</span>
-                                    <button 
-                                      onClick={() => handleStartAIQuiz(quiz)}
-                                      className="py-1.5 px-3.5 bg-[#163E2B] hover:bg-[#0F2D1F] text-white font-extrabold text-[10px] rounded-xl cursor-pointer transition-all active:scale-95 shadow-xs"
-                                    >
-                                      Start Quiz
-                                    </button>
-                                  </div>
-                                </div>
-                              ))}
-                          </div>
-                        </div>
-
-                        {/* 3. BY CATEGORY TABS & ALL QUIZZES */}
-                        <div className="space-y-3">
-                          <div className="flex justify-between items-center">
-                            <h4 className="text-xs font-black text-slate-800 uppercase tracking-wider">Browse academic Quizzes</h4>
-                            <span className="text-[10px] text-slate-400 font-mono">{
-                              allQuizzes.filter(q => q.level === (student.level.includes('Level 1') ? 1 : student.level.includes('Level 2') ? 2 : 3)).length
-                            } available</span>
-                          </div>
-
-                          {/* Category Pills */}
-                          <div className="flex gap-2 overflow-x-auto pb-1 scrollbar-hide">
-                            {['All', 'Sutra', 'Stavan', 'Stories'].map((cat) => (
-                              <button 
-                                key={cat}
-                                onClick={() => setQuizFilterCategory(cat)}
-                                className={`px-3.5 py-1.5 rounded-full text-[10px] font-bold border transition-all shrink-0 cursor-pointer ${
-                                  quizFilterCategory === cat 
-                                    ? 'bg-slate-900 border-slate-900 text-white shadow-2xs' 
-                                    : 'bg-white border-slate-200 text-slate-600 hover:border-slate-300'
-                                  }`}
-                              >
-                                {cat}
-                              </button>
-                            ))}
-                          </div>
-
-                          {/* Quizzes Grid */}
-                          <div className="space-y-3">
-                            {allQuizzes
-                              .filter(q => {
-                                // 1. Must match student Pathshala Level
-                                const sLvl = student.level.includes('Level 1') ? 1 : student.level.includes('Level 2') ? 2 : 3;
-                                if (q.level !== sLvl) return false;
-
-                                // 2. Must match category tab filter
-                                if (quizFilterCategory === 'All') return true;
-                                if (quizFilterCategory === 'Sutra') return q.type === 'Sutra' || q.type === 'Gatha';
-                                if (quizFilterCategory === 'Stavan') return q.type === 'Stavan' || q.type === 'Stuti';
-                                if (quizFilterCategory === 'Stories') return q.type === 'Jain Stories' || q.type === 'Bhagwan Stories';
-                                return true;
-                              })
-                              .map((quiz) => (
-                                <div key={quiz.id} className="bg-white border border-slate-200/60 rounded-2xl p-4 space-y-3 shadow-2xs">
-                                  <div className="flex justify-between items-start">
-                                    <div className="space-y-1">
-                                      <div className="flex items-center gap-1.5">
-                                        <span className="px-1.5 py-0.5 bg-slate-50 text-slate-500 font-bold font-mono text-[8px] rounded border border-slate-200 uppercase">{quiz.type}</span>
-                                        <span className="px-1.5 py-0.5 bg-emerald-50 text-[#163E2B] font-bold font-mono text-[8px] rounded border border-emerald-100 uppercase">Level {quiz.level}</span>
-                                      </div>
-                                      <h5 className="font-extrabold text-xs text-slate-900 leading-snug pt-0.5">{quiz.title}</h5>
-                                    </div>
-                                    <div className="text-right">
-                                      <span className="text-[10px] text-slate-400 font-mono block">{quiz.publishedAt}</span>
-                                    </div>
-                                  </div>
-
-                                  <div className="grid grid-cols-3 gap-2 border-t border-slate-100 pt-2.5 text-[9.5px] text-slate-500 font-medium">
-                                    <div>
-                                      <span className="text-slate-400 block text-[8px] font-bold uppercase tracking-wider font-mono">Content Source</span>
-                                      <span className="text-slate-800 font-bold truncate block">{quiz.relatedContentName}</span>
-                                    </div>
-                                    <div>
-                                      <span className="text-slate-400 block text-[8px] font-bold uppercase tracking-wider font-mono">Questions</span>
-                                      <span className="text-slate-800 font-bold block">{quiz.questions.length} Qs</span>
-                                    </div>
-                                    <div>
-                                      <span className="text-slate-400 block text-[8px] font-bold uppercase tracking-wider font-mono">EST. Time</span>
-                                      <span className="text-slate-800 font-bold block">{quiz.estimatedTime}</span>
-                                    </div>
-                                  </div>
-
-                                  <div className="flex justify-between items-center border-t border-slate-100 pt-2.5">
-                                    <span className={`text-[9px] font-bold font-mono px-2 py-0.5 rounded ${
-                                      quiz.difficulty === 'Beginner' ? 'bg-emerald-50 text-emerald-700' :
-                                      quiz.difficulty === 'Intermediate' ? 'bg-amber-50 text-amber-700' :
-                                      'bg-emerald-50 text-[#163E2B]'
-                                    }`}>{quiz.difficulty.toUpperCase()}</span>
-                                    
-                                    <button 
-                                      onClick={() => handleStartAIQuiz(quiz)}
-                                      className="py-1.5 px-4 bg-[#163E2B] hover:bg-[#0F2D1F] text-white font-extrabold text-[10px] rounded-xl cursor-pointer transition-all active:scale-95 shadow-xs"
-                                    >
-                                      Start Assessment
-                                    </button>
-                                  </div>
-                                </div>
-                              ))}
-                          </div>
-                        </div>
-
-                        {/* 4. BY PATHSHALA LEVEL (Unlocked for past levels review) */}
-                        <div className="space-y-2.5">
-                          <div>
-                            <h4 className="text-xs font-black text-slate-800 uppercase tracking-wider">Review Past Levels</h4>
-                            <p className="text-[10px] text-slate-400">Brush up on fundamental prayers and values</p>
-                          </div>
-
-                          <div className="grid grid-cols-2 gap-3">
-                            {/* Level 1 Card */}
-                            <div className="bg-slate-50 border border-slate-200 rounded-2xl p-3.5 flex flex-col justify-between h-[100px] shadow-2xs">
-                              <div>
-                                <div className="flex justify-between items-center">
-                                  <span className="text-[8px] font-bold text-slate-500 uppercase font-mono bg-slate-200 px-1.5 py-0.5 rounded">LEVEL 1</span>
-                                  <span className="text-[8px] font-extrabold text-emerald-600 font-mono bg-emerald-50 px-1.5 py-0.5 rounded border border-emerald-100">REVIEW OK</span>
-                                </div>
-                                <h6 className="font-extrabold text-[10.5px] text-slate-800 mt-1.5 leading-tight">Bal Shravak Prayers</h6>
-                              </div>
-                              <span className="text-[9px] font-medium text-slate-500 font-mono">2 Quizzes Available</span>
-                            </div>
-
-                            {/* Level 2 Card */}
-                            <div className="bg-slate-50 border border-slate-200 rounded-2xl p-3.5 flex flex-col justify-between h-[100px] shadow-2xs">
-                              <div>
-                                <div className="flex justify-between items-center">
-                                  <span className="text-[8px] font-bold text-slate-500 uppercase font-mono bg-slate-200 px-1.5 py-0.5 rounded">LEVEL 2</span>
-                                  <span className="text-[8px] font-extrabold text-emerald-600 font-mono bg-emerald-50 px-1.5 py-0.5 rounded border border-emerald-100">REVIEW OK</span>
-                                </div>
-                                <h6 className="font-extrabold text-[10.5px] text-slate-800 mt-1.5 leading-tight">Shravak Junior Prayers</h6>
-                              </div>
-                              <span className="text-[9px] font-medium text-slate-500 font-mono">2 Quizzes Available</span>
-                            </div>
-                          </div>
-                        </div>
-                    </div>
-                  </motion.div>
+                {/* 13. GAMES & QUIZZES MODULE (List & Detail Screen Flow) */}
+                {(activeScreen === 'GamesHome' || activeScreen === 'GamesQuizHub' || activeScreen === 'Quiz') && (
+                  <QuizModule
+                    student={student}
+                    allQuizzes={allQuizzes}
+                    initialQuizId={activeQuiz?.id || null}
+                    onBackToHome={() => setActiveScreen('Home')}
+                    onSaveQuizResult={(res) => {
+                      setStudent(prev => {
+                        const existing = prev.quizHistory || [];
+                        const filtered = existing.filter(h => h.quizId !== res.quizId);
+                        return {
+                          ...prev,
+                          quizHistory: [res, ...filtered]
+                        };
+                      });
+                    }}
+                    onUpdateStudentPoints={(pts) => {
+                      setStudent(prev => ({
+                        ...prev,
+                        gathaScore: prev.gathaScore + pts
+                      }));
+                    }}
+                  />
                 )}
 
-                {/* 14. QUIZ SCREEN */}
-                {activeScreen === 'Quiz' && activeQuiz && (
-                  <motion.div 
-                    initial={{ opacity: 0 }} 
-                    animate={{ opacity: 1 }} 
-                    className="p-5 space-y-4"
-                  >
-                    {/* Header */}
-                    <div className="flex justify-between items-center">
-                      <div className="flex items-center gap-2">
-                        <button onClick={handleExitAIQuiz} className="w-8 h-8 rounded-full bg-cream-200 flex items-center justify-center cursor-pointer hover:bg-cream-300">
-                          <ChevronLeft className="w-5 h-5" />
-                        </button>
-                        <div>
-                          <span className="text-[9px] font-bold text-slate-400 uppercase tracking-wider font-mono">ACTIVE EVALUATION</span>
-                          <h3 className="text-xs font-black text-[#0f172a] truncate max-w-[200px]">{activeQuiz.title}</h3>
-                        </div>
-                      </div>
-                      {!quizShowInstructions && (
-                        <span className="px-2.5 py-1 bg-slate-100 text-slate-700 font-bold font-mono text-[10px] rounded-md border border-slate-200">
-                          Q: {currentQuizIndex + 1} / {activeQuiz.questions.length}
-                        </span>
-                      )}
-                    </div>
-
-                    {quizShowInstructions ? (
-                      /* QUIZ INSTRUCTIONS VIEW */
-                      <motion.div
-                        initial={{ opacity: 0, y: 10 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        className="space-y-5"
-                      >
-                        {/* Info Card */}
-                        <div className="bg-white border border-slate-200/60 rounded-[24px] p-5 space-y-4 shadow-sm">
-                          <div className="w-12 h-12 bg-emerald-50 border border-emerald-100 rounded-full flex items-center justify-center text-[#163E2B]">
-                            <BookOpen className="w-6 h-6" />
-                          </div>
-                          <div className="space-y-1">
-                            <span className="text-[9px] font-bold text-[#163E2B] uppercase tracking-widest font-mono">QUIZ INSTRUCTIONS</span>
-                            <h4 className="text-base font-black text-slate-900 leading-tight">{activeQuiz.title}</h4>
-                            <p className="text-[11px] text-slate-500">Please read the guidelines before beginning the assessment.</p>
-                          </div>
-
-                          <div className="grid grid-cols-2 gap-3 pt-2">
-                            <div className="bg-slate-50/50 p-3 rounded-xl border border-slate-100">
-                              <span className="text-slate-400 block text-[8px] font-bold uppercase tracking-wider font-mono">Related Content</span>
-                              <span className="text-xs text-slate-850 font-extrabold truncate block">{activeQuiz.relatedContentName}</span>
-                            </div>
-                            <div className="bg-slate-50/50 p-3 rounded-xl border border-slate-100">
-                              <span className="text-slate-400 block text-[8px] font-bold uppercase tracking-wider font-mono">Total Questions</span>
-                              <span className="text-xs text-slate-850 font-extrabold block">{activeQuiz.questions.length} Questions</span>
-                            </div>
-                            <div className="bg-slate-50/50 p-3 rounded-xl border border-slate-100">
-                              <span className="text-slate-400 block text-[8px] font-bold uppercase tracking-wider font-mono">Estimated Time</span>
-                              <span className="text-xs text-slate-850 font-extrabold block">{activeQuiz.estimatedTime}</span>
-                            </div>
-                            <div className="bg-slate-50/50 p-3 rounded-xl border border-slate-100">
-                              <span className="text-slate-400 block text-[8px] font-bold uppercase tracking-wider font-mono">Difficulty</span>
-                              <span className={`text-xs font-extrabold block ${
-                                activeQuiz.difficulty === 'Beginner' ? 'text-emerald-600' :
-                                activeQuiz.difficulty === 'Intermediate' ? 'text-amber-600' : 'text-[#163E2B]'
-                              }`}>{activeQuiz.difficulty}</span>
-                            </div>
-                            <div className="bg-slate-50/50 p-3 rounded-xl border border-slate-100">
-                              <span className="text-slate-400 block text-[8px] font-bold uppercase tracking-wider font-mono">Pathshala Level</span>
-                              <span className="text-xs text-slate-850 font-extrabold block">Level {activeQuiz.level}</span>
-                            </div>
-                            <div className="bg-slate-50/50 p-3 rounded-xl border border-slate-100">
-                              <span className="text-slate-400 block text-[8px] font-bold uppercase tracking-wider font-mono">Rewards</span>
-                              <span className="text-xs text-[#163E2B] font-extrabold block">+25 pts / Correct</span>
-                            </div>
-                          </div>
-                        </div>
-
-                        {/* Guidelines List */}
-                        <div className="bg-slate-50/80 border border-slate-200/50 rounded-[22px] p-4.5 space-y-3">
-                          <h5 className="text-[10px] font-bold text-slate-500 uppercase tracking-widest font-mono">How to Play</h5>
-                          <ul className="space-y-2.5 text-[11px] text-slate-600 font-medium">
-                            <li className="flex items-start gap-2.5">
-                              <span className="w-5 h-5 rounded-full bg-emerald-100 text-[#163E2B] flex items-center justify-center font-bold text-[10px] shrink-0 mt-0.5">1</span>
-                              <p className="leading-normal">Read each theological statement or question carefully.</p>
-                            </li>
-                            <li className="flex items-start gap-2.5">
-                              <span className="w-5 h-5 rounded-full bg-emerald-100 text-[#163E2B] flex items-center justify-center font-bold text-[10px] shrink-0 mt-0.5">2</span>
-                              <p className="leading-normal">The quiz contains Multiple Choice, True/False, or Fill-in-the-blanks format.</p>
-                            </li>
-                            <li className="flex items-start gap-2.5">
-                              <span className="w-5 h-5 rounded-full bg-emerald-100 text-[#163E2B] flex items-center justify-center font-bold text-[10px] shrink-0 mt-0.5">3</span>
-                              <p className="leading-normal">You can navigate between questions with <b>Previous</b> and <b>Next</b> buttons. Your answers will be saved.</p>
-                            </li>
-                            <li className="flex items-start gap-2.5">
-                              <span className="w-5 h-5 rounded-full bg-emerald-100 text-[#163E2B] flex items-center justify-center font-bold text-[10px] shrink-0 mt-0.5">4</span>
-                              <p className="leading-normal">Submit when complete. Earn 25 points per correct answer added to your overall profile score!</p>
-                            </li>
-                          </ul>
-                        </div>
-
-                        {/* Actions */}
-                        <div className="flex gap-3 pt-2">
-                          <button
-                            onClick={handleExitAIQuiz}
-                            className="flex-1 py-3 bg-white border border-slate-200 text-slate-700 font-extrabold text-xs rounded-xl cursor-pointer shadow-xs text-center hover:bg-slate-50 active:scale-98 transition-all"
-                          >
-                            Cancel
-                          </button>
-                          
-                          <button
-                            onClick={() => setQuizShowInstructions(false)}
-                            className="flex-1 py-3 bg-[#163E2B] hover:bg-[#0F2D1F] text-white font-extrabold text-xs rounded-xl cursor-pointer shadow-md text-center active:scale-98 transition-all"
-                          >
-                            Start Attempt
-                          </button>
-                        </div>
-                      </motion.div>
-                    ) : !quizAnswersSubmitted ? (
-                      /* ACTIVE PLAY STATE */
-                      <div className="space-y-4">
-                        {/* Question Box */}
-                        <div className="bg-white border border-slate-200/60 rounded-[22px] p-5 shadow-sm space-y-2">
-                          <span className="text-[8px] font-bold text-[#163E2B] uppercase tracking-widest font-mono">Theological Statement</span>
-                          <h4 className="font-bold text-[13.5px] text-slate-900 leading-relaxed">
-                            {activeQuiz.questions[currentQuizIndex].question}
-                          </h4>
-                        </div>
-
-                        {/* Interactive Input based on Question Type */}
-                        <div className="space-y-3 pt-1">
-                          {/* MCQ or True/False Option Lists */}
-                          {(activeQuiz.questions[currentQuizIndex].type === 'mcq' || activeQuiz.questions[currentQuizIndex].type === 'boolean') && (
-                            <div className="space-y-2.5">
-                              {activeQuiz.questions[currentQuizIndex].options.map((option, idx) => {
-                                const isSelected = quizAnswers[currentQuizIndex] === idx;
-
-                                return (
-                                  <div
-                                    key={idx}
-                                    onClick={() => handleSelectAIAnswer(idx)}
-                                    className={`p-3.5 rounded-2xl border cursor-pointer transition-all flex justify-between items-center text-xs font-bold ${
-                                      isSelected
-                                        ? 'bg-emerald-50 border-[#163E2B] text-[#0F2D1F] shadow-2xs'
-                                        : 'bg-white border-slate-200/60 hover:border-slate-300 text-slate-700'
-                                    }`}
-                                  >
-                                    <span>{option}</span>
-                                    {isSelected && (
-                                      <div className="w-5 h-5 rounded-full bg-[#163E2B] flex items-center justify-center shrink-0">
-                                        <Check className="w-3.5 h-3.5 text-white" />
-                                      </div>
-                                    )}
-                                  </div>
-                                );
-                              })}
-                            </div>
-                          )}
-
-                          {/* Fill-in-the-blank text field with beautiful click word bank */}
-                          {activeQuiz.questions[currentQuizIndex].type === 'fill' && (
-                            <div className="space-y-4">
-                              <div className="space-y-1">
-                                <label className="text-[9px] font-bold text-slate-500 uppercase tracking-wider font-mono">Your Written Answer</label>
-                                <input
-                                  type="text"
-                                  value={String(quizAnswers[currentQuizIndex] || "")}
-                                  onChange={(e) => handleSelectAIAnswer(e.target.value)}
-                                  placeholder="Type your answer here or tap from word bank..."
-                                  className="w-full px-4 py-3 border border-slate-200 rounded-xl text-xs font-bold text-slate-800 bg-white focus:outline-none focus:ring-1 focus:ring-emerald-500 focus:border-emerald-500"
-                                />
-                              </div>
-
-                              {/* Clickable Word Bank */}
-                              <div className="bg-slate-50 border border-slate-200/50 rounded-xl p-3.5 space-y-2">
-                                <span className="text-[8.5px] font-extrabold text-slate-500 uppercase tracking-widest font-mono block">Kid-Friendly Word Bank</span>
-                                <div className="flex flex-wrap gap-2 pt-1">
-                                  {activeQuiz.questions[currentQuizIndex].options.map((option, idx) => (
-                                    <button
-                                      key={idx}
-                                      onClick={() => handleSelectAIAnswer(option)}
-                                      className={`py-1.5 px-3 rounded-lg text-[10px] font-bold border cursor-pointer transition-all ${
-                                        String(quizAnswers[currentQuizIndex] || "").toLowerCase() === option.toLowerCase()
-                                          ? 'bg-[#163E2B] border-[#163E2B] text-white'
-                                          : 'bg-white border-slate-200 text-slate-600 hover:border-slate-300'
-                                      }`}
-                                    >
-                                      {option}
-                                    </button>
-                                  ))}
-                                </div>
-                              </div>
-                            </div>
-                          )}
-                        </div>
-
-                        {/* Prev & Next / Submit Action Row */}
-                        <div className="flex gap-3 pt-3 border-t border-slate-100">
-                          {/* Previous Button */}
-                          <button
-                            onClick={handlePrevAIQuestion}
-                            disabled={currentQuizIndex === 0}
-                            className="flex-1 py-2.5 bg-white border border-slate-200 text-slate-600 disabled:opacity-40 font-bold text-xs rounded-xl flex items-center justify-center gap-1 cursor-pointer transition-all active:scale-95"
-                          >
-                            Previous
-                          </button>
-
-                          {/* Next / Submit Button */}
-                          {currentQuizIndex < activeQuiz.questions.length - 1 ? (
-                            <button
-                              onClick={handleNextAIQuestion}
-                              disabled={quizAnswers[currentQuizIndex] === null || String(quizAnswers[currentQuizIndex]).trim() === ""}
-                              className="flex-1 py-2.5 bg-[#163E2B] hover:bg-[#0F2D1F] disabled:bg-slate-300 text-white font-extrabold text-xs rounded-xl flex items-center justify-center gap-1 cursor-pointer transition-all active:scale-95"
-                            >
-                              Next Question
-                            </button>
-                          ) : (
-                            <button
-                              onClick={handleSubmitAIQuiz}
-                              disabled={quizAnswers[currentQuizIndex] === null || String(quizAnswers[currentQuizIndex]).trim() === ""}
-                              className="flex-1 py-2.5 bg-slate-900 hover:bg-slate-950 disabled:bg-slate-300 text-white font-extrabold text-xs rounded-xl flex items-center justify-center gap-1 cursor-pointer transition-all active:scale-95 shadow"
-                            >
-                              Submit Quiz
-                            </button>
-                          )}
-                        </div>
-                      </div>
-                    ) : (
-                      /* POST-COMPLETION RESULTS VIEW (Academic Layout) */
-                      <motion.div 
-                        initial={{ opacity: 0, scale: 0.98 }} 
-                        animate={{ opacity: 1, scale: 1 }} 
-                        className="space-y-5 py-2"
-                      >
-                        {/* Summary Block */}
-                        <div className="bg-white border border-slate-200/60 rounded-[24px] p-5 text-center space-y-3.5 shadow-sm">
-                          <div className="w-12 h-12 bg-emerald-50 border border-emerald-100 rounded-full flex items-center justify-center text-[#163E2B] mx-auto">
-                            <Award className="w-6 h-6" />
-                          </div>
-                          <div>
-                            <span className="text-[9px] font-bold text-[#163E2B] uppercase tracking-widest font-mono">EVALUATION COMPLETED</span>
-                            <h4 className="text-base font-black text-slate-900">Quiz Performance Report</h4>
-                            <p className="text-[10.5px] text-slate-500 mt-1 leading-normal">Your theological and philosophical comprehension score is computed below.</p>
-                          </div>
-
-                          <div className="grid grid-cols-3 gap-2 py-1 max-w-[320px] mx-auto text-center">
-                            <div className="bg-slate-50 rounded-xl p-2.5 border border-slate-100">
-                              <span className="text-[8px] font-bold text-slate-400 uppercase font-mono block">Correct</span>
-                              <span className="text-sm font-extrabold text-emerald-600 font-mono">{quizScore}</span>
-                            </div>
-                            <div className="bg-slate-50 rounded-xl p-2.5 border border-slate-100">
-                              <span className="text-[8px] font-bold text-slate-400 uppercase font-mono block">Incorrect</span>
-                              <span className="text-sm font-extrabold text-emerald-500 font-mono">{activeQuiz.questions.length - quizScore}</span>
-                            </div>
-                            <div className="bg-slate-50 rounded-xl p-2.5 border border-slate-100">
-                              <span className="text-[8px] font-bold text-slate-400 uppercase font-mono block">Percentage</span>
-                              <span className="text-sm font-extrabold text-slate-700 font-mono">{Math.round((quizScore / activeQuiz.questions.length) * 100)}%</span>
-                            </div>
-                          </div>
-
-                          <div className="bg-emerald-50 border border-emerald-100 rounded-2xl p-3.5 max-w-[320px] mx-auto text-[11px] flex justify-between items-center">
-                            <span className="font-extrabold text-[#163E2B] block">Rewards Unlocked:</span>
-                            <span className="text-[#163E2B] font-mono font-black">+{quizScore * 25} Points Added</span>
-                          </div>
-                        </div>
-
-                        {/* Review Answers (Scrollable block) */}
-                        <div className="space-y-3">
-                          <h4 className="text-xs font-black text-slate-800 uppercase tracking-wider">Review Answers</h4>
-
-                          <div className="space-y-3 max-h-[300px] overflow-y-auto pr-1">
-                            {activeQuiz.questions.map((q, idx) => {
-                              const sAns = quizAnswers[idx];
-                              let isCorrect = false;
-                              let displayAnswerStr = "";
-                              let displayCorrectStr = "";
-
-                              if (q.type === 'mcq' || q.type === 'boolean') {
-                                isCorrect = sAns === q.correctAnswer;
-                                displayAnswerStr = sAns !== null ? q.options[Number(sAns)] : "Not Answered";
-                                displayCorrectStr = q.options[Number(q.correctAnswer)];
-                              } else {
-                                isCorrect = typeof sAns === 'string' && sAns.trim().toLowerCase() === String(q.correctAnswer).trim().toLowerCase();
-                                displayAnswerStr = typeof sAns === 'string' ? sAns : "Not Answered";
-                                displayCorrectStr = String(q.correctAnswer);
-                              }
-
-                              return (
-                                <div key={idx} className="bg-white border border-slate-200/60 rounded-xl p-3.5 space-y-2 shadow-2xs">
-                                  <div className="flex justify-between items-center border-b border-slate-50 pb-1.5">
-                                    <span className="text-[8.5px] font-bold text-slate-400 uppercase font-mono">QUESTION {idx + 1}</span>
-                                    <span className={`px-2 py-0.5 rounded text-[8px] font-bold uppercase font-mono ${isCorrect ? 'bg-emerald-50 text-emerald-700' : 'bg-emerald-50 text-[#163E2B]'}`}>
-                                      {isCorrect ? "Correct" : "Incorrect"}
-                                    </span>
-                                  </div>
-
-                                  <h5 className="font-bold text-xs text-slate-900 leading-normal">{q.question}</h5>
-                                  
-                                  <div className="space-y-1 text-[10.5px] font-medium leading-normal">
-                                    <p className="text-slate-500">
-                                      Your Answer: <span className={isCorrect ? 'text-emerald-700 font-bold' : 'text-[#163E2B] font-bold'}>{displayAnswerStr}</span>
-                                    </p>
-                                    {!isCorrect && (
-                                      <p className="text-slate-500">
-                                        Correct Answer: <span className="text-emerald-700 font-bold">{displayCorrectStr}</span>
-                                      </p>
-                                    )}
-                                  </div>
-
-                                  {/* Explanation block */}
-                                  <div className="bg-slate-50 border border-slate-150 rounded-lg p-2.5 text-[10px] text-slate-500 leading-normal">
-                                    <span className="font-bold text-slate-700 block">Theological Background:</span>
-                                    {q.explanation}
-                                  </div>
-                                </div>
-                              );
-                            })}
-                          </div>
-                        </div>
-
-                        {/* Actions */}
-                        <div className="flex gap-3 pt-2">
-                          <button 
-                            onClick={handleRetakeAIQuiz}
-                            className="flex-1 py-2.5 bg-white border border-slate-200 text-slate-700 font-extrabold text-xs rounded-xl cursor-pointer shadow-xs text-center hover:bg-slate-50"
-                          >
-                            Retake Quiz
-                          </button>
-                          
-                          <button 
-                            onClick={handleExitAIQuiz}
-                            className="flex-1 py-2.5 bg-[#163E2B] hover:bg-[#0F2D1F] text-white font-extrabold text-xs rounded-xl cursor-pointer shadow-xs text-center"
-                          >
-                            Back to Quiz Hub
-                          </button>
-                        </div>
-                      </motion.div>
-                    )}
-                  </motion.div>
-                )}
-
-                {/* 15. PROFILE - STUDENT OVERVIEW SCREEN */}
+                {/* 15. PROFILE - STUDENT PROFILES LIST SCREEN (Screen 1) */}
                 {activeScreen === 'Profile' && (
                   <motion.div 
                     initial={{ opacity: 0 }} 
@@ -6273,6 +5440,234 @@ export default function App() {
                       </div>
                       <button onClick={() => setActiveScreen('Home')} className="w-8 h-8 rounded-full bg-cream-200 flex items-center justify-center cursor-pointer hover:bg-cream-300 transition-all active:scale-95">
                         <X className="w-4.5 h-4.5 text-navy-950" />
+                      </button>
+                    </div>
+
+                    {/* 1. Student Profiles List Section */}
+                    <div className="space-y-2.5">
+                      <div className="flex items-center justify-between">
+                        <span className="text-[9px] font-bold text-slate-500 uppercase tracking-widest font-mono block">Registered Student Profiles</span>
+                        <span className="text-[10px] font-bold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-md">1 Active</span>
+                      </div>
+
+                      {/* Primary Student Profile Card (Clicking opens Profile Details on second screen) */}
+                      <div 
+                        id="profile-student-card"
+                        onClick={() => setActiveScreen('ProfileDetails')}
+                        className="bg-white border-2 border-emerald-100 hover:border-[#163E2B]/50 rounded-[22px] p-4 shadow-xs hover:shadow-md transition-all cursor-pointer group active:scale-[0.99] space-y-3.5"
+                      >
+                        <div className="flex items-center justify-between gap-3">
+                          <div className="flex items-center gap-3.5 min-w-0">
+                            <div className="relative shrink-0">
+                              <InitialBadge name={student.name} className="w-13 h-13 text-base shadow-xs" />
+                              <div className="absolute -bottom-1 -right-1 w-4 h-4 bg-emerald-500 rounded-full border-2 border-white flex items-center justify-center">
+                                <span className="w-1.5 h-1.5 bg-white rounded-full"></span>
+                              </div>
+                            </div>
+                            <div className="min-w-0">
+                              <div className="flex items-center gap-2">
+                                <h4 className="font-extrabold text-sm text-navy-950 truncate group-hover:text-[#163E2B] transition-colors">{student.name}</h4>
+                                <span className="bg-emerald-50 text-[#163E2B] text-[8.5px] font-black uppercase px-1.5 py-0.5 rounded tracking-wide border border-emerald-100">Primary</span>
+                              </div>
+                              <span className="font-semibold text-[#163E2B] text-xs block truncate mt-0.5">{student.level}</span>
+                              <span className="text-[10px] text-slate-500 block truncate">Batch: {student.batch} • {student.teacher}</span>
+                            </div>
+                          </div>
+                          
+                          <div className="w-8 h-8 rounded-full bg-slate-50 group-hover:bg-[#163E2B] text-slate-400 group-hover:text-white flex items-center justify-center transition-all shrink-0">
+                            <ChevronRight className="w-4.5 h-4.5" />
+                          </div>
+                        </div>
+
+                        {/* Progress & Status Summary Pill */}
+                        <div className="bg-slate-50 rounded-xl p-2.5 flex items-center justify-between text-xs border border-slate-100/80">
+                          <div className="flex items-center gap-1.5 text-[11px] font-bold text-slate-700">
+                            <span className="text-emerald-600 font-black">●</span>
+                            <span>Status:</span>
+                            <span className="text-[#163E2B] font-extrabold">{student.promotionStatus || 'Learning Stage'}</span>
+                          </div>
+                          <span className="text-[10px] font-black text-emerald-800 bg-emerald-100/70 px-2 py-0.5 rounded-md">
+                            Tap to view full details →
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* 2. Navigation Buttons for Profile Sections */}
+                    <div className="space-y-3 pt-1">
+                      <span className="text-[9px] font-bold text-slate-500 uppercase tracking-widest font-mono block">Academic & Profile Sections</span>
+
+                      {/* 1. Learning Progress Button */}
+                      <button 
+                        onClick={() => setActiveScreen('ProfileReportCard')}
+                        className="w-full p-3.5 bg-emerald-50 hover:bg-emerald-100/80 border border-emerald-200 rounded-2xl text-left flex items-center justify-between cursor-pointer transition-all active:scale-99 shadow-xs"
+                      >
+                        <div className="flex items-center gap-3">
+                          <div className="w-8 h-8 rounded-lg bg-[#163E2B] flex items-center justify-center text-white">
+                            <Award className="w-4 h-4 text-white" />
+                          </div>
+                          <div>
+                            <h4 className="text-xs font-black text-[#163E2B]">Learning Progress & Report Card</h4>
+                            <p className="text-[10px] text-[#163E2B]/80 font-medium">Gathas Recited: 36 | Academic Standing & Marks</p>
+                          </div>
+                        </div>
+                        <ChevronRight className="w-4 h-4 text-[#163E2B]" />
+                      </button>
+
+                      {/* 2. Attendance Screen Button */}
+                      <button 
+                        onClick={() => setActiveScreen('ProfileAttendance')}
+                        className="w-full p-3.5 bg-white hover:bg-cream-50 border border-cream-300 rounded-2xl text-left flex items-center justify-between cursor-pointer transition-all active:scale-99 shadow-xs"
+                      >
+                        <div className="flex items-center gap-3">
+                          <div className="w-8 h-8 rounded-lg bg-emerald-50 flex items-center justify-center">
+                            <Calendar className="w-4 h-4 text-[#163E2B]" />
+                          </div>
+                          <div>
+                            <h4 className="text-xs font-bold text-[#0f172a]">Attendance Tracker</h4>
+                            <p className="text-[10px] text-slate-500 font-medium">Present: 18 Days | Absent: 2 Days | Holiday: 4 Days</p>
+                          </div>
+                        </div>
+                        <ChevronRight className="w-4 h-4 text-slate-400" />
+                      </button>
+
+                      {/* 3. Guruji Approval Button */}
+                      <button 
+                        onClick={() => setActiveScreen('ProfileGurujiApproval')}
+                        className="w-full p-3.5 bg-white hover:bg-cream-50 border border-cream-300 rounded-2xl text-left flex items-center justify-between cursor-pointer transition-all active:scale-99 shadow-xs"
+                      >
+                        <div className="flex items-center gap-3">
+                          <div className="w-8 h-8 rounded-lg bg-emerald-50 flex items-center justify-center">
+                            <Shield className="w-4 h-4 text-[#163E2B]" />
+                          </div>
+                          <div>
+                            <h4 className="text-xs font-bold text-[#0f172a]">Guruji Approval Status</h4>
+                            <p className="text-[10px] text-slate-500 font-medium">
+                              {isGurujiApproved ? 'Verified & Approved' : 'Awaiting Review'}
+                            </p>
+                          </div>
+                        </div>
+                        <ChevronRight className="w-4 h-4 text-slate-400" />
+                      </button>
+
+                      {/* 4. Bonus Points Button */}
+                      <button 
+                        onClick={() => setActiveScreen('ProfileBonusPoints')}
+                        className="w-full p-3.5 bg-white hover:bg-cream-50 border border-cream-300 rounded-2xl text-left flex items-center justify-between cursor-pointer transition-all active:scale-99 shadow-xs"
+                      >
+                        <div className="flex items-center gap-3">
+                          <div className="w-8 h-8 rounded-lg bg-emerald-50 flex items-center justify-center">
+                            <Sparkles className="w-4 h-4 text-[#163E2B]" />
+                          </div>
+                          <div>
+                            <h4 className="text-xs font-bold text-[#0f172a]">Bonus Points</h4>
+                            <p className="text-[10px] text-slate-500 font-medium">+250 Points from Religious Events</p>
+                          </div>
+                        </div>
+                        <ChevronRight className="w-4 h-4 text-slate-400" />
+                      </button>
+
+                      {/* 5. Change Batch Button */}
+                      <button 
+                        onClick={() => setActiveScreen('ProfileBatchChange')}
+                        className="w-full p-3.5 bg-white hover:bg-cream-50 border border-cream-300 rounded-2xl text-left flex items-center justify-between cursor-pointer transition-all active:scale-99 shadow-xs"
+                      >
+                        <div className="flex items-center gap-3">
+                          <div className="w-8 h-8 rounded-lg bg-emerald-50 flex items-center justify-center">
+                            <Users className="w-4 h-4 text-[#163E2B]" />
+                          </div>
+                          <div>
+                            <h4 className="text-xs font-bold text-[#0f172a]">Change Batch</h4>
+                            <p className="text-[10px] text-slate-500 font-medium">View and switch class timings</p>
+                          </div>
+                        </div>
+                        <ChevronRight className="w-4 h-4 text-slate-400" />
+                      </button>
+
+                      {/* 6. Offline Downloads Button */}
+                      <button 
+                        onClick={() => setActiveScreen('Downloads')}
+                        className="w-full p-3.5 bg-white hover:bg-cream-50 border border-cream-300 rounded-2xl text-left flex items-center justify-between cursor-pointer transition-all active:scale-99 shadow-xs"
+                      >
+                        <div className="flex items-center gap-3">
+                          <div className="w-8 h-8 rounded-lg bg-emerald-50 flex items-center justify-center">
+                            <Download className="w-4 h-4 text-[#163E2B]" />
+                          </div>
+                          <div>
+                            <h4 className="text-xs font-bold text-[#0f172a]">Offline Downloads</h4>
+                            <p className="text-[10px] text-slate-500 font-medium">Access saved Sutras & Stavans offline</p>
+                          </div>
+                        </div>
+                        <ChevronRight className="w-4 h-4 text-slate-400" />
+                      </button>
+
+                      {/* 7. Application Settings Button */}
+                      <button 
+                        onClick={() => setActiveScreen('Settings')}
+                        className="w-full p-3.5 bg-white hover:bg-cream-50 border border-cream-300 rounded-2xl text-left flex items-center justify-between cursor-pointer transition-all active:scale-99 shadow-xs"
+                      >
+                        <div className="flex items-center gap-3">
+                          <div className="w-8 h-8 rounded-lg bg-emerald-50 flex items-center justify-center">
+                            <Settings className="w-4 h-4 text-[#163E2B]" />
+                          </div>
+                          <div>
+                            <h4 className="text-xs font-bold text-[#0f172a]">Application Settings</h4>
+                            <p className="text-[10px] text-slate-500 font-medium">Manage language preference & configurations</p>
+                          </div>
+                        </div>
+                        <ChevronRight className="w-4 h-4 text-slate-400" />
+                      </button>
+
+                      {/* Management Section */}
+                      <div className="pt-2 space-y-2">
+                        <span className="text-[9px] font-bold text-slate-500 uppercase tracking-widest font-mono block">Management</span>
+                        
+                        <button 
+                          onClick={() => setActiveScreen('AdminPanel')}
+                          className="w-full p-3.5 bg-[#fff8f6] hover:bg-[#ffede8] border border-emerald-200/90 rounded-2xl text-left flex items-center justify-between cursor-pointer transition-all active:scale-99 shadow-xs"
+                        >
+                          <div className="flex items-center gap-3">
+                            <div className="w-8 h-8 rounded-lg bg-[#163E2B] text-white flex items-center justify-center shadow-xs">
+                              <Shield className="w-4 h-4" />
+                            </div>
+                            <div>
+                              <h4 className="text-xs font-black text-[#0F2D1F]">Admin Portal</h4>
+                              <p className="text-[10px] text-[#163E2B] font-medium">Access executive management dashboard & office tools</p>
+                            </div>
+                          </div>
+                          <ChevronRight className="w-4 h-4 text-[#163E2B]" />
+                        </button>
+                      </div>
+                    </div>
+                  </motion.div>
+                )}
+
+                {/* 15b. PROFILE DETAILS SCREEN (Screen 2) */}
+                {activeScreen === 'ProfileDetails' && (
+                  <motion.div 
+                    initial={{ opacity: 0 }} 
+                    animate={{ opacity: 1 }} 
+                    className="p-5 space-y-5 pb-24"
+                  >
+                    {/* Header with Back Button */}
+                    <div className="flex items-center gap-3">
+                      <button 
+                        onClick={() => navigateBack()}
+                        className="w-8 h-8 rounded-full bg-cream-200 flex items-center justify-center cursor-pointer hover:bg-cream-300 transition-all active:scale-95 shrink-0 shadow-2xs"
+                        title="Back to Profiles"
+                      >
+                        <ChevronLeft className="w-5 h-5 text-navy-950 -ml-0.5" />
+                      </button>
+                      <div className="flex-1 min-w-0">
+                        <span className="text-[9px] font-bold text-[#163E2B] uppercase tracking-widest font-mono">Student Profile</span>
+                        <h3 className="text-base font-black text-[#0f172a] truncate">Profile Details</h3>
+                      </div>
+                      <button 
+                        onClick={() => setActiveScreen('Home')}
+                        className="w-8 h-8 rounded-full bg-slate-100 flex items-center justify-center cursor-pointer hover:bg-slate-200 transition-all active:scale-95 shrink-0"
+                        title="Close to Home"
+                      >
+                        <X className="w-4.5 h-4.5 text-slate-700" />
                       </button>
                     </div>
 
@@ -6299,7 +5694,7 @@ export default function App() {
                       </button>
                     </div>
 
-                    {/* Student Overview Card */}
+                    {/* Full Student Overview Card with Highlighted Details */}
                     <div className="bg-white border border-cream-300 rounded-[24px] p-5 shadow-xs space-y-4">
                       <div className="flex items-center gap-4">
                         <div className="relative shrink-0">
@@ -6415,150 +5810,41 @@ export default function App() {
                       </div>
                     </div>
 
-                    {/* Navigation Buttons for the 5 sub-sections */}
-                    <div className="space-y-3">
-                      <span className="text-[9px] font-bold text-slate-500 uppercase tracking-widest font-mono block">Profile Sections</span>
+                    {/* Quick Profile Actions */}
+                    <div className="space-y-2.5 pt-1">
+                      <span className="text-[9px] font-bold text-slate-500 uppercase tracking-widest font-mono block">Detailed Records</span>
 
-                      {/* 1. Attendance Screen Button */}
+                      <button 
+                        onClick={() => setActiveScreen('ProfileReportCard')}
+                        className="w-full p-3.5 bg-white hover:bg-cream-50 border border-cream-300 rounded-2xl text-left flex items-center justify-between cursor-pointer transition-all active:scale-99 shadow-xs"
+                      >
+                        <div className="flex items-center gap-3">
+                          <div className="w-8 h-8 rounded-lg bg-emerald-50 flex items-center justify-center">
+                            <Award className="w-4 h-4 text-[#163E2B]" />
+                          </div>
+                          <div>
+                            <h4 className="text-xs font-bold text-[#0f172a]">View Academic Report Card</h4>
+                            <p className="text-[10px] text-slate-500 font-medium">Gatha breakdown & performance marks</p>
+                          </div>
+                        </div>
+                        <ChevronRight className="w-4 h-4 text-slate-400" />
+                      </button>
+
                       <button 
                         onClick={() => setActiveScreen('ProfileAttendance')}
-                        className="w-full p-4 bg-white hover:bg-cream-50 border border-cream-300 rounded-2xl text-left flex items-center justify-between cursor-pointer transition-all active:scale-99 shadow-xs"
+                        className="w-full p-3.5 bg-white hover:bg-cream-50 border border-cream-300 rounded-2xl text-left flex items-center justify-between cursor-pointer transition-all active:scale-99 shadow-xs"
                       >
                         <div className="flex items-center gap-3">
                           <div className="w-8 h-8 rounded-lg bg-emerald-50 flex items-center justify-center">
                             <Calendar className="w-4 h-4 text-[#163E2B]" />
                           </div>
                           <div>
-                            <h4 className="text-xs font-bold text-[#0f172a]">Attendance Tracker</h4>
-                            <p className="text-[10px] text-slate-500 font-medium">Present: 18 Days | Absent: 2 Days | Holiday: 4 Days</p>
+                            <h4 className="text-xs font-bold text-[#0f172a]">Attendance Tracker & History</h4>
+                            <p className="text-[10px] text-slate-500 font-medium">Check monthly presence logs</p>
                           </div>
                         </div>
                         <ChevronRight className="w-4 h-4 text-slate-400" />
                       </button>
-
-                      {/* 2. Learning Progress Button */}
-                      <button 
-                        onClick={() => setActiveScreen('ProfileReportCard')}
-                        className="w-full p-4 bg-emerald-50 hover:bg-emerald-100 border border-emerald-200 rounded-2xl text-left flex items-center justify-between cursor-pointer transition-all active:scale-99 shadow-xs"
-                      >
-                        <div className="flex items-center gap-3">
-                          <div className="w-8 h-8 rounded-lg bg-[#163E2B] flex items-center justify-center">
-                            <Award className="w-4 h-4 text-white" />
-                          </div>
-                          <div>
-                            <h4 className="text-xs font-black text-[#163E2B]">Learning Progress</h4>
-                            <p className="text-[10px] text-[#163E2B] font-medium">Gathas Recited: 36 | Academic Standing & Report Card</p>
-                          </div>
-                        </div>
-                        <ChevronRight className="w-4 h-4 text-[#163E2B]" />
-                      </button>
-
-                      {/* 3. Guruji Approval Button */}
-                      <button 
-                        onClick={() => setActiveScreen('ProfileGurujiApproval')}
-                        className="w-full p-4 bg-white hover:bg-cream-50 border border-cream-300 rounded-2xl text-left flex items-center justify-between cursor-pointer transition-all active:scale-99 shadow-xs"
-                      >
-                        <div className="flex items-center gap-3">
-                          <div className="w-8 h-8 rounded-lg bg-emerald-50 flex items-center justify-center">
-                            <Shield className="w-4 h-4 text-[#163E2B]" />
-                          </div>
-                          <div>
-                            <h4 className="text-xs font-bold text-[#0f172a]">Guruji Approval Status</h4>
-                            <p className="text-[10px] text-slate-500 font-medium">
-                              {isGurujiApproved ? 'Verified & Approved' : 'Awaiting Review'}
-                            </p>
-                          </div>
-                        </div>
-                        <ChevronRight className="w-4 h-4 text-slate-400" />
-                      </button>
-
-                      {/* 4. Bonus Points Button */}
-                      <button 
-                        onClick={() => setActiveScreen('ProfileBonusPoints')}
-                        className="w-full p-4 bg-white hover:bg-cream-50 border border-cream-300 rounded-2xl text-left flex items-center justify-between cursor-pointer transition-all active:scale-99 shadow-xs"
-                      >
-                        <div className="flex items-center gap-3">
-                          <div className="w-8 h-8 rounded-lg bg-emerald-50 flex items-center justify-center">
-                            <Sparkles className="w-4 h-4 text-[#163E2B]" />
-                          </div>
-                          <div>
-                            <h4 className="text-xs font-bold text-[#0f172a]">Bonus Points</h4>
-                            <p className="text-[10px] text-slate-500 font-medium">+250 Points from Religious Events</p>
-                          </div>
-                        </div>
-                        <ChevronRight className="w-4 h-4 text-slate-400" />
-                      </button>
-
-                      {/* 5. Change Batch Button */}
-                      <button 
-                        onClick={() => setActiveScreen('ProfileBatchChange')}
-                        className="w-full p-4 bg-white hover:bg-cream-50 border border-cream-300 rounded-2xl text-left flex items-center justify-between cursor-pointer transition-all active:scale-99 shadow-xs"
-                      >
-                        <div className="flex items-center gap-3">
-                          <div className="w-8 h-8 rounded-lg bg-emerald-50 flex items-center justify-center">
-                            <Users className="w-4 h-4 text-[#163E2B]" />
-                          </div>
-                          <div>
-                            <h4 className="text-xs font-bold text-[#0f172a]">Change Batch</h4>
-                            <p className="text-[10px] text-slate-500 font-medium">View and switch class timings</p>
-                          </div>
-                        </div>
-                        <ChevronRight className="w-4 h-4 text-slate-400" />
-                      </button>
-                      {/* 6. Offline Downloads Button */}
-                      <button 
-                        onClick={() => setActiveScreen('Downloads')}
-                        className="w-full p-4 bg-white hover:bg-cream-50 border border-cream-300 rounded-2xl text-left flex items-center justify-between cursor-pointer transition-all active:scale-99 shadow-xs"
-                      >
-                        <div className="flex items-center gap-3">
-                          <div className="w-8 h-8 rounded-lg bg-emerald-50 flex items-center justify-center">
-                            <Download className="w-4 h-4 text-[#163E2B]" />
-                          </div>
-                          <div>
-                            <h4 className="text-xs font-bold text-[#0f172a]">Offline Downloads</h4>
-                            <p className="text-[10px] text-slate-500 font-medium">Access saved Sutras & Stavans offline</p>
-                          </div>
-                        </div>
-                        <ChevronRight className="w-4 h-4 text-slate-400" />
-                      </button>
-
-                      {/* 7. Application Settings Button */}
-                      <button 
-                        onClick={() => setActiveScreen('Settings')}
-                        className="w-full p-4 bg-white hover:bg-cream-50 border border-cream-300 rounded-2xl text-left flex items-center justify-between cursor-pointer transition-all active:scale-99 shadow-xs"
-                      >
-                        <div className="flex items-center gap-3">
-                          <div className="w-8 h-8 rounded-lg bg-emerald-50 flex items-center justify-center">
-                            <Settings className="w-4 h-4 text-[#163E2B]" />
-                          </div>
-                          <div>
-                            <h4 className="text-xs font-bold text-[#0f172a]">Application Settings</h4>
-                            <p className="text-[10px] text-slate-500 font-medium">Manage language preference & configurations</p>
-                          </div>
-                        </div>
-                        <ChevronRight className="w-4 h-4 text-slate-400" />
-                      </button>
-
-                      {/* Management Section */}
-                      <div className="pt-3 space-y-2">
-                        <span className="text-[9px] font-bold text-slate-500 uppercase tracking-widest font-mono block">Management</span>
-                        
-                        <button 
-                          onClick={() => setActiveScreen('AdminPanel')}
-                          className="w-full p-4 bg-[#fff8f6] hover:bg-[#ffede8] border border-emerald-200/90 rounded-2xl text-left flex items-center justify-between cursor-pointer transition-all active:scale-99 shadow-xs"
-                        >
-                          <div className="flex items-center gap-3">
-                            <div className="w-8 h-8 rounded-lg bg-[#163E2B] text-white flex items-center justify-center shadow-xs">
-                              <Shield className="w-4 h-4" />
-                            </div>
-                            <div>
-                              <h4 className="text-xs font-black text-[#0F2D1F]">Admin Portal</h4>
-                              <p className="text-[10px] text-[#163E2B] font-medium">Access executive management dashboard & office tools</p>
-                            </div>
-                          </div>
-                          <ChevronRight className="w-4 h-4 text-[#163E2B]" />
-                        </button>
-                      </div>
                     </div>
                   </motion.div>
                 )}
@@ -8176,202 +7462,109 @@ export default function App() {
                 })}
 
                 {/* 22. TEACHER DASHBOARD - HOME */}
-                {activeScreen === 'TeacherDashboard' && (() => {
-                  const teacherName = currentLoggedInTeacher?.name || "Teacher";
-                  const levels = currentLoggedInTeacher?.level?.join(', ') || "All Levels";
-                  const todayDate = new Date().toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
+                {activeScreen === 'TeacherDashboard' && (
+                  <TeacherHomeScreen 
+                    currentLoggedInTeacher={currentLoggedInTeacher}
+                    setActiveScreen={setActiveScreen}
+                    setTeacherSelectedLiveClass={setTeacherSelectedLiveClass}
+                    setTeacherSelectedStudent={setTeacherSelectedStudent}
+                  />
+                )}
 
-                  return (
-                    <motion.div
-                      initial={{ opacity: 0 }}
-                      animate={{ opacity: 1 }}
-                      className="h-full bg-slate-50 overflow-y-auto pb-24"
-                    >
-                      {/* HEADER */}
-                      <div className="bg-white px-6 pt-12 pb-6 border-b border-slate-200">
-                        <h1 className="text-2xl font-black text-slate-900 tracking-tight">Welcome, {teacherName}</h1>
-                        <p className="text-sm font-medium text-slate-500 mt-1">Assigned: {levels}</p>
-                        <p className="text-[11px] font-bold text-slate-400 mt-3 font-mono uppercase tracking-wider">{todayDate}</p>
-                      </div>
+                {/* TEACHER LIVE CLASSES */}
+                {['TeacherLiveClasses', 'TeacherLiveClassDetails'].includes(activeScreen) && (
+                  <TeacherLiveClassesFlow
+                    activeScreen={activeScreen}
+                    setActiveScreen={setActiveScreen}
+                    currentLoggedInTeacher={currentLoggedInTeacher}
+                    teacherSelectedLiveClass={teacherSelectedLiveClass}
+                    setTeacherSelectedLiveClass={setTeacherSelectedLiveClass}
+                  />
+                )}
 
-                      <div className="p-6 space-y-8">
-                        
-                        {/* TODAY'S SUMMARY */}
-                        <div>
-                          <h2 className="text-xs font-black text-slate-400 uppercase tracking-wider mb-4">Today's Summary</h2>
-                          <div className="grid grid-cols-2 gap-3">
-                            <div className="bg-white border border-slate-200 p-4 rounded-2xl shadow-sm">
-                              <div className="text-2xl font-black text-slate-800">3</div>
-                              <div className="text-[10px] font-bold text-slate-500 uppercase mt-1">Classes Today</div>
-                            </div>
-                            <button onClick={() => setActiveScreen('TeacherGathaApprovals')} className="bg-white border border-slate-200 p-4 rounded-2xl shadow-sm text-left hover:border-slate-300 transition-colors active:scale-95 cursor-pointer">
-                              <div className="text-2xl font-black text-amber-600">12</div>
-                              <div className="text-[10px] font-bold text-amber-700 uppercase mt-1">Pending Approvals</div>
-                            </button>
-                            <div className="bg-white border border-slate-200 p-4 rounded-2xl shadow-sm">
-                              <div className="text-2xl font-black text-slate-800">45</div>
-                              <div className="text-[10px] font-bold text-slate-500 uppercase mt-1">My Students</div>
-                            </div>
-                            <div className="bg-white border border-slate-200 p-4 rounded-2xl shadow-sm">
-                              <div className="text-2xl font-black text-emerald-600">2</div>
-                              <div className="text-[10px] font-bold text-[#1C4D36] uppercase mt-1">Attendance Pending</div>
-                            </div>
-                          </div>
-                        </div>
+                {/* TEACHER STUDENTS & ROSTER */}
+                {['TeacherStudents', 'TeacherStudentProfile'].includes(activeScreen) && (
+                  <TeacherStudentsFlow
+                    activeScreen={activeScreen}
+                    setActiveScreen={setActiveScreen}
+                    currentLoggedInTeacher={currentLoggedInTeacher}
+                    teacherSelectedStudent={teacherSelectedStudent}
+                    setTeacherSelectedStudent={setTeacherSelectedStudent}
+                  />
+                )}
 
-                        {/* TODAY'S CLASSES */}
-                        <div>
-                          <h2 className="text-xs font-black text-slate-400 uppercase tracking-wider mb-4">Today's Classes</h2>
-                          <div className="space-y-3">
-                            <div className="bg-white border border-slate-200 rounded-2xl p-4 shadow-sm border-l-4 border-l-emerald-500">
-                              <div className="flex justify-between items-start">
-                                <div>
-                                  <span className="text-[10px] font-bold text-slate-600 bg-slate-100 px-2 py-0.5 rounded uppercase tracking-wider">Level 1</span>
-                                  <h3 className="text-sm font-bold text-slate-800 mt-1.5">Batch A - Morning</h3>
-                                  <p className="text-xs text-slate-500 mt-1">09:00 AM • 15 Students</p>
-                                </div>
-                                <span className="text-[10px] font-bold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded border border-emerald-100">Completed</span>
-                              </div>
-                              <button onClick={() => { setTeacherSelectedLiveClass({ id: 'c1', name: 'Sutra Pronunciation', level: 'Level 1: Basic Sutras & Stories', batch: 'Batch A - Morning', teacher: currentLoggedInTeacher?.name || 'Teacher', date: new Date().toLocaleDateString(), time: '09:00 AM', duration: '60 min', students: 15, status: 'Completed', subject: 'Navkar Mantra' }); setActiveScreen('TeacherLiveClassDetails'); }} className="w-full mt-4 py-2 bg-white border border-slate-200 text-slate-600 font-bold text-xs rounded-xl hover:bg-slate-50 transition-colors cursor-pointer active:scale-95">
-                                View Details
-                              </button>
-                            </div>
-                            <div className="bg-white border border-slate-200 rounded-2xl p-4 shadow-sm border-l-4 border-l-blue-500">
-                              <div className="flex justify-between items-start">
-                                <div>
-                                  <span className="text-[10px] font-bold text-slate-600 bg-slate-100 px-2 py-0.5 rounded uppercase tracking-wider">Level 2</span>
-                                  <h3 className="text-sm font-bold text-slate-800 mt-1.5">Batch B - Afternoon</h3>
-                                  <p className="text-xs text-slate-500 mt-1">04:00 PM • 20 Students</p>
-                                </div>
-                                <span className="text-[10px] font-bold text-blue-700 bg-blue-50 px-2 py-0.5 rounded border border-blue-100">Upcoming</span>
-                              </div>
-                              <button onClick={() => { setTeacherSelectedLiveClass({ id: 'c2', name: 'Jain Principles', level: 'Level 2: Jain Geography & Symbols', batch: 'Batch B - Afternoon', teacher: currentLoggedInTeacher?.name || 'Teacher', date: new Date().toLocaleDateString(), time: '04:00 PM', duration: '60 min', students: 20, status: 'Upcoming', subject: 'Ahinsa Paramo Dharma' }); setActiveScreen('TeacherLiveClassDetails'); }} className="w-full mt-4 py-2 bg-blue-600 text-white font-bold text-xs rounded-xl hover:bg-blue-700 transition-colors shadow-sm cursor-pointer active:scale-95">
-                                View Details
-                              </button>
-                            </div>
-                          </div>
-                        </div>
+                {/* TEACHER GATHA APPROVALS */}
+                {['TeacherGathaApprovals', 'TeacherGathaSubmissionDetails'].includes(activeScreen) && (
+                  <TeacherGathaApprovalFlow
+                    activeScreen={activeScreen}
+                    setActiveScreen={setActiveScreen}
+                    currentLoggedInTeacher={currentLoggedInTeacher}
+                  />
+                )}
 
-                        {/* PENDING TASKS */}
-                        <div>
-                          <h2 className="text-xs font-black text-slate-400 uppercase tracking-wider mb-4">Pending Tasks</h2>
-                          <div className="bg-white border border-slate-200 rounded-2xl shadow-sm overflow-hidden flex flex-col divide-y divide-slate-100">
-                            <div className="p-4 flex justify-between items-center hover:bg-slate-50">
-                              <div>
-                                <h4 className="text-sm font-bold text-slate-800">Pending Gatha Approvals</h4>
-                                <p className="text-xs text-slate-500 mt-0.5">12 submissions waiting</p>
-                              </div>
-                              <button onClick={() => setActiveScreen('TeacherGathaApprovals')} className="px-4 py-1.5 bg-slate-100 text-slate-700 font-bold text-xs rounded-lg hover:bg-slate-200 cursor-pointer">View</button>
-                            </div>
-                            <div className="p-4 flex justify-between items-center hover:bg-slate-50">
-                              <div>
-                                <h4 className="text-sm font-bold text-slate-800">Attendance Yet to be Marked</h4>
-                                <p className="text-xs text-slate-500 mt-0.5">2 classes pending</p>
-                              </div>
-                              <button className="px-4 py-1.5 bg-slate-100 text-slate-700 font-bold text-xs rounded-lg hover:bg-slate-200">View</button>
-                            </div>
-                            <div className="p-4 flex justify-between items-center hover:bg-slate-50">
-                              <div>
-                                <h4 className="text-sm font-bold text-slate-800">Upcoming Class</h4>
-                                <p className="text-xs text-slate-500 mt-0.5">Batch B starts in 30 mins</p>
-                              </div>
-                              <button className="px-4 py-1.5 bg-slate-100 text-slate-700 font-bold text-xs rounded-lg hover:bg-slate-200">View</button>
-                            </div>
-                          </div>
-                        </div>
+                {/* TEACHER ATTENDANCE */}
+                {['TeacherAttendance', 'TeacherAttendanceDetails'].includes(activeScreen) && (
+                  <TeacherAttendanceFlow
+                    activeScreen={activeScreen}
+                    setActiveScreen={setActiveScreen}
+                    currentLoggedInTeacher={currentLoggedInTeacher}
+                  />
+                )}
 
-                        {/* QUICK ACTIONS */}
-                        <div>
-                          <h2 className="text-xs font-black text-slate-400 uppercase tracking-wider mb-4">Quick Actions</h2>
-                          <div className="grid grid-cols-2 gap-3">
-                            {[
-                              { label: 'Live Classes', icon: Video, id: 'TeacherLiveClasses' },
-                              { label: 'Students', icon: Users, id: 'TeacherStudents' },
-                              { label: 'Gatha Approvals', icon: CheckCircle2, id: 'TeacherGathaApprovals' },
-                              { label: 'Attendance', icon: FileText, id: 'TeacherAttendance' },
-                              { label: 'Reports', icon: TrendingUp, id: 'TeacherReports' }
-                            ].map((action, i) => (
-                              <button key={i} onClick={() => action.id && setActiveScreen(action.id)} className={`flex items-center gap-3 bg-white border border-slate-200 p-3.5 rounded-2xl shadow-sm hover:border-slate-300 transition-colors cursor-pointer active:scale-95 ${i === 4 ? 'col-span-2' : ''}`}>
-                                <div className="w-8 h-8 rounded-full bg-slate-100 flex items-center justify-center shrink-0">
-                                  <action.icon className="w-4 h-4 text-slate-700" />
-                                </div>
-                                <span className="text-xs font-bold text-slate-700">{action.label}</span>
-                              </button>
-                            ))}
-                          </div>
-                        </div>
+                {/* TEACHER SUBMITTED REVIEWS */}
+                {activeScreen === 'TeacherSubmittedReview' && (
+                  <TeacherSubmittedReviewFlow
+                    activeScreen={activeScreen}
+                    setActiveScreen={setActiveScreen}
+                    currentLoggedInTeacher={currentLoggedInTeacher}
+                  />
+                )}
 
-                        {/* RECENT ACTIVITY */}
-                        <div>
-                          <h2 className="text-xs font-black text-slate-400 uppercase tracking-wider mb-4">Recent Activity</h2>
-                          <div className="bg-white border border-slate-200 rounded-2xl shadow-sm p-5 space-y-5">
-                            <div className="flex gap-4">
-                              <div className="w-2.5 h-2.5 rounded-full bg-emerald-500 mt-1 shrink-0" />
-                              <div>
-                                <p className="text-sm font-medium text-slate-700">Dhairya Kothari submitted <strong>Navkar Mantra</strong></p>
-                                <p className="text-xs text-slate-400 mt-1">10 mins ago</p>
-                              </div>
-                            </div>
-                            <div className="flex gap-4">
-                              <div className="w-2.5 h-2.5 rounded-full bg-blue-500 mt-1 shrink-0" />
-                              <div>
-                                <p className="text-sm font-medium text-slate-700">Attendance marked for <strong>Level 2 - Batch B</strong></p>
-                                <p className="text-xs text-slate-400 mt-1">2 hours ago</p>
-                              </div>
-                            </div>
-                            <div className="flex gap-4">
-                              <div className="w-2.5 h-2.5 rounded-full bg-amber-500 mt-1 shrink-0" />
-                              <div>
-                                <p className="text-sm font-medium text-slate-700">New student <strong>Aanya Shah</strong> assigned to your batch</p>
-                                <p className="text-xs text-slate-400 mt-1">Yesterday</p>
-                              </div>
-                            </div>
-                          </div>
-                        </div>
+                {/* TEACHER REPORTS */}
+                {['TeacherReports', 'TeacherReportsDetails'].includes(activeScreen) && (
+                  <TeacherReportsFlow
+                    activeScreen={activeScreen}
+                    setActiveScreen={setActiveScreen}
+                    currentLoggedInTeacher={currentLoggedInTeacher}
+                  />
+                )}
 
-                        {/* SIGN OUT */}
-                        <div className="pt-2">
-                          <button
-                            onClick={() => {
-                              setCurrentLoggedInTeacher(null);
-                              localStorage.removeItem('shalaSession');
-                              setActiveScreen('Login');
-                            }}
-                            className="w-full py-3.5 bg-white border border-slate-200 text-slate-700 font-bold text-xs rounded-xl hover:bg-slate-50 transition-colors shadow-sm flex items-center justify-center gap-2"
-                          >
-                            <LogOut className="w-4 h-4 text-slate-500" />
-                            <span>Sign Out & Return to Login</span>
-                          </button>
-                        </div>
-
-                      </div>
-                    </motion.div>
-                  );
-                })()}
+                {/* TEACHER PROFILE */}
+                {activeScreen === 'TeacherProfile' && (
+                  <TeacherProfileFlow
+                    activeScreen={activeScreen}
+                    setActiveScreen={setActiveScreen}
+                    currentLoggedInTeacher={currentLoggedInTeacher}
+                    setCurrentLoggedInTeacher={setCurrentLoggedInTeacher}
+                    teacherSelectedStudent={teacherSelectedStudent}
+                    setTeacherSelectedStudent={setTeacherSelectedStudent}
+                  />
+                )}
 
               </div>
               {/* CONSISTENT BOTTOM NAVIGATION - Active on appropriate screens */}
-              {['Home', 'Syllabus', 'LiveClassList', 'LiveClassDetails', 'SutraList', 'SutraDetails', 'AudioLyrics', 'StavanList', 'StavanDetails', 'Niyam', 'BonusEvent', 'GamesHome', 'GamesQuizHub', 'Quiz', 'Profile', 'ProfileReportCard', 'ProfileBatchChange', 'Downloads', 'Notifications', 'Settings', 'Search'].includes(activeScreen) && (
+              {['Home', 'Syllabus', 'MyCourses', 'Courses', 'SyllabusDetails', 'LiveClassList', 'LiveClassDetails', 'SutraList', 'SutraDetails', 'AudioLyrics', 'StavanList', 'StavanDetails', 'Niyam', 'BonusEvent', 'GamesHome', 'GamesQuizHub', 'Quiz', 'Profile', 'ProfileDetails', 'ProfileReportCard', 'ProfileAttendance', 'ProfileGurujiApproval', 'ProfileBonusPoints', 'ProfileBatchChange', 'Downloads', 'Notifications', 'Settings', 'Search'].includes(activeScreen) && (
                 <div className="absolute bottom-0 left-0 right-0 bg-white/95 backdrop-blur-md border-t border-slate-100/80 px-6 py-3 flex justify-between items-center z-40 shadow-[0_-8px_30px_rgba(66,50,30,0.06)] shrink-0">
                   {[
-                    { id: 'Home', icon: LayoutDashboard, label: 'Home' },
-                    { id: 'LiveClassList', icon: Video, label: 'Live' },
-                    { id: 'Niyam', icon: Star, label: 'Niyam' },
-                    { id: 'Syllabus', icon: BookMarked, label: 'Syllabus' },
+                    { id: 'Home', icon: LayoutGrid, label: 'HOME' },
+                    { id: 'LiveClassList', icon: Video, label: 'LIVE' },
+                    { id: 'Niyam', icon: Star, label: 'NIYAM' },
+                    { id: 'Syllabus', icon: BookMarked, label: 'SYLLABUS' },
                   ].map((nav) => {
-                    const isCurrent = activeScreen === nav.id || 
-                                     (nav.id === 'SutraList' && ['SutraDetails', 'StavanList', 'StavanDetails', 'AudioLyrics'].includes(activeScreen)) || 
-                                     (nav.id === 'LiveClassList' && activeScreen === 'LiveClassDetails') ||
-                                     (nav.id === 'GamesHome' && ['GamesHome', 'GamesQuizHub', 'Quiz'].includes(activeScreen)) ||
-                                     (nav.id === 'Profile' && ['ProfileReportCard', 'ProfileAttendance', 'ProfileGurujiApproval', 'ProfileBonusPoints', 'Downloads', 'Settings'].includes(activeScreen));
+                    // Only the four rendered tabs can be active. Rules for tabs that are not
+                    // part of this bar (SutraList / GamesHome / Profile) were dead code and
+                    // could never match — removed so the mapping reflects the real tab set.
+                    const isCurrent = activeScreen === nav.id ||
+                                     (nav.id === 'Syllabus' && ['Syllabus', 'MyCourses', 'Courses', 'SyllabusDetails'].includes(activeScreen)) ||
+                                     (nav.id === 'LiveClassList' && activeScreen === 'LiveClassDetails');
                     return (
                       <button
                         key={nav.id}
                         onClick={() => setActiveScreen(nav.id)}
                         className="flex flex-col items-center gap-1 cursor-pointer py-1 px-2.5 rounded-2xl active:scale-95 transition-all text-center shrink-0 min-w-[55px]"
                       >
-                        <nav.icon className={`w-5 h-5 transition-all duration-300 ${isCurrent ? 'text-[#163E2B] scale-110 drop-shadow-[0_2px_4px_rgba(131,16,40,0.15)]' : 'text-slate-400 hover:text-slate-600'}`} />
-                        <span className={`text-[9px] font-bold tracking-wider uppercase ${isCurrent ? 'text-[#163E2B] font-extrabold' : 'text-slate-400 font-semibold'}`}>
+                        <nav.icon className={`w-5 h-5 transition-all duration-300 ${isCurrent ? 'text-[#163E2B] scale-110 drop-shadow-[0_2px_4px_rgba(22,62,43,0.15)]' : 'text-slate-400 hover:text-slate-600'}`} />
+                        <span className={`text-[9px] font-extrabold tracking-wider uppercase ${isCurrent ? 'text-[#163E2B]' : 'text-slate-400 font-bold'}`}>
                           {nav.label}
                         </span>
                       </button>
@@ -8381,7 +7574,7 @@ export default function App() {
               )}
 
               {/* TEACHER BOTTOM NAVIGATION */}
-              {['TeacherDashboard', 'TeacherLiveClasses', 'TeacherLiveClassDetails', 'TeacherStudents', 'TeacherStudentProfile', 'TeacherGathaApprovals', 'TeacherGathaSubmissionDetails', 'TeacherAttendance', 'TeacherAttendanceDetails', 'TeacherReports', 'TeacherReportsDetails', 'TeacherProfile'].includes(activeScreen) && (
+              {['TeacherDashboard', 'TeacherLiveClasses', 'TeacherLiveClassDetails', 'TeacherStudents', 'TeacherStudentProfile', 'TeacherGathaApprovals', 'TeacherGathaSubmissionDetails', 'TeacherAttendance', 'TeacherAttendanceDetails', 'TeacherReports', 'TeacherReportsDetails', 'TeacherProfile', 'TeacherSubmittedReview'].includes(activeScreen) && (
                 <div className="absolute bottom-0 left-0 right-0 bg-white/95 backdrop-blur-md border-t border-slate-100/80 px-6 py-3 flex justify-between items-center z-40 shadow-[0_-8px_30px_rgba(66,50,30,0.06)] shrink-0">
                   {[
                     { id: 'TeacherDashboard', icon: LayoutDashboard, label: 'Dashboard' },
@@ -8392,14 +7585,14 @@ export default function App() {
                     const isCurrent = activeScreen === nav.id || 
                                       (nav.id === 'TeacherLiveClasses' && activeScreen === 'TeacherLiveClassDetails') ||
                                       (nav.id === 'TeacherStudents' && activeScreen === 'TeacherStudentProfile') ||
-                                      (nav.id === 'TeacherDashboard' && ['TeacherGathaApprovals', 'TeacherGathaSubmissionDetails', 'TeacherAttendance', 'TeacherAttendanceDetails', 'TeacherReports', 'TeacherReportsDetails'].includes(activeScreen));
+                                      (nav.id === 'TeacherDashboard' && ['TeacherGathaApprovals', 'TeacherGathaSubmissionDetails', 'TeacherAttendance', 'TeacherAttendanceDetails', 'TeacherReports', 'TeacherReportsDetails', 'TeacherSubmittedReview'].includes(activeScreen));
                     return (
                       <button
                         key={nav.id}
                         onClick={() => setActiveScreen(nav.id)}
                         className="flex flex-col items-center gap-1 cursor-pointer py-1 px-2.5 rounded-2xl active:scale-95 transition-all text-center shrink-0 min-w-[55px]"
                       >
-                        <nav.icon className={`w-5 h-5 transition-all duration-300 ${isCurrent ? 'text-[#163E2B] scale-110 drop-shadow-[0_2px_4px_rgba(131,16,40,0.15)]' : 'text-slate-400 hover:text-slate-600'}`} />
+                        <nav.icon className={`w-5 h-5 transition-all duration-300 ${isCurrent ? 'text-[#163E2B] scale-110 drop-shadow-[0_2px_4px_rgba(22,62,43,0.15)]' : 'text-slate-400 hover:text-slate-600'}`} />
                         <span className={`text-[9px] font-bold tracking-wider uppercase ${isCurrent ? 'text-[#163E2B] font-extrabold' : 'text-slate-400 font-semibold'}`}>
                           {nav.label}
                         </span>

@@ -1,7 +1,7 @@
 export type AdminRole = 'SuperAdmin' | 'Trustee' | 'Admin' | 'Guruji' | 'Auditor';
 
 export type PeopleSubTab = 'students' | 'approvals' | 'teachers';
-export type AcademicSubTab = 'student_progress' | 'level_syllabus' | 'levels' | 'batches' | 'masters';
+export type AcademicSubTab = 'student_progress' | 'level_syllabus' | 'levels' | 'batches' | 'syllabus' | 'masters';
 export type ClassesSubTab = 'live_classes' | 'attendance';
 export type ContentSubTab = 'sutras' | 'stavans' | 'audio' | 'games';
 export type ActivitiesSubTab = 'niyam' | 'bonus';
@@ -107,17 +107,23 @@ export interface AdminTeacher {
   status: 'Active' | 'Inactive';
 }
 
-export type SyllabusLearningType = 'Sutra' | 'Stavan' | 'Story' | 'Activity' | 'Other';
+export type SyllabusLearningType = 'Sutra' | 'Stavan' | 'Gatha' | 'Story' | 'Activity' | 'Other';
 
 export interface LevelSyllabusItem {
   id: string;
-  levelId: string;
+  levelId?: string;
+  levelName?: string;
   chapterName: string;
   description?: string;
   learningType: SyllabusLearningType;
   displayOrder: number;
   status: 'Active' | 'Inactive';
-  // Extensible fields for future attributes
+  batchId?: string;
+  batch?: string;
+  audioUrl?: string;
+  audioFileName?: string;
+  pdfUrl?: string;
+  pdfFileName?: string;
   referenceTopic?: string;
   targetMinutes?: number;
   tags?: string[];
@@ -132,13 +138,19 @@ export interface AcademicLevel {
   maxAge: number;
   prerequisite: string;
   enrolledCount: number;
+  batch?: string;
+  batchId?: string;
   syllabus?: LevelSyllabusItem[];
 }
 
 export interface AcademicBatch {
   id: string;
   code: string;
+  name?: string;
   timeSlot: string;
+  description?: string;
+  levelId?: string;
+  level?: string;
   startTime: string;
   endTime: string;
   maxCapacity: number;

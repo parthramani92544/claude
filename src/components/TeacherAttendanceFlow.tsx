@@ -15,14 +15,19 @@ import {
   Star, 
   BookOpen, 
   History, 
-  MessageSquare, 
   Award,
   ChevronRight,
   Info,
-  TrendingUp,
-  Sliders,
-  FileText,
-  Activity
+  SlidersHorizontal,
+  Landmark,
+  GraduationCap,
+  Users,
+  UserCheck,
+  UserX,
+  Globe,
+  ShieldCheck,
+  Flower2,
+  Eye
 } from 'lucide-react';
 
 interface AttendanceRecord {
@@ -37,7 +42,11 @@ interface AttendanceRecord {
 interface ClassSession {
   id: string;
   level: string;
+  levelNumber: number;
+  levelSubtitle: string;
   batch: string;
+  startTime: string;
+  endTime: string;
   time: string;
   date: string;
   totalStudents: number;
@@ -47,15 +56,6 @@ interface ClassSession {
   isVerified: boolean;
   teacher: string;
   students: AttendanceRecord[];
-}
-
-interface SundayClassSession {
-  id: string;
-  title: string;
-  level: string;
-  date: string;
-  presentStudents: { id: string; name: string; initials: string; bonusPoints: number }[];
-  absentStudents: { id: string; name: string; initials: string }[];
 }
 
 interface TeacherAttendanceFlowProps {
@@ -71,8 +71,8 @@ export function TeacherAttendanceFlow({
 }: TeacherAttendanceFlowProps) {
   const teacherName = currentLoggedInTeacher?.name || "Samani Pragya ji";
 
-  // Three main tabs: 'Today', 'History', 'Sunday'
-  const [activeTab, setActiveTab] = useState<'Today' | 'History' | 'Sunday'>('Today');
+  // Two main tabs: 'Today', 'History'
+  const [activeTab, setActiveTab] = useState<'Today' | 'History'>('Today');
 
   // Interactive filters
   const [searchQuery, setSearchQuery] = useState('');
@@ -93,7 +93,11 @@ export function TeacherAttendanceFlow({
     {
       id: 'SESS001',
       level: 'Level 1: Basic Sutras & Stories',
-      batch: 'Batch A - Morning',
+      levelNumber: 1,
+      levelSubtitle: 'Basic Sutras & Stories',
+      batch: 'Batch A – Morning',
+      startTime: '09:00 AM',
+      endTime: '10:00 AM',
       time: '09:00 AM - 10:00 AM',
       date: '2026-07-06',
       totalStudents: 3,
@@ -111,135 +115,139 @@ export function TeacherAttendanceFlow({
     {
       id: 'SESS002',
       level: 'Level 2: Jain Geography & Symbols',
-      batch: 'Batch B - Afternoon',
+      levelNumber: 2,
+      levelSubtitle: 'Jain Geography & Symbols',
+      batch: 'Batch B – Afternoon',
+      startTime: '04:00 PM',
+      endTime: '05:00 PM',
       time: '04:00 PM - 05:00 PM',
       date: '2026-07-06',
-      totalStudents: 2,
-      presentCount: 1,
-      absentCount: 0,
-      lateCount: 1,
+      totalStudents: 3,
+      presentCount: 2,
+      absentCount: 1,
+      lateCount: 0,
       isVerified: false,
       teacher: "Samani Pragya ji",
       students: [
         { studentId: 'STU003', studentName: 'Rohan Jain', initials: 'RJ', status: 'Present', source: 'Automatically Recorded' },
-        { studentId: 'STU004', studentName: 'Kavya Doshi', initials: 'KD', status: 'Joined Late', source: 'Automatically Recorded', remark: 'Student Joined Late' }
+        { studentId: 'STU004', studentName: 'Kavya Doshi', initials: 'KD', status: 'Present', source: 'Automatically Recorded' },
+        { studentId: 'STU006', studentName: 'Ananya Singhi', initials: 'AS', status: 'Absent', source: 'Automatically Recorded' }
       ]
     },
-    // Past Sessions for History
+    // Past Sessions for History matching SS
     {
       id: 'SESS101',
       level: 'Level 1: Basic Sutras & Stories',
-      batch: 'Batch A - Morning',
+      levelNumber: 1,
+      levelSubtitle: 'Basic Sutras & Stories',
+      batch: 'Batch A – Morning',
+      startTime: '09:00 AM',
+      endTime: '10:00 AM',
       time: '09:00 AM - 10:00 AM',
       date: '2026-07-03',
       totalStudents: 3,
-      presentCount: 3,
-      absentCount: 0,
+      presentCount: 2,
+      absentCount: 1,
       lateCount: 0,
       isVerified: true,
       teacher: "Samani Pragya ji",
       students: [
         { studentId: 'STU001', studentName: 'Aarav Shah', initials: 'AS', status: 'Present', source: 'Automatically Recorded' },
         { studentId: 'STU002', studentName: 'Diya Patel', initials: 'DP', status: 'Present', source: 'Automatically Recorded' },
-        { studentId: 'STU005', studentName: 'Siddharth Mehta', initials: 'SM', status: 'Present', source: 'Teacher Corrected', remark: 'Network Issue resolved' }
+        { studentId: 'STU005', studentName: 'Siddharth Mehta', initials: 'SM', status: 'Absent', source: 'Automatically Recorded' }
       ]
     },
     {
       id: 'SESS102',
       level: 'Level 2: Jain Geography & Symbols',
-      batch: 'Batch B - Afternoon',
+      levelNumber: 2,
+      levelSubtitle: 'Jain Geography & Symbols',
+      batch: 'Batch B – Afternoon',
+      startTime: '04:00 PM',
+      endTime: '05:00 PM',
       time: '04:00 PM - 05:00 PM',
       date: '2026-07-03',
-      totalStudents: 2,
-      presentCount: 1,
+      totalStudents: 3,
+      presentCount: 2,
       absentCount: 1,
       lateCount: 0,
       isVerified: true,
       teacher: "Samani Pragya ji",
       students: [
         { studentId: 'STU003', studentName: 'Rohan Jain', initials: 'RJ', status: 'Present', source: 'Automatically Recorded' },
-        { studentId: 'STU004', studentName: 'Kavya Doshi', initials: 'KD', status: 'Absent', source: 'Automatically Recorded' }
+        { studentId: 'STU004', studentName: 'Kavya Doshi', initials: 'KD', status: 'Present', source: 'Automatically Recorded' },
+        { studentId: 'STU006', studentName: 'Ananya Singhi', initials: 'AS', status: 'Absent', source: 'Automatically Recorded' }
+      ]
+    },
+    {
+      id: 'SESS103',
+      level: 'Level 3: Ethics & Values',
+      levelNumber: 3,
+      levelSubtitle: 'Ethics & Values',
+      batch: 'Batch C – Evening',
+      startTime: '06:00 PM',
+      endTime: '07:00 PM',
+      time: '06:00 PM - 07:00 PM',
+      date: '2026-07-02',
+      totalStudents: 3,
+      presentCount: 2,
+      absentCount: 1,
+      lateCount: 0,
+      isVerified: true,
+      teacher: "Samani Pragya ji",
+      students: [
+        { studentId: 'STU007', studentName: 'Veer Gandhi', initials: 'VG', status: 'Present', source: 'Automatically Recorded' },
+        { studentId: 'STU008', studentName: 'Moksh Vora', initials: 'MV', status: 'Present', source: 'Automatically Recorded' },
+        { studentId: 'STU009', studentName: 'Prisha Kothari', initials: 'PK', status: 'Absent', source: 'Automatically Recorded' }
       ]
     },
     // For Pujya Samanji Dr. Shrutpragya ji
     {
       id: 'SESS201',
       level: 'Level 1: Basic Sutras & Stories',
-      batch: 'Batch A - Morning',
+      levelNumber: 1,
+      levelSubtitle: 'Basic Sutras & Stories',
+      batch: 'Batch A – Morning',
+      startTime: '09:00 AM',
+      endTime: '10:00 AM',
       time: '09:00 AM - 10:00 AM',
       date: '2026-07-06',
-      totalStudents: 2,
+      totalStudents: 3,
       presentCount: 2,
-      absentCount: 0,
+      absentCount: 1,
       lateCount: 0,
       isVerified: false,
       teacher: "Pujya Samanji Dr. Shrutpragya ji",
       students: [
         { studentId: 'STU002', studentName: 'Diya Patel', initials: 'DP', status: 'Present', source: 'Automatically Recorded' },
-        { studentId: 'STU005', studentName: 'Siddharth Mehta', initials: 'SM', status: 'Present', source: 'Automatically Recorded' }
+        { studentId: 'STU005', studentName: 'Siddharth Mehta', initials: 'SM', status: 'Present', source: 'Automatically Recorded' },
+        { studentId: 'STU007', studentName: 'Veer Gandhi', initials: 'VG', status: 'Absent', source: 'Automatically Recorded' }
       ]
     }
   ]);
 
-  // Sunday Classes database
-  const sundayClasses: SundayClassSession[] = [
-    {
-      id: 'SUN001',
-      title: 'Sunday Pratikraman & Values Special',
-      level: 'Level 1: Basic Sutras & Stories',
-      date: '2026-07-05',
-      presentStudents: [
-        { id: 'STU001', name: 'Aarav Shah', initials: 'AS', bonusPoints: 20 },
-        { id: 'STU002', name: 'Diya Patel', initials: 'DP', bonusPoints: 20 }
-      ],
-      absentStudents: [
-        { id: 'STU005', name: 'Siddharth Mehta', initials: 'SM' }
-      ]
-    },
-    {
-      id: 'SUN002',
-      title: 'Jain Philosophy & Karma Theory Sunday Circle',
-      level: 'Level 2: Jain Geography & Symbols',
-      date: '2026-07-05',
-      presentStudents: [
-        { id: 'STU003', name: 'Rohan Jain', initials: 'RJ', bonusPoints: 30 }
-      ],
-      absentStudents: [
-        { id: 'STU004', name: 'Kavya Doshi', initials: 'KD' }
-      ]
-    }
-  ];
-
   const levels = ['All', 'Level 1: Basic Sutras & Stories', 'Level 2: Jain Geography & Symbols'];
-  const batches = ['All', 'Batch A - Morning', 'Batch B - Afternoon'];
+  const batches = ['All', 'Batch A – Morning', 'Batch B – Afternoon'];
 
   // Resolve current session object
   const currentSession = sessions.find(s => s.id === selectedSessionId);
 
-  // Filters calculation for History Tab
+  // Filters calculation for History Tab (without filter dropdowns)
   const filteredHistorySessions = sessions.filter(sess => {
-    // History only shows sessions with dates in the past, or marked as verified
     const isPast = sess.date !== '2026-07-06' || sess.isVerified;
-    const matchesLevel = filterLevel === 'All' || sess.level === filterLevel;
-    const matchesBatch = filterBatch === 'All' || sess.batch === filterBatch;
-    const matchesDate = !filterDate || sess.date === filterDate;
     const matchesTeacher = sess.teacher === teacherName;
+    const matchesSearch = !searchQuery || 
+      sess.batch.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      sess.level.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      sess.levelSubtitle.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      sess.date.includes(searchQuery);
 
-    return isPast && matchesLevel && matchesBatch && matchesDate && matchesTeacher;
+    return isPast && matchesTeacher && matchesSearch;
   });
 
   // Today's active sessions for this teacher
   const todaysSessions = sessions.filter(sess => {
     return sess.date === '2026-07-06' && sess.teacher === teacherName;
-  });
-
-  // Filter Sunday Classes
-  const filteredSundayClasses = sundayClasses.filter(sc => {
-    // Only show classes matching teacher's students levels
-    const isL1Teacher = teacherName === "Samani Pragya ji";
-    if (isL1Teacher && sc.level.includes('Level 1')) return true;
-    if (!isL1Teacher && sc.level.includes('Level 2')) return true;
-    return true;
   });
 
   // Handle Verify Attendance
@@ -291,243 +299,223 @@ export function TeacherAttendanceFlow({
 
     setCorrectingStudentId(null);
     setCorrectionRemark('');
-    alert("Student attendance correction successfully saved!");
   };
 
-  // ATTENDANCE DETAILS VIEW
+  // ==========================================
+  // SCREEN 2: ATTENDANCE DETAILS VIEW (MATCHING SS)
+  // ==========================================
   if (activeScreen === 'TeacherAttendanceDetails' && currentSession) {
-    // Filter students inside session by search query
-    const filteredStudents = currentSession.students.filter(stu => {
-      return stu.studentName.toLowerCase().includes(searchQuery.toLowerCase()) || 
-             stu.studentId.toLowerCase().includes(searchQuery.toLowerCase());
-    });
+    const displayBatch = currentSession.batch.replace('–', '•').replace('-', '•');
 
     return (
       <motion.div
-        initial={{ opacity: 0, x: 20 }}
+        initial={{ opacity: 0, x: 15 }}
         animate={{ opacity: 1, x: 0 }}
-        className="h-full bg-slate-50 overflow-y-auto pb-24 text-slate-800"
+        className="min-h-full bg-[#FCFAF7] pb-28 text-slate-800"
       >
-        {/* Sticky Header */}
-        <div className="bg-white px-5 py-4 flex items-center justify-between border-b border-slate-200 sticky top-0 z-20">
-          <div className="flex items-center gap-3">
-            <button 
-              onClick={() => { 
-                setActiveScreen('TeacherAttendance'); 
-                setSelectedSessionId(null);
-                setSearchQuery('');
-              }} 
-              className="p-2 hover:bg-slate-100 rounded-full transition-colors active:scale-95 cursor-pointer"
-            >
-              <ArrowRight className="w-5 h-5 text-slate-700 rotate-180" />
-            </button>
-            <div>
-              <h2 className="text-lg font-black text-slate-900 tracking-tight">Attendance Details</h2>
-              <p className="text-[10px] text-slate-400 font-bold uppercase font-mono mt-0.5">{currentSession.batch}</p>
+        {/* Header */}
+        <div className="bg-[#FCFAF7] px-5 pt-8 pb-3 border-b border-[#EEDBBD]/50 sticky top-0 z-20">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <button 
+                onClick={() => { 
+                  setActiveScreen('TeacherAttendance'); 
+                  setSelectedSessionId(null);
+                  setSearchQuery('');
+                }} 
+                className="p-2 hover:bg-black/5 rounded-full transition-colors active:scale-95 cursor-pointer text-slate-700"
+              >
+                <ArrowRight className="w-5 h-5 rotate-180" />
+              </button>
+              <div>
+                <h1 className="text-xl sm:text-2xl font-bold font-serif text-[#1C4D36] tracking-tight">
+                  Attendance Details
+                </h1>
+                <p className="text-xs sm:text-sm text-slate-500 font-medium mt-0.5">
+                  {displayBatch}
+                </p>
+              </div>
+            </div>
+
+            {/* Status Pill */}
+            <div className={`border rounded-2xl px-3.5 py-2 flex items-center gap-2 shadow-2xs ${
+              currentSession.isVerified
+                ? 'bg-[#EBF7EE] border-[#C8E6C9] text-[#1C4D36]'
+                : 'bg-[#FEF7EC] border-[#FDE68A] text-[#B45309]'
+            }`}>
+              <ShieldCheck className={`w-5 h-5 ${currentSession.isVerified ? 'text-[#1C4D36]' : 'text-[#B45309]'}`} />
+              <div className="text-left">
+                <p className="text-[10px] font-extrabold uppercase leading-tight">
+                  {currentSession.isVerified ? 'Verified' : 'Pending'}
+                </p>
+                <p className="text-[10px] font-extrabold uppercase leading-tight">
+                  {currentSession.isVerified ? 'Locked' : 'Verification'}
+                </p>
+              </div>
             </div>
           </div>
-          <span className={`text-[9px] font-black px-2 py-1 rounded border uppercase ${
-            currentSession.isVerified 
-              ? 'bg-emerald-50 text-emerald-700 border-emerald-100' 
-              : 'bg-amber-50 text-amber-700 border-amber-100'
-          }`}>
-            {currentSession.isVerified ? '✓ Verified' : 'Pending Verification'}
-          </span>
         </div>
 
-        <div className="p-5 space-y-5">
-          {/* Class Session Stats Banner */}
-          <div className="bg-white border border-slate-200 rounded-2xl p-4 shadow-sm">
-            <div className="flex items-center justify-between border-b border-slate-100 pb-3 mb-3">
-              <div>
-                <p className="text-[10px] text-slate-400 font-black uppercase">Session Level</p>
-                <p className="text-sm font-bold text-slate-800 mt-0.5">{currentSession.level}</p>
-              </div>
-              <div className="text-right">
-                <p className="text-[10px] text-slate-400 font-black uppercase">Schedule</p>
-                <p className="text-xs font-mono font-bold text-slate-700 mt-0.5">{currentSession.time}</p>
-              </div>
+        <div className="p-4 sm:p-5 space-y-4 max-w-lg mx-auto">
+          {/* HORIZONTAL LINE SUMMARY: Time placed before Total, Present, and Absent counts */}
+          <div className="bg-white rounded-2xl p-2.5 sm:p-3 border border-[#EDE8DE] shadow-xs flex items-center justify-between gap-1.5 text-xs overflow-x-auto [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden">
+            {/* Time Block (Placed before counts) */}
+            <div className="flex items-center gap-1.5 bg-[#FAF7F2] border border-[#EDE8DE] px-2.5 py-1.5 rounded-xl text-slate-800 font-bold whitespace-nowrap shrink-0">
+              <Clock className="w-3.5 h-3.5 text-[#1C4D36] shrink-0" />
+              <span>{currentSession.startTime} - {currentSession.endTime}</span>
             </div>
 
-            <div className="grid grid-cols-4 gap-2 text-center">
-              <div className="bg-slate-50 p-2.5 rounded-xl border border-slate-100">
-                <p className="text-[10px] font-bold text-slate-400">Total</p>
-                <p className="text-lg font-black text-slate-800 mt-0.5">{currentSession.totalStudents}</p>
-              </div>
-              <div className="bg-emerald-50/50 p-2.5 rounded-xl border border-emerald-100/50">
-                <p className="text-[10px] font-bold text-emerald-600">Present</p>
-                <p className="text-lg font-black text-emerald-800 mt-0.5">{currentSession.presentCount}</p>
-              </div>
-              <div className="bg-rose-50/50 p-2.5 rounded-xl border border-rose-100/50">
-                <p className="text-[10px] font-bold text-rose-600">Absent</p>
-                <p className="text-lg font-black text-rose-800 mt-0.5">{currentSession.absentCount}</p>
-              </div>
-              <div className="bg-amber-50/50 p-2.5 rounded-xl border border-amber-100/50">
-                <p className="text-[10px] font-bold text-amber-600">Late</p>
-                <p className="text-lg font-black text-amber-800 mt-0.5">{currentSession.lateCount}</p>
-              </div>
+            {/* Counts in the horizontal line */}
+            <div className="flex items-center gap-1 sm:gap-1.5 shrink-0">
+              <span className="bg-[#F6F4FC] text-[#7C3AED] border border-[#E9E3F7] px-2 py-1.5 rounded-xl font-bold whitespace-nowrap">
+                Total: {currentSession.totalStudents}
+              </span>
+              <span className="bg-[#F0FAF3] text-[#1C4D36] border border-[#D1F0DC] px-2 py-1.5 rounded-xl font-bold whitespace-nowrap">
+                Present: {currentSession.presentCount}
+              </span>
+              <span className="bg-[#FEF2F2] text-[#DC2626] border border-[#FED7D7] px-2 py-1.5 rounded-xl font-bold whitespace-nowrap">
+                Absent: {currentSession.absentCount}
+              </span>
             </div>
           </div>
 
-          {/* Quick Notice about Automation */}
-          <div className="bg-blue-50 border border-blue-200 rounded-2xl p-4 shadow-sm flex gap-3">
-            <Info className="w-5 h-5 text-blue-500 shrink-0 mt-0.5" />
-            <p className="text-xs text-blue-800 leading-relaxed">
-              <strong>Attendance is Automatically Generated</strong> after the live class based on student login/participation. You only need to verify and apply manual corrections if a student had tech issues or informed you beforehand.
+          {/* Section Title */}
+          <div className="pt-1">
+            <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider px-1">
+              STUDENT ATTENDANCE STATUSES
             </p>
           </div>
 
-          {/* Search bar inside details */}
-          <div className="relative">
-            <Search className="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
-            <input 
-              type="text"
-              placeholder="Search student inside batch..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full bg-white text-slate-900 text-xs font-semibold border border-slate-200 rounded-xl py-2.5 pl-9 pr-4 focus:ring-2 focus:ring-blue-500"
-            />
-          </div>
-
-          {/* Student Attendance List */}
+          {/* Student Cards List */}
           <div className="space-y-3">
-            <h3 className="text-xs font-black text-slate-400 uppercase tracking-wider ml-1">Student Attendance Statuses</h3>
+            {currentSession.students.map((stu) => {
+              const isPresent = stu.status === 'Present';
 
-            {filteredStudents.length === 0 ? (
-              <p className="text-xs text-slate-400 italic text-center py-4">No matching students found in this batch.</p>
-            ) : (
-              filteredStudents.map((stu) => {
-                const isCorrected = stu.source === 'Teacher Corrected';
-                return (
-                  <div key={stu.studentId} className="bg-white border border-slate-200 rounded-2xl p-4 shadow-sm">
-                    <div className="flex justify-between items-start">
-                      {/* Photo/Initials + Name */}
-                      <div className="flex items-center gap-3">
-                        <div className="w-10 h-10 rounded-full bg-blue-100 text-blue-700 font-bold text-sm flex items-center justify-center border border-slate-100 shrink-0">
-                          {stu.initials}
-                        </div>
-                        <div>
-                          <h4 className="text-sm font-bold text-slate-800">{stu.studentName}</h4>
-                          <p className="text-[10px] font-mono text-slate-500 mt-0.5">ID: {stu.studentId}</p>
-                        </div>
-                      </div>
-
-                      {/* Status Badges */}
-                      <div className="text-right space-y-1.5">
-                        <span className={`text-[9px] font-black px-2 py-0.5 rounded border uppercase tracking-wider ${
-                          stu.status === 'Present' ? 'bg-emerald-50 text-emerald-700 border-emerald-100' :
-                          stu.status === 'Absent' ? 'bg-rose-50 text-rose-700 border-rose-100' :
-                          'bg-amber-50 text-amber-700 border-amber-100'
-                        }`}>
-                          {stu.status === 'Present' ? '🟢 Present' : 
-                           stu.status === 'Absent' ? '🔴 Absent' : 
-                           '🟡 Joined Late'}
-                        </span>
-                        
-                        <div className="flex items-center justify-end gap-1">
-                          <span className={`text-[8px] font-bold uppercase tracking-wider px-1 py-0.5 rounded ${
-                            isCorrected ? 'bg-blue-50 text-blue-700 border border-blue-100' : 'bg-slate-100 text-slate-500'
-                          }`}>
-                            {stu.source}
-                          </span>
-                        </div>
-                      </div>
+              return (
+                <div 
+                  key={stu.studentId}
+                  className="bg-white border border-[#EDE8DE] rounded-[24px] p-3.5 sm:p-4 shadow-xs flex items-center justify-between gap-2.5 hover:border-[#D5EBDC] transition-all"
+                >
+                  {/* Left: Avatar, Name & ID */}
+                  <div className="flex items-center gap-3 min-w-0 flex-1">
+                    <div className="w-11 h-11 rounded-full bg-[#EBF5EE] text-[#1C4D36] font-bold text-sm flex items-center justify-center shrink-0 border border-[#D5EBDC]">
+                      {stu.initials}
                     </div>
+                    <div className="min-w-0 flex-1">
+                      <h4 className="text-sm sm:text-base font-bold font-serif text-slate-900 leading-snug truncate">
+                        {stu.studentName}
+                      </h4>
+                      <p className="text-[11px] font-mono text-slate-400 mt-0.5 tracking-wider">
+                        ID: {stu.studentId}
+                      </p>
+                    </div>
+                  </div>
 
-                    {/* Display Teacher remark if exists */}
-                    {stu.remark && (
-                      <div className="mt-3 bg-slate-50 border border-slate-100 p-2 rounded-lg text-[11px] text-slate-600 flex items-center gap-1.5">
-                        <MessageSquare className="w-3.5 h-3.5 text-slate-400" />
-                        <span className="italic">"Remark: {stu.remark}"</span>
-                      </div>
+                  {/* Right: Status Pill & Correct Button */}
+                  <div className="flex flex-col items-end gap-1.5 shrink-0">
+                    {/* Status Pill */}
+                    {isPresent ? (
+                      <span className="bg-[#EBF7EE] text-[#1C4D36] px-2.5 py-0.5 rounded-full text-[10px] font-bold flex items-center gap-1.5 whitespace-nowrap">
+                        <span className="w-1.5 h-1.5 rounded-full bg-[#16A34A]"></span>
+                        <span>PRESENT</span>
+                      </span>
+                    ) : (
+                      <span className="bg-[#FEF2F2] text-[#DC2626] px-2.5 py-0.5 rounded-full text-[10px] font-bold flex items-center gap-1.5 whitespace-nowrap">
+                        <span className="w-1.5 h-1.5 rounded-full bg-[#DC2626]"></span>
+                        <span>ABSENT</span>
+                      </span>
                     )}
 
-                    {/* Quick Correct Action */}
+                    {/* Correct Attendance Button */}
                     {!currentSession.isVerified && (
-                      <div className="mt-3.5 pt-3.5 border-t border-slate-100 flex justify-end gap-2">
-                        <button
-                          onClick={() => {
-                            setCorrectingStudentId(stu.studentId);
-                            setCorrectionStatus(stu.status);
-                            setCorrectionRemark(stu.remark || '');
-                          }}
-                          className="px-3 py-1.5 bg-slate-50 hover:bg-slate-100 text-slate-700 border border-slate-200 font-bold text-[10px] rounded-lg transition-colors cursor-pointer flex items-center gap-1"
-                        >
-                          <Sliders className="w-3 h-3 text-slate-500" />
-                          Correct Attendance
-                        </button>
-                      </div>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setCorrectingStudentId(stu.studentId);
+                          setCorrectionStatus(stu.status === 'Joined Late' ? 'Present' : stu.status);
+                          setCorrectionRemark(stu.remark || '');
+                        }}
+                        className="bg-[#F4FAF6] hover:bg-[#E8F6ED] text-[#1C4D36] border border-[#D5EBDC] rounded-xl px-2.5 py-1 text-xs font-semibold flex items-center gap-1.5 cursor-pointer transition-colors active:scale-95 whitespace-nowrap shadow-2xs"
+                      >
+                        <SlidersHorizontal className="w-3.5 h-3.5 text-[#1C4D36] shrink-0" />
+                        <span>Correct Attendance</span>
+                      </button>
                     )}
                   </div>
-                );
-              })
-            )}
+                </div>
+              );
+            })}
           </div>
 
-          {/* Verification Lock Controls */}
-          {!currentSession.isVerified && (
-            <div className="pt-4">
-              <button
-                onClick={handleVerifyAttendance}
-                className="w-full py-3.5 bg-emerald-600 hover:bg-emerald-700 text-white font-black text-sm rounded-xl transition-all shadow-sm flex items-center justify-center gap-2 cursor-pointer"
-              >
-                <CheckCircle2 className="w-4 h-4 text-white" />
+          {/* Bottom Full-Width Verify CTA */}
+          {!currentSession.isVerified ? (
+            <button
+              type="button"
+              onClick={handleVerifyAttendance}
+              className="w-full bg-[#1C4D36] hover:bg-[#153B29] text-white font-medium text-sm sm:text-base py-3.5 px-5 rounded-2xl flex items-center justify-between active:scale-[0.98] transition-all cursor-pointer shadow-md mt-4"
+            >
+              <div className="flex items-center gap-2 mx-auto">
+                <ShieldCheck className="w-5 h-5 text-white stroke-[2.2]" />
                 <span>Verify & Lock Session Attendance</span>
-              </button>
-              <p className="text-[10px] text-slate-400 text-center mt-2 font-medium">
-                *Once verified, records will be synchronized with the Student Academic Portal and cannot be changed.
+              </div>
+              <ChevronRight className="w-5 h-5 text-white shrink-0" />
+            </button>
+          ) : (
+            <div className="bg-[#EBF7EE] border border-[#C8E6C9] rounded-2xl p-4 text-center mt-4">
+              <p className="text-xs text-[#1C4D36] font-bold">
+                ✓ Session attendance has been verified and locked.
               </p>
             </div>
           )}
         </div>
 
-        {/* Correction Dialog / Overlay Popup */}
+        {/* Correction Modal */}
         <AnimatePresence>
           {correctingStudentId && (() => {
             const stuObj = currentSession.students.find(s => s.studentId === correctingStudentId);
             return (
-              <motion.div 
+              <motion.div
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 exit={{ opacity: 0 }}
-                className="fixed inset-0 bg-slate-900/60 flex items-center justify-center p-5 z-50 text-slate-800"
+                className="fixed inset-0 bg-black/40 z-50 flex items-center justify-center p-4"
               >
-                <motion.div 
-                  initial={{ scale: 0.95 }}
-                  animate={{ scale: 1 }}
-                  exit={{ scale: 0.95 }}
-                  className="bg-white rounded-3xl p-5 w-full max-w-sm border border-slate-200 shadow-xl space-y-4"
+                <motion.div
+                  initial={{ scale: 0.95, opacity: 0 }}
+                  animate={{ scale: 1, opacity: 1 }}
+                  exit={{ scale: 0.95, opacity: 0 }}
+                  className="bg-white rounded-3xl p-5 max-w-sm w-full space-y-4 shadow-xl border border-[#EDE8DE]"
                 >
-                  <div className="flex justify-between items-center">
-                    <h3 className="text-base font-black text-slate-900">Correct Attendance</h3>
+                  <div className="flex justify-between items-center pb-2 border-b border-slate-100">
+                    <h3 className="text-base font-bold font-serif text-[#1C4D36]">Edit Attendance</h3>
                     <button 
                       onClick={() => setCorrectingStudentId(null)}
-                      className="p-1.5 hover:bg-slate-100 rounded-full cursor-pointer"
+                      className="p-1 hover:bg-slate-100 rounded-full cursor-pointer text-slate-500"
                     >
-                      <X className="w-4 h-4 text-slate-500" />
+                      <X className="w-4 h-4" />
                     </button>
                   </div>
 
                   <div>
-                    <p className="text-[10px] font-bold text-slate-400 uppercase">Correcting For</p>
-                    <p className="text-sm font-bold text-slate-700 mt-0.5">{stuObj?.studentName}</p>
-                    <p className="text-[10px] font-mono text-slate-400">ID: {stuObj?.studentId}</p>
+                    <p className="text-[10px] font-bold text-slate-400 uppercase">Student</p>
+                    <p className="text-sm font-bold font-serif text-slate-800 mt-0.5">{stuObj?.studentName}</p>
+                    <p className="text-xs font-mono text-slate-400">ID: {stuObj?.studentId}</p>
                   </div>
 
-                  {/* Radio Choice Status Selection */}
-                  <div className="space-y-2">
-                    <p className="text-[10px] font-bold text-slate-400 uppercase">Select Status</p>
-                    <div className="grid grid-cols-3 gap-2">
-                      {(['Present', 'Absent', 'Joined Late'] as const).map((st) => (
+                  {/* Status Selection */}
+                  <div className="space-y-1.5">
+                    <p className="text-[10px] font-bold text-slate-400 uppercase">Status</p>
+                    <div className="grid grid-cols-2 gap-2.5">
+                      {(['Present', 'Absent'] as const).map((st) => (
                         <button
                           key={st}
+                          type="button"
                           onClick={() => setCorrectionStatus(st)}
-                          className={`py-2 px-1 text-xs font-bold rounded-lg border text-center cursor-pointer transition-colors ${
+                          className={`py-2 px-1 text-xs font-bold rounded-xl border text-center cursor-pointer transition-all ${
                             correctionStatus === st
-                              ? st === 'Present' ? 'bg-emerald-50 text-emerald-800 border-emerald-300' :
-                                st === 'Absent' ? 'bg-rose-50 text-rose-800 border-rose-300' :
-                                'bg-amber-50 text-amber-800 border-amber-300'
-                              : 'bg-white border-slate-200 hover:bg-slate-50 text-slate-600'
+                              ? st === 'Present' ? 'bg-[#EBF7EE] text-[#1C4D36] border-[#C8E6C9]' :
+                                'bg-[#FEF2F2] text-[#DC2626] border-[#FECACA]'
+                              : 'bg-slate-50 border-slate-200 text-slate-600'
                           }`}
                         >
                           {st}
@@ -536,13 +524,13 @@ export function TeacherAttendanceFlow({
                     </div>
                   </div>
 
-                  {/* Preset Remarks selection dropdown */}
-                  <div className="space-y-2">
-                    <p className="text-[10px] font-bold text-slate-400 uppercase">Attendance Remark</p>
+                  {/* Remarks */}
+                  <div className="space-y-1.5">
+                    <p className="text-[10px] font-bold text-slate-400 uppercase">Reason / Remark</p>
                     <select
                       value={correctionRemark}
                       onChange={(e) => setCorrectionRemark(e.target.value)}
-                      className="w-full bg-slate-50 border border-slate-200 text-xs font-semibold text-slate-700 rounded-lg p-2 focus:ring-2 focus:ring-blue-500 cursor-pointer"
+                      className="w-full bg-[#FAF7F0] border border-[#EADBBD] text-xs font-semibold text-slate-700 rounded-xl p-2.5 focus:outline-none focus:ring-2 focus:ring-[#1C4D36]/20 cursor-pointer"
                     >
                       <option value="">-- No Remark --</option>
                       <option value="Network Issue">Network Issue</option>
@@ -556,16 +544,18 @@ export function TeacherAttendanceFlow({
                   {/* Submit buttons */}
                   <div className="grid grid-cols-2 gap-2.5 pt-2">
                     <button
+                      type="button"
                       onClick={() => setCorrectingStudentId(null)}
-                      className="py-2.5 bg-slate-50 hover:bg-slate-100 border border-slate-200 text-slate-600 font-bold text-xs rounded-xl cursor-pointer"
+                      className="py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-600 font-bold text-xs rounded-xl cursor-pointer"
                     >
                       Cancel
                     </button>
                     <button
+                      type="button"
                       onClick={handleSaveCorrection}
-                      className="py-2.5 bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs rounded-xl cursor-pointer shadow-xs"
+                      className="py-2.5 bg-[#1C4D36] hover:bg-[#153B29] text-white font-bold text-xs rounded-xl cursor-pointer shadow-xs"
                     >
-                      Save Correction
+                      Save Changes
                     </button>
                   </div>
                 </motion.div>
@@ -577,325 +567,285 @@ export function TeacherAttendanceFlow({
     );
   }
 
-  // ATTENDANCE MAIN SCREEN
+  // ==========================================
+  // SCREEN 1: ATTENDANCE MAIN SCREEN (MATCHING SS)
+  // ==========================================
   return (
     <motion.div
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
-      className="h-full bg-slate-50 overflow-y-auto pb-24 text-slate-800"
+      className="min-h-full bg-[#FCFAF7] pb-28 text-slate-800"
     >
-      {/* Header */}
-      <div className="bg-white px-5 pt-8 pb-4 border-b border-slate-200 sticky top-0 z-20">
-        <div className="flex items-center gap-3 mb-4">
-          <button 
-            onClick={() => setActiveScreen('TeacherDashboard')} 
-            className="p-2 hover:bg-slate-100 rounded-full transition-colors active:scale-95 cursor-pointer"
-          >
-            <ArrowRight className="w-5 h-5 text-slate-700 rotate-180" />
-          </button>
-          <h1 className="text-xl font-black text-slate-900 tracking-tight">Class Attendance</h1>
-        </div>
-
-        {/* 3 Main Tabs: Today's Attendance, Attendance History, Sunday Classes */}
-        <div className="flex bg-slate-100 p-1 rounded-xl mb-4">
-          {(['Today', 'History', 'Sunday'] as const).map((tab) => {
-            let label = "Today's Class";
-            if (tab === 'History') label = "History";
-            if (tab === 'Sunday') label = "Sunday Classes";
-
-            return (
-              <button
-                key={tab}
-                onClick={() => {
-                  setActiveTab(tab);
-                  setSearchQuery('');
-                  setFilterLevel('All');
-                  setFilterBatch('All');
-                }}
-                className={`flex-1 py-2.5 font-bold text-xs rounded-lg cursor-pointer transition-all ${
-                  activeTab === tab
-                    ? 'bg-white text-slate-800 shadow-sm'
-                    : 'text-slate-500 hover:text-slate-800'
-                }`}
-              >
-                {label}
-              </button>
-            );
-          })}
-        </div>
-
-        {/* Search & Filters for History Tab */}
-        {activeTab === 'History' && (
-          <div className="space-y-3">
-            {/* Search Bar */}
-            <div className="relative">
-              <Search className="w-5 h-5 text-slate-400 absolute left-4 top-1/2 -translate-y-1/2" />
-              <input
-                type="text"
-                placeholder="Search history by student name or ID..."
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full bg-slate-100 text-slate-900 text-sm font-medium rounded-xl py-3 pl-11 pr-4 border-none focus:ring-2 focus:ring-blue-500 placeholder:text-slate-500"
-              />
-            </div>
-
-            {/* Filter Dropdowns */}
-            <div className="flex items-center gap-2 overflow-x-auto pb-1 scrollbar-hide">
-              <div className="flex items-center gap-1 px-2.5 py-1.5 bg-slate-100 rounded-lg text-slate-500 border border-slate-200 shrink-0">
-                <Filter className="w-3.5 h-3.5" />
-                <span className="text-[10px] font-black uppercase">Filters</span>
-              </div>
-
-              {/* Date Filter */}
-              <input 
-                type="date"
-                value={filterDate}
-                onChange={(e) => setFilterDate(e.target.value)}
-                className="shrink-0 bg-white border border-slate-200 text-slate-700 text-xs font-bold rounded-lg px-2.5 py-1 focus:ring-2 focus:ring-blue-500 cursor-pointer h-7"
-              />
-
-              {/* Level Filter */}
-              <select
-                value={filterLevel}
-                onChange={(e) => setFilterLevel(e.target.value)}
-                className="shrink-0 bg-white border border-slate-200 text-slate-700 text-xs font-bold rounded-lg px-2.5 py-1 focus:ring-2 focus:ring-blue-500 cursor-pointer h-7"
-              >
-                {levels.map(level => (
-                  <option key={level} value={level}>
-                    {level === 'All' ? 'All Levels' : level.split(':')[0]}
-                  </option>
-                ))}
-              </select>
-
-              {/* Batch Filter */}
-              <select
-                value={filterBatch}
-                onChange={(e) => setFilterBatch(e.target.value)}
-                className="shrink-0 bg-white border border-slate-200 text-slate-700 text-xs font-bold rounded-lg px-2.5 py-1 focus:ring-2 focus:ring-blue-500 cursor-pointer h-7"
-              >
-                {batches.map(batch => (
-                  <option key={batch} value={batch}>
-                    {batch === 'All' ? 'All Batches' : batch}
-                  </option>
-                ))}
-              </select>
-            </div>
+      {/* Header matching screenshot */}
+      <div className="bg-[#FCFAF7] px-5 pt-8 pb-3 border-b border-[#EEDBBD]/50 sticky top-0 z-20">
+        <div className="flex items-center justify-between mb-4">
+          <div className="flex items-center gap-3">
+            <button 
+              onClick={() => setActiveScreen('TeacherDashboard')} 
+              className="p-2 hover:bg-black/5 rounded-full transition-colors active:scale-95 cursor-pointer text-slate-700"
+            >
+              <ArrowRight className="w-5 h-5 rotate-180" />
+            </button>
+            <h1 className="text-xl sm:text-2xl font-bold font-serif text-[#1C4D36] tracking-tight">
+              Class Attendance
+            </h1>
           </div>
-        )}
+
+          {/* Calendar button on the right matching SS */}
+          <button 
+            onClick={() => setActiveTab('Today')}
+            className="p-2.5 bg-white border border-[#EDE8DE] hover:bg-[#FAF6ED] rounded-2xl text-slate-700 shadow-2xs transition-colors cursor-pointer"
+          >
+            <Calendar className="w-5 h-5 text-slate-700" />
+          </button>
+        </div>
+
+        {/* 2 Main Tabs: Today's Class & History */}
+        <div className="grid grid-cols-2 gap-2 bg-[#F2EDE4] p-1 rounded-2xl">
+          {/* Tab 1: Today's Class */}
+          <button
+            type="button"
+            onClick={() => {
+              setActiveTab('Today');
+              setSearchQuery('');
+              setFilterLevel('All');
+              setFilterBatch('All');
+            }}
+            className={`py-2.5 px-3.5 rounded-xl flex items-center justify-center gap-1.5 font-bold text-xs cursor-pointer transition-all active:scale-95 ${
+              activeTab === 'Today'
+                ? 'bg-white text-[#1C4D36] border border-[#D5EBDC] shadow-2xs'
+                : 'bg-transparent text-slate-600 hover:text-slate-900'
+            }`}
+          >
+            <Calendar className={`w-4 h-4 ${activeTab === 'Today' ? 'text-[#1C4D36]' : 'text-slate-500'}`} />
+            <span>Today's Class</span>
+          </button>
+
+          {/* Tab 2: History */}
+          <button
+            type="button"
+            onClick={() => {
+              setActiveTab('History');
+              setSearchQuery('');
+              setFilterLevel('All');
+              setFilterBatch('All');
+            }}
+            className={`py-2.5 px-3.5 rounded-xl flex items-center justify-center gap-1.5 font-bold text-xs cursor-pointer transition-all active:scale-95 ${
+              activeTab === 'History'
+                ? 'bg-white text-[#1C4D36] border border-[#D5EBDC] shadow-2xs'
+                : 'bg-transparent text-slate-600 hover:text-slate-900'
+            }`}
+          >
+            <History className={`w-4 h-4 ${activeTab === 'History' ? 'text-[#1C4D36]' : 'text-slate-500'}`} />
+            <span>History</span>
+          </button>
+        </div>
       </div>
 
-      {/* Main Tab Contents */}
-      <div className="p-5">
+      {/* Main Tab Content */}
+      <div className="p-4 sm:p-5 max-w-lg mx-auto space-y-4">
         
         {/* TODAY'S ATTENDANCE TAB */}
         {activeTab === 'Today' && (
           <div className="space-y-4">
-            <h2 className="text-xs font-black text-slate-400 uppercase tracking-wider ml-1">Today's Active Classes</h2>
+            {/* Section Title with Cap icon and horizontal rule matching screenshot */}
+            <div className="flex items-center gap-2.5 pt-1">
+              <GraduationCap className="w-5 h-5 text-[#1C4D36] shrink-0" />
+              <h2 className="text-base sm:text-lg font-bold font-serif text-slate-900 tracking-tight shrink-0">
+                Today's Active Classes
+              </h2>
+              <div className="h-[1px] bg-slate-200 flex-1 ml-2" />
+            </div>
             
             {todaysSessions.length === 0 ? (
-              <div className="text-center py-12 bg-white border border-slate-200 rounded-2xl shadow-sm">
+              <div className="text-center py-12 bg-white border border-[#EDE8DE] rounded-3xl shadow-xs p-6">
                 <Calendar className="w-10 h-10 text-slate-300 mx-auto mb-3" />
-                <p className="text-sm font-bold text-slate-600">No classes scheduled today</p>
-                <p className="text-xs text-slate-400 mt-1">There are no classes scheduled for you today.</p>
+                <p className="text-sm font-bold font-serif text-slate-700">No classes scheduled today</p>
+                <p className="text-xs text-slate-400 mt-1">There are no active classes scheduled for you today.</p>
               </div>
             ) : (
-              todaysSessions.map((sess) => (
-                <div key={sess.id} className="bg-white border border-slate-200 rounded-2xl p-5 shadow-sm space-y-4">
-                  <div className="flex justify-between items-start">
-                    <div>
-                      <p className="text-[10px] font-black text-blue-500 uppercase tracking-wider">{sess.level}</p>
-                      <h3 className="text-base font-black text-slate-800 mt-0.5">{sess.batch}</h3>
-                      <p className="text-xs text-slate-400 font-bold mt-1 flex items-center gap-1">
-                        <Clock className="w-3.5 h-3.5" />
-                        {sess.time}
-                      </p>
-                    </div>
-                    <span className={`text-[9px] font-black px-2 py-0.5 rounded border uppercase tracking-wider ${
-                      sess.isVerified 
-                        ? 'bg-emerald-50 text-emerald-700 border-emerald-100' 
-                        : 'bg-amber-50 text-amber-700 border-amber-100'
-                    }`}>
-                      {sess.isVerified ? '✓ Verified' : 'Pending'}
-                    </span>
-                  </div>
+              todaysSessions.map((sess) => {
+                const isL2 = sess.levelNumber === 2;
 
-                  {/* Summary grid */}
-                  <div className="grid grid-cols-3 gap-2.5 bg-slate-50 p-3 rounded-xl border border-slate-100 text-center">
-                    <div>
-                      <p className="text-[9px] font-bold text-slate-400 uppercase">Total Students</p>
-                      <p className="text-sm font-black text-slate-700 mt-0.5">{sess.totalStudents}</p>
-                    </div>
-                    <div>
-                      <p className="text-[9px] font-bold text-emerald-500 uppercase">Present</p>
-                      <p className="text-sm font-black text-emerald-800 mt-0.5">{sess.presentCount}</p>
-                    </div>
-                    <div>
-                      <p className="text-[9px] font-bold text-rose-500 uppercase">Absent</p>
-                      <p className="text-sm font-black text-rose-800 mt-0.5">{sess.absentCount}</p>
-                    </div>
-                  </div>
+                // Left column and button colors based on Level 1 (Emerald/Mint) vs Level 2 (Lavender/Purple)
+                const leftColBg = isL2 ? 'bg-[#F8F5FC]' : 'bg-[#F2FAF5]';
+                const leftColBorder = isL2 ? 'border-r border-[#EBE4F7]' : 'border-r border-[#E2F0E7]';
+                const iconCircleBg = isL2 ? 'bg-white/90 border border-[#DDD4F2] text-[#5B4E9B]' : 'bg-white/90 border border-[#D5EBDC] text-[#1C4D36]';
+                const levelTextColor = isL2 ? 'text-[#5B4E9B]' : 'text-[#1C4D36]';
+                const btnBg = isL2 
+                  ? 'bg-[#5B4E9B] hover:bg-[#4C4085]' 
+                  : 'bg-[#1C4D36] hover:bg-[#153B29]';
 
-                  {/* Action view details */}
-                  <button
-                    onClick={() => {
-                      setSelectedSessionId(sess.id);
-                      setActiveScreen('TeacherAttendanceDetails');
-                    }}
-                    className="w-full py-2.5 bg-white text-slate-700 border border-slate-200 font-bold text-xs rounded-xl hover:bg-slate-50 transition-colors cursor-pointer active:scale-95 flex items-center justify-center gap-1.5"
+                return (
+                  <div 
+                    key={sess.id} 
+                    className="bg-white rounded-[24px] border border-[#EDE8DE] shadow-[0_4px_20px_rgba(0,0,0,0.03)] flex overflow-hidden hover:border-slate-300 transition-all"
                   >
-                    View Attendance
-                    <ChevronRight className="w-3.5 h-3.5 text-slate-500" />
-                  </button>
-                </div>
-              ))
+                    {/* Left Column (Icon + Time Block) matching SS */}
+                    <div className={`w-[105px] sm:w-[115px] shrink-0 p-3.5 flex flex-col items-center justify-center gap-3.5 text-center ${leftColBg} ${leftColBorder}`}>
+                      {/* Icon Circle */}
+                      <div className={`w-13 h-13 rounded-full flex items-center justify-center shadow-2xs ${iconCircleBg}`}>
+                        {isL2 ? (
+                          <Globe className="w-6 h-6" />
+                        ) : (
+                          <BookOpen className="w-6 h-6" />
+                        )}
+                      </div>
+
+                      {/* Time stack with vertical line */}
+                      <div className="flex flex-col items-center">
+                        <span className="text-xs font-bold text-slate-800 font-sans tracking-tight">
+                          {sess.startTime}
+                        </span>
+                        <div className="h-3.5 w-[1px] bg-slate-300 my-0.5" />
+                        <span className="text-xs font-bold text-slate-800 font-sans tracking-tight">
+                          {sess.endTime}
+                        </span>
+                      </div>
+                    </div>
+
+                    {/* Right Column (Batch details + CTA) */}
+                    <div className="p-4 sm:p-5 flex-1 flex flex-col justify-between">
+                      {/* Level and Pending Tag */}
+                      <div>
+                        <div className="flex justify-between items-start gap-1">
+                          <span className={`text-[10px] font-extrabold uppercase tracking-wider ${levelTextColor}`}>
+                            LEVEL {sess.levelNumber}
+                          </span>
+                          <span className="bg-[#FEF7EC] text-[#B45309] text-[10px] font-extrabold px-2.5 py-0.5 rounded-full uppercase tracking-wider shadow-2xs">
+                            {sess.isVerified ? 'VERIFIED' : 'PENDING'}
+                          </span>
+                        </div>
+
+                        <h3 className="text-base sm:text-lg font-bold font-serif text-slate-900 mt-1 leading-tight">
+                          {sess.batch}
+                        </h3>
+                      </div>
+
+                      {/* CTA Action Button (View icon only) */}
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setSelectedSessionId(sess.id);
+                          setActiveScreen('TeacherAttendanceDetails');
+                        }}
+                        className={`w-full text-white font-medium text-xs sm:text-sm py-2.5 px-4 rounded-xl flex items-center justify-center active:scale-[0.98] transition-all cursor-pointer shadow-xs mt-3 ${btnBg}`}
+                        title="View Attendance Details"
+                      >
+                        <Eye className="w-5 h-5" />
+                      </button>
+                    </div>
+                  </div>
+                );
+              })
             )}
           </div>
         )}
 
-        {/* ATTENDANCE HISTORY TAB */}
+        {/* HISTORY TAB (MATCHING SS) */}
         {activeTab === 'History' && (
           <div className="space-y-4">
-            <div className="flex justify-between items-end ml-1">
-              <h2 className="text-xs font-black text-slate-400 uppercase tracking-wider">Past Verification Records</h2>
-              <span className="text-xs font-bold text-slate-500">{filteredHistorySessions.length} Records</span>
-            </div>
-
             {filteredHistorySessions.length === 0 ? (
-              <div className="text-center py-12 bg-white border border-slate-200 rounded-2xl shadow-sm">
+              <div className="text-center py-12 bg-white border border-[#EDE8DE] rounded-3xl shadow-xs p-6">
                 <History className="w-10 h-10 text-slate-300 mx-auto mb-3" />
-                <p className="text-sm font-bold text-slate-600">No historical records found</p>
-                <p className="text-xs text-slate-400 mt-1">Try adjusting filters or checking other dates.</p>
+                <p className="text-sm font-bold font-serif text-slate-700">No past sessions found</p>
+                <p className="text-xs text-slate-400 mt-1">There are no past attendance records found.</p>
               </div>
             ) : (
-              filteredHistorySessions.map((sess) => (
-                <div key={sess.id} className="bg-white border border-slate-200 rounded-2xl p-5 shadow-sm space-y-3 hover:border-slate-300 transition-all">
-                  <div className="flex justify-between items-start">
-                    <div>
-                      <p className="text-[10px] font-mono text-slate-400 font-bold">{sess.date}</p>
-                      <h3 className="text-sm font-black text-slate-800 mt-0.5">{sess.batch}</h3>
-                      <p className="text-[10px] font-bold text-slate-500 mt-1">{sess.level.split(':')[0]}</p>
-                    </div>
-                    <span className="text-[9px] font-black px-2 py-0.5 rounded border uppercase tracking-wider bg-slate-50 text-slate-500 border-slate-200">
-                      Archive Locked
-                    </span>
-                  </div>
+              filteredHistorySessions.map((sess) => {
+                const isL1 = sess.levelNumber === 1;
+                const isL2 = sess.levelNumber === 2;
+                const isL3 = sess.levelNumber === 3;
 
-                  {/* Class performance statistics */}
-                  <div className="grid grid-cols-4 gap-2 text-center text-xs bg-slate-50/50 p-2 rounded-xl border border-slate-100">
-                    <div>
-                      <span className="text-[9px] text-slate-400 font-bold block">Size</span>
-                      <span className="font-bold text-slate-700">{sess.totalStudents}</span>
-                    </div>
-                    <div>
-                      <span className="text-[9px] text-emerald-500 font-bold block">Pres.</span>
-                      <span className="font-bold text-emerald-700">{sess.presentCount}</span>
-                    </div>
-                    <div>
-                      <span className="text-[9px] text-rose-500 font-bold block">Abs.</span>
-                      <span className="font-bold text-rose-700">{sess.absentCount}</span>
-                    </div>
-                    <div>
-                      <span className="text-[9px] text-amber-500 font-bold block">Late</span>
-                      <span className="font-bold text-amber-700">{sess.lateCount}</span>
-                    </div>
-                  </div>
+                const leftColBg = isL1 
+                  ? 'bg-[#F2FAF5]' 
+                  : isL2 
+                  ? 'bg-[#F8F5FC]' 
+                  : 'bg-[#FFF9F0]';
 
-                  {/* Action details */}
-                  <button
-                    onClick={() => {
-                      setSelectedSessionId(sess.id);
-                      setActiveScreen('TeacherAttendanceDetails');
-                    }}
-                    className="w-full py-2 bg-slate-50 text-slate-700 border border-slate-150 font-bold text-xs rounded-xl hover:bg-slate-100 transition-colors cursor-pointer active:scale-95 flex items-center justify-center gap-1"
+                const leftColBorder = isL1 
+                  ? 'border-r border-[#E2F0E7]' 
+                  : isL2 
+                  ? 'border-r border-[#EBE4F7]' 
+                  : 'border-r border-[#FEEED1]';
+
+                const iconCircleBg = isL1 
+                  ? 'bg-white/90 border border-[#D5EBDC] text-[#1C4D36]' 
+                  : isL2 
+                  ? 'bg-white/90 border border-[#DDD4F2] text-[#5B4E9B]' 
+                  : 'bg-white/90 border border-[#FDE6B8] text-[#D97706]';
+
+                const levelBatchColor = isL1 
+                  ? 'text-[#1C4D36]' 
+                  : isL2 
+                  ? 'text-[#5B4E9B]' 
+                  : 'text-[#D97706]';
+
+                // Extract Batch short identifier e.g. "Batch A"
+                const batchShort = sess.batch.includes('–') 
+                  ? sess.batch.split('–')[0].trim() 
+                  : (sess.batch.includes('-') ? sess.batch.split('-')[0].trim() : sess.batch);
+
+                return (
+                  <div 
+                    key={sess.id} 
+                    className="bg-white rounded-[24px] border border-[#EDE8DE] shadow-[0_4px_20px_rgba(0,0,0,0.03)] flex overflow-hidden hover:border-slate-300 transition-all"
                   >
-                    View History List
-                    <ChevronRight className="w-3.5 h-3.5" />
-                  </button>
-                </div>
-              ))
+                    {/* Left Column (Motif container) */}
+                    <div className={`w-[95px] sm:w-[110px] shrink-0 p-3.5 flex items-center justify-center ${leftColBg} ${leftColBorder}`}>
+                      <div className={`w-13 h-13 rounded-full flex items-center justify-center shadow-2xs ${iconCircleBg}`}>
+                        {isL1 && <BookOpen className="w-6 h-6" />}
+                        {isL2 && <Globe className="w-6 h-6" />}
+                        {isL3 && <Flower2 className="w-6 h-6" />}
+                      </div>
+                    </div>
+
+                    {/* Right Column (Details & View Icon CTA) */}
+                    <div className="p-4 sm:p-5 flex-1 space-y-2.5 flex flex-col justify-between">
+                      <div className="space-y-1.5">
+                        {/* Top Header Row: Level & Batch + Verified Pill */}
+                        <div className="flex justify-between items-center">
+                          <span className={`text-[10px] font-extrabold uppercase tracking-wider ${levelBatchColor}`}>
+                            LEVEL {sess.levelNumber} • {batchShort.toUpperCase()}
+                          </span>
+                          <span className="bg-[#EBF7EE] text-[#1C4D36] border border-[#C8E6C9] text-[10px] font-extrabold px-2.5 py-0.5 rounded-full uppercase tracking-wider flex items-center gap-1">
+                            <CheckCircle2 className="w-3 h-3 text-[#1C4D36]" />
+                            <span>VERIFIED</span>
+                          </span>
+                        </div>
+
+                        {/* Title */}
+                        <h3 className="text-base font-bold font-serif text-slate-900 leading-tight">
+                          {sess.levelSubtitle}
+                        </h3>
+
+                        {/* Schedule Time */}
+                        <div className="flex items-center gap-1.5 text-xs text-slate-500 font-sans">
+                          <Clock className="w-3.5 h-3.5 text-slate-400" />
+                          <span>{sess.startTime} - {sess.endTime}</span>
+                        </div>
+                      </div>
+
+                      {/* Action Button (View Icon only) */}
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setSelectedSessionId(sess.id);
+                          setActiveScreen('TeacherAttendanceDetails');
+                        }}
+                        className="w-full bg-[#FAF7F2] hover:bg-[#F2ECE1] border border-[#EDE8DE] text-[#1C4D36] py-2.5 px-4 rounded-xl flex items-center justify-center transition-colors shadow-2xs active:scale-[0.99] cursor-pointer mt-1"
+                        title="View Attendance Details"
+                      >
+                        <Eye className="w-5 h-5 text-[#1C4D36]" />
+                      </button>
+                    </div>
+                  </div>
+                );
+              })
             )}
           </div>
         )}
 
-        {/* SUNDAY CLASSES TAB */}
-        {activeTab === 'Sunday' && (
-          <div className="space-y-5">
-            {/* Sunday Notice Alert */}
-            <div className="bg-amber-50 border border-amber-200 rounded-2xl p-4 shadow-sm flex gap-3">
-              <Star className="w-5 h-5 text-amber-500 fill-amber-500 shrink-0 mt-0.5 animate-spin" style={{ animationDuration: '6s' }} />
-              <div>
-                <h4 className="text-xs font-black text-amber-900 uppercase tracking-wide">Sunday Class Notice</h4>
-                <p className="text-[11px] text-amber-800 leading-relaxed mt-1">
-                  Sunday attendance is **completely optional** for students. Students attending receive **Bonus Points** only. Absent students are **NOT marked absent** and Sunday classes will **NEVER affect their overall Attendance Percentage**.
-                </p>
-              </div>
-            </div>
-
-            <div className="space-y-4">
-              <h2 className="text-xs font-black text-slate-400 uppercase tracking-wider ml-1">Special Sunday Sessions</h2>
-
-              {filteredSundayClasses.map((sc) => (
-                <div key={sc.id} className="bg-white border border-slate-200 rounded-2xl p-5 shadow-sm space-y-4">
-                  <div>
-                    <span className="text-[9px] font-mono text-slate-400 font-bold">{sc.date}</span>
-                    <h3 className="text-base font-black text-slate-900 mt-0.5">{sc.title}</h3>
-                    <p className="text-[10px] font-bold text-slate-500 mt-1 uppercase tracking-wide">{sc.level}</p>
-                  </div>
-
-                  {/* Sunday lists */}
-                  <div className="space-y-3.5">
-                    {/* Present list */}
-                    <div>
-                      <p className="text-[10px] font-black text-emerald-600 uppercase tracking-wider mb-2 flex items-center gap-1.5">
-                        <Check className="w-3.5 h-3.5" />
-                        Present Students (+Bonus Points awarded)
-                      </p>
-                      <div className="space-y-2">
-                        {sc.presentStudents.map(stu => (
-                          <div key={stu.id} className="flex justify-between items-center text-xs bg-emerald-50/35 border border-emerald-100 p-2.5 rounded-xl">
-                            <div className="flex items-center gap-2">
-                              <div className="w-7 h-7 rounded-full bg-emerald-100 text-emerald-700 font-bold flex items-center justify-center shrink-0">
-                                {stu.initials}
-                              </div>
-                              <div>
-                                <span className="font-bold text-slate-800">{stu.name}</span>
-                                <span className="text-[9px] font-mono text-slate-400 block">ID: {stu.id}</span>
-                              </div>
-                            </div>
-                            <span className="text-[10px] font-black text-amber-700 bg-amber-50 px-2.5 py-0.5 rounded border border-amber-200">
-                              +{stu.bonusPoints} PTS
-                            </span>
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-
-                    {/* Absent list */}
-                    <div>
-                      <p className="text-[10px] font-black text-slate-400 uppercase tracking-wider mb-2 flex items-center gap-1.5">
-                        <Info className="w-3.5 h-3.5 text-slate-400" />
-                        Students Absent (No Penalty / Not Marked)
-                      </p>
-                      <div className="space-y-2">
-                        {sc.absentStudents.map(stu => (
-                          <div key={stu.id} className="flex items-center gap-2 text-xs bg-slate-50 p-2.5 rounded-xl border border-slate-100">
-                            <div className="w-7 h-7 rounded-full bg-slate-100 text-slate-400 font-bold flex items-center justify-center shrink-0">
-                              {stu.initials}
-                            </div>
-                            <div>
-                              <span className="font-bold text-slate-500">{stu.name}</span>
-                              <span className="text-[9px] font-mono text-slate-400 block">ID: {stu.id}</span>
-                            </div>
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-        )}
       </div>
     </motion.div>
   );
