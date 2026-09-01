@@ -1,0 +1,265 @@
+/* ============================================================================
+   PlastoShip — Manufacturer Login
+   Light theme only. White card, soft borders, minimal shadow, generous
+   whitespace. No gradients, no dark surfaces, no neon.
+   ========================================================================== */
+
+.ps-login {
+  min-height: 100vh;
+  min-height: 100dvh;
+  background-color: var(--ps-paper-light);
+  display: flex;
+  padding: var(--ps-space-12) var(--ps-space-5);
+}
+
+/* `margin: auto` centres the card on both axes AND, unlike
+   `align-items: center`, never clips the top of the shell when the content
+   is taller than a short viewport. */
+.ps-login__shell {
+  margin: auto;
+  width: 100%;
+  max-width: 440px;
+}
+
+/* ── Brand + welcome ────────────────────────────────────────────────────── */
+
+.ps-login__head {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--ps-space-8);
+  margin-bottom: var(--ps-space-8);
+}
+
+.ps-logo {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.ps-logo__mark {
+  flex: none;
+}
+
+.ps-logo__word {
+  font-size: 24px;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  color: var(--ps-ink-navy);
+  line-height: 1;
+}
+
+.ps-logo--sm .ps-logo__word {
+  font-size: 19px;
+}
+
+.ps-logo__word-accent {
+  color: var(--ps-dispatch-orange);
+}
+
+.ps-login__welcome {
+  text-align: center;
+}
+
+.ps-login__title {
+  font-size: 28px;
+  line-height: 1.25;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  color: var(--ps-ink-navy);
+}
+
+.ps-login__subtitle {
+  margin-top: var(--ps-space-3);
+  font-size: 15px;
+  line-height: 1.6;
+  font-weight: 500;
+  color: var(--ps-steel);
+}
+
+/* ── Card ───────────────────────────────────────────────────────────────── */
+
+.ps-card {
+  background-color: var(--ps-white);
+  border: 1px solid var(--ps-border);
+  border-radius: var(--ps-radius-card);
+  box-shadow: var(--ps-shadow-card);
+  padding: var(--ps-space-8);
+}
+
+.ps-form {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ps-space-5);
+}
+
+/* ── Fields ─────────────────────────────────────────────────────────────── */
+
+.ps-field {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ps-space-2);
+}
+
+.ps-field__label {
+  font-size: 13.5px;
+  font-weight: 600;
+  color: var(--ps-steel);
+  letter-spacing: 0.005em;
+}
+
+.ps-input-wrap {
+  position: relative;
+  display: flex;
+}
+
+.ps-input {
+  width: 100%;
+  height: 52px;
+  padding: 0 var(--ps-space-4);
+  background-color: var(--ps-field);
+  border: 1px solid var(--ps-border);
+  border-radius: var(--ps-radius-control);
+  font-size: 15px;
+  font-weight: 500;
+  color: var(--ps-ink-navy);
+  outline: none;
+  transition: border-color 160ms ease, box-shadow 160ms ease, background-color 160ms ease;
+}
+
+.ps-input--secret {
+  padding-right: 48px;
+}
+
+.ps-input::placeholder {
+  color: #9AA8BC;
+  font-weight: 400;
+}
+
+.ps-input:hover {
+  border-color: var(--ps-border-strong);
+}
+
+.ps-input:focus {
+  background-color: var(--ps-white);
+  border-color: var(--ps-ink-navy);
+  box-shadow: 0 0 0 3px var(--ps-navy-08);
+}
+
+.ps-reveal {
+  position: absolute;
+  top: 50%;
+  right: var(--ps-space-3);
+  transform: translateY(-50%);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 30px;
+  height: 30px;
+  border: 0;
+  border-radius: 8px;
+  background: transparent;
+  color: var(--ps-steel);
+  cursor: pointer;
+  transition: color 160ms ease, background-color 160ms ease;
+}
+
+.ps-reveal:hover {
+  color: var(--ps-ink-navy);
+  background-color: var(--ps-paper-light);
+}
+
+.ps-reveal:focus-visible {
+  outline: 2px solid var(--ps-ink-navy);
+  outline-offset: 1px;
+}
+
+/* ── Primary CTA ────────────────────────────────────────────────────────── */
+
+.ps-button {
+  margin-top: var(--ps-space-1);
+  width: 100%;
+  height: 52px;
+  border: 0;
+  border-radius: var(--ps-radius-control);
+  background-color: var(--ps-dispatch-orange);
+  color: var(--ps-white);
+  font-size: 15.5px;
+  font-weight: 700;
+  letter-spacing: 0.01em;
+  cursor: pointer;
+  box-shadow: var(--ps-shadow-cta);
+  transition: background-color 160ms ease, box-shadow 160ms ease, transform 160ms ease;
+}
+
+.ps-button:hover {
+  background-color: var(--ps-orange-pressed);
+}
+
+.ps-button:active {
+  transform: translateY(1px);
+  box-shadow: 0 2px 6px rgba(255, 122, 24, 0.16);
+}
+
+.ps-button:focus-visible {
+  outline: 2px solid var(--ps-dispatch-orange);
+  outline-offset: 2px;
+}
+
+/* ── Help ───────────────────────────────────────────────────────────────── */
+
+.ps-login__help {
+  margin-top: var(--ps-space-6);
+  text-align: center;
+  font-size: 14px;
+}
+
+.ps-link {
+  color: var(--ps-steel);
+  font-weight: 600;
+  text-decoration: none;
+  border-radius: 6px;
+  transition: color 160ms ease;
+}
+
+.ps-link:hover {
+  color: var(--ps-ink-navy);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+.ps-link:focus-visible {
+  outline: 2px solid var(--ps-ink-navy);
+  outline-offset: 3px;
+}
+
+/* ── Mobile ─────────────────────────────────────────────────────────────── */
+
+@media (max-width: 480px) {
+  .ps-login {
+    padding: var(--ps-space-8) var(--ps-space-5);
+  }
+
+  .ps-login__head {
+    gap: var(--ps-space-6);
+    margin-bottom: var(--ps-space-6);
+  }
+
+  .ps-login__title {
+    font-size: 24px;
+  }
+
+  .ps-login__subtitle {
+    font-size: 14.5px;
+  }
+
+  .ps-card {
+    padding: var(--ps-space-6);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ps-root * {
+    transition: none !important;
+  }
+}

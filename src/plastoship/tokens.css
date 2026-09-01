@@ -1,0 +1,92 @@
+/* ============================================================================
+   PlastoShip — Manufacturer Panel Design Tokens
+   ----------------------------------------------------------------------------
+   The single source of truth for the panel's brand language. The panel is an
+   extension of the PlastoShip B2B marketplace website, NOT an ERP dashboard:
+   light theme only, white cards, soft borders, minimal shadows, generous
+   whitespace.
+
+   These tokens are namespaced (--ps-*) and scoped to `.ps-root` so the panel
+   renders identically wherever it is mounted and never inherits (or leaks)
+   another app's theme.
+   ========================================================================== */
+
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Space+Mono:wght@400;700&display=swap');
+
+.ps-root {
+  /* ── Brand ─────────────────────────────────────────────────────────────── */
+  --ps-ink-navy: #0B1F3A;        /* Primary — headings, wordmark, brand mark  */
+  --ps-dispatch-orange: #FF7A18; /* CTA / highlight — primary actions only    */
+  --ps-paper-light: #F4F7FC;     /* Page background                           */
+  --ps-steel: #5A6B82;           /* Secondary text, labels, helper copy       */
+
+  /* ── Supporting neutrals (derived, not new brand colors) ───────────────── */
+  --ps-white: #FFFFFF;
+  --ps-border: #E6EAF0;          /* Soft card + input border                  */
+  --ps-border-strong: #D6DEEA;   /* Hover border                              */
+  --ps-field: #FAFBFD;           /* Resting input fill                        */
+
+  /* Tints of the brand colors, for focus rings and pressed states. */
+  --ps-navy-08: rgba(11, 31, 58, 0.08);
+  --ps-orange-16: rgba(255, 122, 24, 0.16);
+  --ps-orange-pressed: #F06F0F;
+
+  /* ── Typography ────────────────────────────────────────────────────────── */
+  --ps-font-sans: 'Plus Jakarta Sans', 'Inter', ui-sans-serif, system-ui, -apple-system,
+    'Segoe UI', Roboto, sans-serif;
+  /* Space Mono is reserved exclusively for technical codes / IDs
+     (order IDs, SKU codes, GSTIN, dispatch numbers). Never for UI copy. */
+  --ps-font-mono: 'Space Mono', ui-monospace, SFMono-Regular, Menlo, monospace;
+
+  /* ── Shape ─────────────────────────────────────────────────────────────── */
+  --ps-radius-card: 16px;
+  --ps-radius-control: 12px;
+  --ps-radius-pill: 999px;
+
+  /* ── Elevation — minimal, never heavy ──────────────────────────────────── */
+  --ps-shadow-card: 0 1px 2px rgba(11, 31, 58, 0.04), 0 8px 28px rgba(11, 31, 58, 0.06);
+  --ps-shadow-cta: 0 4px 12px rgba(255, 122, 24, 0.16);
+
+  /* ── Spacing scale ─────────────────────────────────────────────────────── */
+  --ps-space-1: 4px;
+  --ps-space-2: 8px;
+  --ps-space-3: 12px;
+  --ps-space-4: 16px;
+  --ps-space-5: 20px;
+  --ps-space-6: 24px;
+  --ps-space-8: 32px;
+  --ps-space-10: 40px;
+  --ps-space-12: 48px;
+
+  color-scheme: light;
+  font-family: var(--ps-font-sans);
+  color: var(--ps-ink-navy);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Scoped reset — keeps the panel predictable inside any host page.
+   Wrapped in :where() so the reset carries ZERO specificity: component
+   classes (.ps-button, .ps-login__help) must always win over it. Written as
+   plain `.ps-root p { margin: 0 }` the reset scores 0,1,1 and silently beats
+   every single-class rule in the panel. */
+:where(.ps-root) *,
+:where(.ps-root) *::before,
+:where(.ps-root) *::after {
+  box-sizing: border-box;
+}
+
+:where(.ps-root) :where(h1, h2, p, figure) {
+  margin: 0;
+}
+
+:where(.ps-root) :where(button, input) {
+  font: inherit;
+  color: inherit;
+}
+
+/* Technical codes / IDs only. */
+.ps-mono {
+  font-family: var(--ps-font-mono);
+  letter-spacing: 0.02em;
+}
